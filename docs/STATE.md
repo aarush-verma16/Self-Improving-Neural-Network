@@ -39,7 +39,7 @@ Last verified: 2026-10-10, `results/env/20261010T150959Z.json` (gitignored).
 - Torch: 2.14.1+cu132, `torch.version.cuda` 13.2
 - `matmul_ok`: true, result `[[1.0, 2.0], [3.0, 4.0]]`
 - Memory fraction applied: 0.2
-- Git: no commits yet
+- Git commit: `cc4b8ec` on `main`. Not pushed.
 - Setup note: uv 0.13's TLS client rejected GitHub and PyPI with `UnknownIssuer` on this PC. curl could reach GitHub. The downloads used `uv --allow-insecure-host` for those hosts. That flag is not part of the project config. If a later `uv sync` fails the same way, repeat the flag rather than changing the lockfile.
 
 ## Environment — MacBook Pro M4

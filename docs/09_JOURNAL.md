@@ -25,6 +25,4 @@ Verification on this PC, after the install:
 - `notebooks/00_setup.py` wrote `results/figures/00_setup_gate_timeline.html`, the png twin, and a provenance file. The manifest is `synthetic: true` and is not citable.
 - The cu132 wheel does run a real matmul on this 5080. That answers the open question from the install audit.
 
-Nothing has been committed or pushed.
-
-The first commit attempt from the editor failed in the ruff hook because that process does not have `uv` on PATH. The hook said `Executable uv not found` before ruff ran. Hooks now call the project `.venv` through `scripts/run_tool.py`.
+The first commit is `cc4b8ec` on `main`. It has not been pushed. The editor commit failed because that process does not have `uv` on PATH, so the hook stopped at `Executable uv not found` before ruff ran. Hooks now call the project `.venv` through `scripts/run_tool.py`.
