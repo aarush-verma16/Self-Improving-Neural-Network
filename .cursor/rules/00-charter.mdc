@@ -13,4 +13,4 @@ The current phase in STATE is the only phase you implement. Smoke stays inside t
 
 Two outputs matter: a system that runs on the image protocol and the stream, and ledger-backed figures. A negative result is written down. A synthetic ledger is not a result.
 
-The MacBook Pro M4 (24 GB) and the RTX 5080 are both development machines. Canonical CUDA numbers come from the 5080 only. Never pool them.
+Read the designated machines in `docs/STATE.md`. Canonical CUDA results come from that CUDA machine only. Never pool them with MPS. Record analytical findings and visual findings in the ledger before ending a session.

@@ -1,13 +1,15 @@
 # Agents
 
-valmorph is a small-scale, validation-gated self-modifying network, studied in this repository only. The CUDA machine is an RTX 5080 (16 GB). The other development machine is a MacBook Pro M4 (24 GB, 1 TB). Light compute is a design constraint. Canonical CUDA results come from the 5080 and are never pooled with MPS.
+valmorph is a small-scale, validation-gated self-modifying network, studied in this repository only. Light compute is a design constraint. Machine names and the current phase live in `docs/STATE.md`. Canonical CUDA results come from the CUDA machine listed there and are never pooled with MPS.
+
+Public pages (`README.md`, `CONTRIBUTING.md`) describe the project. They do not list personal machines or the internal phase log.
 
 ## Session protocol
 
 1. Read `docs/STATE.md`.
 2. Do only the current phase in that file. The map is `docs/06_ROADMAP.md`.
 3. Update `docs/STATE.md` and add an entry to `docs/09_JOURNAL.md` before stopping.
-4. Claims require a ledger-backed provenance manifest. Synthetic output does not count.
+4. Record analytical findings and visual findings in the ledger. A paper claim names a provenance manifest. Synthetic output does not count.
 
 ## Rules
 
@@ -52,4 +54,4 @@ uv run python notebooks/00_setup.py
 uv run jupytext --sync notebooks/00_setup.py
 ```
 
-Phase 0 does not train a model.
+Follow the current phase in `docs/STATE.md`. Do not describe that phase in the README.

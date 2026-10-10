@@ -1,5 +1,5 @@
 ---
-description: Research integrity, citations, and recorded findings
+description: Research integrity and required finding records
 alwaysApply: true
 ---
 
@@ -7,9 +7,13 @@ alwaysApply: true
 
 Do not tune on the test set. The probe split is the gate's only acceptance signal.
 
-Do not drop seeds or failed runs. Log them in the ledger `findings` table (`observation`, `negative`, `claim`, `method`) and in `docs/09_JOURNAL.md`.
+Record every analytical finding and every visual finding before the session ends.
 
-A claim in docs or in `paper/` names a provenance manifest whose `synthetic` field is false. `assert_citable` is the check. Do not cite `notebooks/00_setup.py` output as evidence.
+Analytical record, in the ledger: step metrics, diagnostics, every edit proposal, every gate decision (accepted and rejected), lineage, and a `findings` row. Kinds are `observation`, `negative`, `claim`, and `method`. Failed seeds and negative results stay. Also write the narrative in `docs/09_JOURNAL.md`.
+
+Visual record: Plotly for exploration, matplotlib or seaborn for the paper, Okabe-Ito palette. Each paper figure is exported by a notebook cell with a provenance manifest (git commit, config hash, seeds, ledger version, ledger hashes, device). The finding row's `evidence_ref` points at that manifest. Title synthetic figures `SYNTHETIC`. `assert_citable` rejects them.
+
+A claim in docs or in `paper/` names a manifest whose `synthetic` field is false. A number with no manifest is not a result.
 
 Citations are sources opened in this session. If the PDF was not opened, say so and leave it off `paper/refs.bib`.
 

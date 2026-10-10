@@ -5,21 +5,30 @@
 
 \title{Validation-gated self-modification in small continual learners}
 \author{valmorph contributors}
-\date{Draft. No results.}
+\date{}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Placeholder. The abstract is written in Phase 7 from ledger-backed figures.
-It will state which of Level 1, Level 2, and Level 3 held.
+We study networks that edit their own structure or learning-rule settings during training.
+Each proposal is tried on a shadow copy and accepted only when a held-out probe improves.
+Accepted and rejected edits are stored in an event ledger.
+The comparisons are matched-compute continual-learning tasks, with a random-edit control.
+Reported numbers come from that ledger.
 \end{abstract}
 
-\section{Status}
-This file follows \texttt{docs/08\_PAPER\_OUTLINE.md}.
-Phase 0 has no experimental claims.
-Citations in \texttt{refs.bib} are sources opened on 2026-10-10.
-Do not add a number here until a provenance manifest with \texttt{synthetic: false} exists.
+\section{Method}
+The substrate admits function-preserving edits.
+Diagnostics are computed during training.
+A controller proposes edits.
+A gate accepts or rejects each proposal from the probe split, which is disjoint from the test set.
+
+\section{Recording}
+Analytical results are ledger rows: metrics, diagnostics, proposals, gate decisions, lineage, and findings.
+Visual results are figures exported with a provenance manifest.
+A claim in this manuscript cites that manifest.
+Negative results and rejected edits are included.
 
 \bibliographystyle{plain}
 \bibliography{refs}

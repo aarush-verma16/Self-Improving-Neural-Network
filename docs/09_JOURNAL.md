@@ -25,4 +25,6 @@ Verification on this PC, after the install:
 - `notebooks/00_setup.py` wrote `results/figures/00_setup_gate_timeline.html`, the png twin, and a provenance file. The manifest is `synthetic: true` and is not citable.
 - The cu132 wheel does run a real matmul on this 5080. That answers the open question from the install audit.
 
+Public README and CONTRIBUTING no longer name the lab machines or the phase log. Those stay in this journal and in `docs/STATE.md`. The always-on integrity rule now requires an analytical ledger finding and a visual provenance record for anything that would enter the paper.
+
 The first commit is `cc4b8ec` on `main`. It has not been pushed. The editor commit failed because that process does not have `uv` on PATH, so the hook stopped at `Executable uv not found` before ruff ran. Hooks now call the project `.venv` through `scripts/run_tool.py`.

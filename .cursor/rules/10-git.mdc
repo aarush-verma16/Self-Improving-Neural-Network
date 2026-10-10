@@ -13,4 +13,4 @@ Hooks call `.venv` through `scripts/run_tool.py`. Do not point them at `uv`. The
 
 Do not commit dataset files. Record the license in an ADR before downloading.
 
-The remote is `https://github.com/aarush-verma16/Self-Improving-Neural-Network.git`. Leave it alone until a push is requested. There were no commits at the start of Phase 0.
+Leave the GitHub remote alone until a push is requested.

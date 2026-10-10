@@ -3,29 +3,31 @@ repos:
     hooks:
       - id: ruff-check
         name: ruff check
-        entry: python scripts/run_tool.py ruff check
+        entry: python scripts/run_tool.py ruff check .
         language: system
-        types: [python]
+        pass_filenames: false
+        always_run: true
       - id: ruff-format
         name: ruff format
-        entry: python scripts/run_tool.py ruff format --check
+        entry: python scripts/run_tool.py ruff format --check .
         language: system
-        types: [python]
+        pass_filenames: false
+        always_run: true
       - id: pyright
         name: pyright
         entry: python scripts/run_tool.py pyright
         language: system
         pass_filenames: false
-        types: [python]
+        always_run: true
       - id: pytest
         name: pytest
         entry: python scripts/run_tool.py pytest -m "not gpu" -q
         language: system
         pass_filenames: false
         always_run: true
-        stages: [pre-commit]
       - id: nbstripout
         name: nbstripout
-        entry: python scripts/run_tool.py nbstripout
+        entry: python scripts/run_tool.py nbstripout notebooks/00_setup.ipynb
         language: system
-        types: [jupyter]
+        pass_filenames: false
+        always_run: true

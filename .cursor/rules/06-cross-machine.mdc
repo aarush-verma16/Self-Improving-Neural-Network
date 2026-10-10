@@ -11,6 +11,6 @@ Resolve devices with `resolve_device`. Allowed preferences: `auto`, `cuda`, `mps
 
 Every run header stores device name, capability, torch version, and platform. `assert_same_machine` before pooling.
 
-Canonical CUDA results come from the RTX 5080. MPS results from the M4 are reported as MPS. Do not claim bit-exact agreement across devices.
+Canonical CUDA results come from the CUDA machine named in `docs/STATE.md`. MPS results are reported as MPS. Do not claim bit-exact agreement across devices.
 
 Torch wheels: cu132 index on Windows and Linux, PyPI on macOS. See ADR-003.

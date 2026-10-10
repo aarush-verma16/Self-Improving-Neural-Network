@@ -6,9 +6,9 @@ alwaysApply: false
 
 # Paper
 
-`paper/main.tex` follows `docs/08_PAPER_OUTLINE.md`. Do not fill a result until Phase 6.
+`paper/main.tex` follows `docs/08_PAPER_OUTLINE.md`.
 
-Every number traces to a provenance manifest in `paper/figures/` or `results/`. The caption names the ledger hash and the git commit. `synthetic: true` cannot appear in a caption used as evidence.
+Every number traces to a provenance manifest in `paper/figures/` or `results/`. The caption names the ledger hash and the git commit. `synthetic: true` cannot appear in a caption used as evidence. The analytical table and the figure are both recorded: a `findings` row points at each.
 
 Keep a negative-results section. Rejected edits and failed levels stay in the paper.
 
