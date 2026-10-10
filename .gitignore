@@ -1,0 +1,24 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.pyright/
+.mypy_cache/
+.ipynb_checkpoints/
+.DS_Store
+
+# Local evidence. Paper figures under paper/figures are committed;
+# raw ledgers stay on the machine that produced them.
+results/*
+!results/.gitkeep
+
+# LaTeX build products
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.out
+paper/**/*.bbl
+paper/**/*.blg
+paper/**/*.synctex.gz
+paper/**/*.fls
+paper/**/*.fdb_latexmk

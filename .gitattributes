@@ -1,0 +1,3 @@
+*.ipynb linguist-language=Jupyter Notebook
+*.parquet linguist-generated
+uv.lock linguist-generated

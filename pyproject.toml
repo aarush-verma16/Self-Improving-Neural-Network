@@ -1,0 +1,98 @@
+[project]
+name = "valmorph"
+version = "0.1.0"
+description = "Validation-gated self-modifying networks, studied at small scale."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12,<3.13"
+authors = [{ name = "valmorph contributors" }]
+keywords = ["continual-learning", "self-modifying-networks", "research"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "matplotlib>=3.9",
+  "numpy>=2.1",
+  "omegaconf>=2.3",
+  "pandas>=2.2",
+  "plotly>=5.24",
+  "pyarrow>=18",
+  "seaborn>=0.13",
+  "torch==2.14.1",
+]
+
+[project.urls]
+Documentation = "https://github.com/aarush-verma16/Self-Improving-Neural-Network/tree/main/docs"
+Repository = "https://github.com/aarush-verma16/Self-Improving-Neural-Network"
+
+[project.scripts]
+valmorph-env-check = "valmorph.core.envcheck:main"
+
+[dependency-groups]
+dev = [
+  "hypothesis>=6.115",
+  "ipykernel>=6.29",
+  "jupytext>=1.16",
+  "jupyterlab>=4.3",
+  "nbstripout>=0.8",
+  "pre-commit>=4.0",
+  "pyright>=1.1.390",
+  "pytest>=8.3",
+  "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu132", marker = "sys_platform == 'win32' or sys_platform == 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu132"
+url = "https://download.pytorch.org/whl/cu132"
+explicit = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests", "scripts", "notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "ANN", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"notebooks/**" = ["ANN"]
+"scripts/**" = ["ANN"]
+"tests/**" = ["ANN201"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["valmorph"]
+
+[tool.pyright]
+include = ["src", "tests", "scripts"]
+exclude = ["notebooks", "results", ".venv"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+  "gpu: requires a working CUDA device",
+]
+
+[tool.jupytext]
+formats = "ipynb,py:percent"
+notebook_metadata_filter = "-all"
+cell_metadata_filter = "-all"

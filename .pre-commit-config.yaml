@@ -1,0 +1,31 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: python scripts/run_tool.py ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: python scripts/run_tool.py ruff format --check
+        language: system
+        types: [python]
+      - id: pyright
+        name: pyright
+        entry: python scripts/run_tool.py pyright
+        language: system
+        pass_filenames: false
+        types: [python]
+      - id: pytest
+        name: pytest
+        entry: python scripts/run_tool.py pytest -m "not gpu" -q
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+      - id: nbstripout
+        name: nbstripout
+        entry: python scripts/run_tool.py nbstripout
+        language: system
+        types: [jupyter]

@@ -1,0 +1,14 @@
+---
+description: GPU and MPS memory cap
+alwaysApply: true
+---
+
+# Compute
+
+Default memory fraction is 0.20 via `apply_compute_cap`. Do not call `torch.cuda.set_per_process_memory_fraction` anywhere else. Fractions above 0.25 require `allow_high_memory` in the config.
+
+The 5080 is shared. Do not launch a long training job while changing code. Run the smoke first.
+
+Prefer CPU tests. Mark a real CUDA test with `pytest.mark.gpu`. The default pytest command excludes that marker.
+
+Runs are resumable. If a run would exceed the cap, record that and stop. Do not raise the cap to finish a curve.

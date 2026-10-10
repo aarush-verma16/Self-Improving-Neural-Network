@@ -1,0 +1,15 @@
+---
+description: Pytest and Hypothesis expectations
+globs: tests/**/*.py
+alwaysApply: false
+---
+
+# Testing
+
+`uv run pytest` must pass before a phase is marked done. GPU tests use the `gpu` marker and are excluded from that command.
+
+Property tests use Hypothesis. When function-preserving edits exist, at least one property test asserts the output is unchanged at a zero-parameter morphism, on CPU, over random inputs.
+
+Tests do not read `results/` and do not download datasets.
+
+A test that only checks a mock of the ledger is not enough for a gate or an edit. Round-trip a real temporary Parquet file.

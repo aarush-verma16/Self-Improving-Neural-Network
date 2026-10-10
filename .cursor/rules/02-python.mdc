@@ -1,0 +1,17 @@
+---
+description: Python style for the valmorph package
+globs: src/**/*.py,tests/**/*.py,scripts/**/*.py
+alwaysApply: false
+---
+
+# Python
+
+Package code lives in `src/valmorph`. Notebooks and scripts call it. They do not grow their own training logic.
+
+Type public functions. Docstrings state tensor shapes or, for ledger rows, that the row is one scalar. Ruff selects E, F, I, UP, B, SIM, ANN, RUF. Pyright runs in `standard` mode: `strict` is unusable here because PyArrow, Plotly, and matplotlib ship without stubs (ADR-008).
+
+Configs are `RunConfig` loaded from YAML. A new field is added to the dataclass and to `configs/`, not read as an untyped dict in a caller.
+
+Raise the project exceptions (`DeviceError`, `ComputeCapError`, `LedgerError`, `ProvenanceError`). Do not swallow them.
+
+`results/` is gitignored. Tests use `tmp_path`.

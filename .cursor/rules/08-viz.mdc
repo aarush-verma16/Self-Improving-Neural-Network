@@ -1,0 +1,18 @@
+---
+description: Figures, provenance manifests, and visual analysis
+alwaysApply: false
+---
+
+# Visualization
+
+Use this rule when adding a plot, a paper figure, or a notebook that exports one.
+
+Plotly is for exploration. matplotlib or seaborn is for the paper. Call `apply_matplotlib_style`. Use the Okabe–Ito cycle from `valmorph.viz.theme`. Do not introduce a second palette.
+
+Every exported paper figure has a provenance JSON from `write_provenance`: git commit, config hash, seeds, ledger version, ledger content hashes, devices. The notebook cell that writes the figure is the one that writes the manifest.
+
+Title synthetic figures with the prefix `SYNTHETIC`. Do not pass them to `assert_citable`.
+
+Required visual analyses, once the data exist: edit timeline, neuron lineage tree, animated topology, diagnostic heatmap, forgetting matrix, Level 1 curve, Level 2 curve. Each one is a function in `src/valmorph/viz` plus a thin notebook cell.
+
+A finding that a figure supports is also a `findings` row with `evidence_ref` pointing at the manifest.

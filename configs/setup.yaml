@@ -1,0 +1,8 @@
+experiment: setup
+seed: 0
+device: auto
+compute:
+  memory_fraction: 0.2
+  allow_high_memory: false
+ledger_dir: results/ledgers
+notes: phase-0 environment check and synthetic ledger demo

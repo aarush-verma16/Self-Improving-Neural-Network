@@ -1,0 +1,18 @@
+---
+description: Experiment design, pre-registration, and finding logs
+alwaysApply: false
+---
+
+# Experiments
+
+Use this rule when adding a config, a training loop, a baseline, or a run script.
+
+Confirm the hypothesis in `docs/01_RESEARCH_QUESTIONS.md` still matches the config. If it does not, stop and write an ADR.
+
+Ship a smoke config that finishes in minutes on the M4 before any confirmatory config. At least five seeds for a confirmatory claim. Ten when the smoke is cheap.
+
+Every run writes step metrics, diagnostics, proposals, gate decisions (including rejections), lineage, and findings. Record param count when the substrate exists. Do not invent FLOP counts.
+
+Resumable means `Ledger.reopen` and a stored step, not a note to rerun from scratch.
+
+Do not start a confirmatory run in the same step as an untested code change.

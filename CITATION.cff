@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+title: valmorph
+message: If you use this software, cite the repository. Cite a paper only after one exists and its claims trace to a ledger.
+type: software
+authors:
+  - name: valmorph contributors
+repository-code: https://github.com/aarush-verma16/Self-Improving-Neural-Network
+license: MIT
+version: 0.1.0
+date-released: 2026-10-10
+abstract: >-
+  Validation-gated self-modifying networks, studied at small scale on
+  continual image classification and a real concept-drift stream.

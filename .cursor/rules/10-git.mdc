@@ -1,0 +1,16 @@
+---
+description: Git and open-source hygiene
+alwaysApply: true
+---
+
+# Git
+
+Do not commit unless the user asks. Do not push unless the user asks. Do not force-push. Do not skip hooks.
+
+Hooks call `.venv` through `scripts/run_tool.py`. Do not point them at `uv`. The editor's git process does not have `uv` on PATH, and the hook then fails before it lints anything.
+
+`results/`, `.venv/`, and secrets stay untracked. `uv.lock` is tracked. The jupytext `.py` notebook is the source of truth. The paired `.ipynb` is generated and stripped.
+
+Do not commit dataset files. Record the license in an ADR before downloading.
+
+The remote is `https://github.com/aarush-verma16/Self-Improving-Neural-Network.git`. Leave it alone until a push is requested. There were no commits at the start of Phase 0.

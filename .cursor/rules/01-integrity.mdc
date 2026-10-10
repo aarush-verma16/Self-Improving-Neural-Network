@@ -1,0 +1,18 @@
+---
+description: Research integrity, citations, and recorded findings
+alwaysApply: true
+---
+
+# Integrity
+
+Do not tune on the test set. The probe split is the gate's only acceptance signal.
+
+Do not drop seeds or failed runs. Log them in the ledger `findings` table (`observation`, `negative`, `claim`, `method`) and in `docs/09_JOURNAL.md`.
+
+A claim in docs or in `paper/` names a provenance manifest whose `synthetic` field is false. `assert_citable` is the check. Do not cite `notebooks/00_setup.py` output as evidence.
+
+Citations are sources opened in this session. If the PDF was not opened, say so and leave it off `paper/refs.bib`.
+
+`assert_same_machine` before any pooled table. CUDA and MPS results stay in separate tables.
+
+Hypotheses live in `docs/01_RESEARCH_QUESTIONS.md`. Edit them only with an ADR written before the confirmatory run.

@@ -1,0 +1,17 @@
+---
+description: LaTeX paper claims and figure provenance
+globs: paper/**/*
+alwaysApply: false
+---
+
+# Paper
+
+`paper/main.tex` follows `docs/08_PAPER_OUTLINE.md`. Do not fill a result until Phase 6.
+
+Every number traces to a provenance manifest in `paper/figures/` or `results/`. The caption names the ledger hash and the git commit. `synthetic: true` cannot appear in a caption used as evidence.
+
+Keep a negative-results section. Rejected edits and failed levels stay in the paper.
+
+Add a bib entry only after the source is opened, and record that opening in `docs/09_JOURNAL.md`. Do not copy a citation from an unopened PDF.
+
+Do not commit LaTeX build products.
