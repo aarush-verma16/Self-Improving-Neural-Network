@@ -32,4 +32,4 @@ Record what the run showed, in both forms:
 
 ## Checks
 
-Run `uv run python scripts/local_check.py` before considering a change done. Pre-commit runs the same tools.
+Run `uv run python scripts/local_check.py` before considering a change done. The git hook in `.githooks/pre-commit` runs the same tools.

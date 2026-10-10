@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Phase 0 is done on the Windows PC. Do not start Phase 1 until Phase 0b has opened the citation gaps in `docs/02_RELATED_WORK.md`, or until an ADR says a specific Phase 1 test does not depend on those papers. Identity-morphism tests do not depend on them. Diagnostic formulas do.
+Milestone 1 of Phase 1 is done on CPU: a small MLP can widen by splitting a unit and can insert an identity layer, and the logits stay the same. The acceptance gate is the next milestone. Citation gaps in `docs/02_RELATED_WORK.md` stay open and do not block the gate.
 
 ## Done
 
@@ -19,9 +19,9 @@ Phase 0 is done on the Windows PC. Do not start Phase 1 until Phase 0b has opene
 
 ## Next
 
-1. Repeat the Mac checklist below. Record the MPS environment in the Mac section. Do not compare it with the 5080 numbers.
-2. Phase 0b: open the citation gaps in `docs/02_RELATED_WORK.md`. No modeling required for that phase.
-3. Phase 1: function-preserving edits and Hypothesis tests on CPU. No training claims.
+1. Milestone 2: the acceptance gate. A toy problem where a helpful edit is accepted, a harmful edit is rejected, both are logged, and the live network changes only after accept.
+2. Phase 0b citation gaps before any published baseline number is used.
+3. The Mac checklist is still unverified.
 
 ## Open questions
 
@@ -61,7 +61,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 cd path/to/SINN
 uv python pin 3.12
 uv sync --group dev
-uv run pre-commit install
+git config core.hooksPath .githooks
 uv run python scripts/env_check.py
 uv run pytest
 uv run python notebooks/00_setup.py

@@ -14,11 +14,11 @@ Compute: none.
 
 ## Phase 1 — Substrate
 
-A small MLP with the v1 edit vocabulary. Identity morphisms (widen with zero extra function change, identity deepen) satisfy output-unchanged under Hypothesis, on CPU, for random inputs and random widths inside a tiny bound.
+Milestone 1, met on CPU on 2026-10-10: widen by neuron split and identity deepen leave the MLP logits unchanged. Hypothesis covers random small widths. Lineage for a split is written to the ledger. No training claim.
 
-Exit: property tests pass on CPU. No claim about learning. Lineage rows are produced by the edits that create units.
+Still inside Phase 1 before the gate: edits that are allowed to change the function (prune, prune-and-regrow) need their own tests, and those tests must not call them function-preserving.
 
-Compute: CPU only.
+Exit for the whole phase: the identity morphisms above, plus an explicit test for any edit that is not function-preserving. Compute: CPU only.
 
 ## Phase 2 — Introspection
 

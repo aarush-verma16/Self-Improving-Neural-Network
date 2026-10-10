@@ -12,4 +12,4 @@ Notebooks orchestrate, plot, and read the ledger. Algorithm code goes in `src/va
 
 The first cell of an analysis notebook states the phase, the config path, and whether the run is smoke or confirmatory. Synthetic output is titled SYNTHETIC.
 
-Commit the `.py`. nbstripout clears ipynb outputs in pre-commit. Do not commit `results/`.
+Commit the `.py`. The git hook runs nbstripout on `notebooks/*.ipynb`. Do not commit `results/`.

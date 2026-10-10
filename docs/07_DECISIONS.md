@@ -48,6 +48,12 @@ Date: 2026-10-10.
 
 Empirical notes that should survive a session go in the `findings` table: observation, negative, claim, or method. The journal is the narrative. A paper claim is a finding of kind `claim` plus a citable provenance manifest. Synthetic demos may write findings only to say they are not evidence.
 
+## ADR-009 — Substrate morphisms before the citation pass
+
+Date: 2026-10-10.
+
+Identity widen and identity deepen do not depend on the unopened protocol papers. The construction is the function-preserving split and the inserted identity map. Phase 0b stays open for citations that would support a baseline number. It does not block this milestone.
+
 ## ADR-008 — Pyright standard mode
 
 Date: 2026-10-10.

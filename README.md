@@ -13,7 +13,7 @@ Requires Python 3.12 and [uv](https://docs.astral.sh/uv/).
 ```bash
 uv python pin 3.12
 uv sync --group dev
-uv run pre-commit install
+git config core.hooksPath .githooks
 uv run python scripts/env_check.py
 uv run pytest
 ```

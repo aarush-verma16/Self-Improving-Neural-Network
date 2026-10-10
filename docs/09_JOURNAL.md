@@ -28,3 +28,11 @@ Verification on this PC, after the install:
 Public README and CONTRIBUTING no longer name the lab machines or the phase log. Those stay in this journal and in `docs/STATE.md`. The always-on integrity rule now requires an analytical ledger finding and a visual provenance record for anything that would enter the paper.
 
 The first commit is `cc4b8ec` on `main`. It has not been pushed. The editor commit failed because that process does not have `uv` on PATH, so the hook stopped at `Executable uv not found` before ruff ran. Hooks now call the project `.venv` through `scripts/run_tool.py`.
+
+## 2026-10-10 — Milestone 1, the network
+
+Started the neural network, not another tooling pass. `ValmorphMLP` is a small ReLU MLP. `widen` copies one hidden unit and halves the outgoing weights of the parent and the child. `identity_deepen` inserts a linear identity with no activation. Both leave the logits unchanged.
+
+CPU tests, including a hand-checked case whose logit stays 6.5 and a Hypothesis sweep over small random widths: the full suite passed. A split writes a lineage row. Notebook `notebooks/01_substrate.py` measured a max absolute logit change of about `3e-8` on one CPU draw, which is float32 roundoff, and recorded that as a method finding. This is not a learning result and not Level 1.
+
+Commit from the editor was failing with exit 9009 because every hook started with `python`, and that name is the Windows Store alias. The hook is now `.githooks/pre-commit`, and this repo's local `core.hooksPath` points there. It runs `.venv`'s Python by path.

@@ -1,0 +1,15 @@
+#!/bin/sh
+# Commit hook. Git runs this with its own shell, then we exec the project venv.
+# Do not call `python` or `uv` from PATH. On Windows that `python` is the
+# Microsoft Store alias and exits 9009.
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd) || exit 1
+cd "$ROOT" || exit 1
+if [ -x "$ROOT/.venv/Scripts/python.exe" ]; then
+  PY="$ROOT/.venv/Scripts/python.exe"
+elif [ -x "$ROOT/.venv/bin/python" ]; then
+  PY="$ROOT/.venv/bin/python"
+else
+  echo "missing .venv. From the repo root run: uv sync --group dev" >&2
+  exit 1
+fi
+exec "$PY" "$ROOT/scripts/git_hook.py"
