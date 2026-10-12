@@ -11,6 +11,6 @@ Read `docs/STATE.md` first. Update `docs/STATE.md` and `docs/09_JOURNAL.md` last
 
 The current phase in STATE is the only phase you implement. Smoke stays inside the 0.20 memory cap. No training loop until Phase 1's exit criteria are the task.
 
-Two outputs matter: a system that runs on the image protocol and the stream, and ledger-backed figures. A negative result is written down. A synthetic ledger is not a result.
+Two outputs matter: a system that runs on the image protocol and the stream, and ledger-backed figures. A negative result is written down. A synthetic ledger is not a result. The working notebooks are visual: the person running a milestone sees the data and the process, not a log of scalars.
 
 Read the designated machines in `docs/STATE.md`. Canonical CUDA results come from that CUDA machine only. Never pool them with MPS. Record analytical findings and visual findings in the ledger before ending a session.

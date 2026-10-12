@@ -8,7 +8,7 @@ alwaysApply: false
 
 Edit the percent-format `.py` file. Regenerate the `.ipynb` with `uv run jupytext --sync notebooks/<name>.py`. Do not hand-edit the ipynb.
 
-Notebooks orchestrate, plot, and read the ledger. Algorithm code goes in `src/valmorph`.
+Notebooks are the place the work is seen. Each milestone notebook plots the data and the process as the cells run: the network, the edit, the gate, the curve. A cell that only prints a scalar is not the result. Algorithm code goes in `src/valmorph`.
 
 The first cell of an analysis notebook states the phase, the config path, and whether the run is smoke or confirmatory. Synthetic output is titled SYNTHETIC.
 

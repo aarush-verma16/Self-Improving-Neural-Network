@@ -5,7 +5,9 @@ alwaysApply: false
 
 # Visualization
 
-Use this rule when adding a plot, a paper figure, or a notebook that exports one.
+Use this rule when adding a plot, a milestone notebook, or a paper figure.
+
+Show the process, not only the final score. A training notebook plots the curve while steps run. An edit notebook plots the network before and after. A gate notebook plots the accepted and rejected proposals on one timeline. A number with no figure in that notebook is incomplete.
 
 Plotly is for exploration. matplotlib or seaborn is for the paper. Call `apply_matplotlib_style`. Use the Okabe-Ito cycle from `valmorph.viz.theme`. Do not introduce a second palette.
 

@@ -36,3 +36,7 @@ Started the neural network, not another tooling pass. `ValmorphMLP` is a small R
 CPU tests, including a hand-checked case whose logit stays 6.5 and a Hypothesis sweep over small random widths: the full suite passed. A split writes a lineage row. Notebook `notebooks/01_substrate.py` measured a max absolute logit change of about `3e-8` on one CPU draw, which is float32 roundoff, and recorded that as a method finding. This is not a learning result and not Level 1.
 
 Commit from the editor was failing with exit 9009 because every hook started with `python`, and that name is the Windows Store alias. The hook is now `.githooks/pre-commit`, and this repo's local `core.hooksPath` points there. It runs `.venv`'s Python by path.
+
+## 2026-10-11 — Visual working process
+
+The runs are meant to be watched. Each milestone notebook has to show the data and the process while it happens: edits, gate decisions, and learning curves as figures. A final scalar is not enough. Paper figures stay the static copy of those same views, with a provenance manifest.
