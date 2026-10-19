@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Milestone 1 of Phase 1 is done on CPU: a small MLP can widen by splitting a unit and can insert an identity layer, and the logits stay the same. The acceptance gate is the next milestone. Citation gaps in `docs/02_RELATED_WORK.md` stay open and do not block the gate.
+Milestone 2 is ready to run: `notebooks/02_gate.ipynb`. The gate keeps a prune that removes a damaged unit and refuses a prune that would break the sine fit. The user runs that notebook and reads the three figures.
 
 ## Done
 
@@ -19,7 +19,7 @@ Milestone 1 of Phase 1 is done on CPU: a small MLP can widen by splitting a unit
 
 ## Next
 
-1. Milestone 2: the acceptance gate, as `notebooks/02_gate.ipynb`. A toy problem where a helpful edit is accepted, a harmful edit is rejected, both are logged, and the notebook shows the decision timeline and the network before and after. The person running it should see the process, not only a final accuracy.
+1. You run `notebooks/02_gate.ipynb` and look at the loss curve, the gain chart, and the before/after fit.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. The Mac checklist is still unverified.
 

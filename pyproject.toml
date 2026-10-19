@@ -68,7 +68,7 @@ src = ["src", "tests", "scripts", "notebooks"]
 select = ["E", "F", "I", "UP", "B", "SIM", "ANN", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
-"notebooks/**" = ["ANN"]
+"notebooks/**" = ["ANN", "B018"]
 "scripts/**" = ["ANN"]
 "tests/**" = ["ANN201"]
 

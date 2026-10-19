@@ -147,3 +147,46 @@ def identity_deepen(
         ],
     )
     return child_ids
+
+
+def prune(
+    net: ValmorphMLP,
+    layer: int,
+    unit: int,
+    *,
+    ledger: Ledger | None = None,
+    step: int = 0,
+) -> str:
+    """Remove hidden unit ``unit``. The represented function usually changes.
+
+    The last remaining unit in a layer cannot be removed. The removed unit id
+    is returned. This is not a function-preserving edit.
+    """
+
+    if layer < 0 or layer >= len(net.layers) - 1:
+        raise EditError("prune applies to a layer that has a following layer")
+    source = net.linear(layer)
+    dest = net.linear(layer + 1)
+    width = int(source.out_features)
+    if width <= 1:
+        raise EditError("refuse to prune the last unit in a layer")
+    if unit < 0 or unit >= width:
+        raise EditError(f"unit {unit} is outside layer {layer} of width {width}")
+    removed = net.unit_ids[layer].pop(unit)
+    keep = [index for index in range(width) if index != unit]
+    with torch.no_grad():
+        new_source_weight = source.weight[keep].clone()
+        new_source_bias = source.bias[keep].clone()
+        new_dest_weight = dest.weight[:, keep].clone()
+        new_dest_bias = dest.bias.clone()
+    net.layers[layer] = _linear(new_source_weight, new_source_bias)
+    net.layers[layer + 1] = _linear(new_dest_weight, new_dest_bias)
+    _record(
+        ledger,
+        step=step,
+        edit_type="prune",
+        target=f"layer{layer}",
+        params={"unit": unit, "removed": removed},
+        edges=[LineageEdge(step=step, parent_unit=removed, child_unit=removed, relation="prune")],
+    )
+    return removed

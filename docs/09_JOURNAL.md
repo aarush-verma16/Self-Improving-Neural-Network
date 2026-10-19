@@ -40,3 +40,7 @@ Commit from the editor was failing with exit 9009 because every hook started wit
 ## 2026-10-11 — Visual working process
 
 The runs are meant to be watched. Each milestone notebook has to show the data and the process while it happens: edits, gate decisions, and learning curves as figures. A final scalar is not enough. Paper figures stay the static copy of those same views, with a provenance manifest.
+
+## 2026-10-19 — Milestone 2, the gate
+
+The gate trains a copy of the network after a proposed edit and keeps the edit only when probe loss falls. A unit test removes a harmful hidden unit and accepts that prune, and removes a unit the fit needs and rejects that prune. The live network changes only on accept. `notebooks/02_gate.ipynb` is the run to watch: a sine fit, a damaged extra unit, one kept prune, one refused prune.

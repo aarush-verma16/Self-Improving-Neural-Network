@@ -27,9 +27,18 @@ def main() -> int:
     if notebooks:
         steps.append([py, "-m", "nbstripout", *[str(path) for path in notebooks]])
     for command in steps:
-        completed = subprocess.run(command, cwd=root, check=False)
+        completed = subprocess.run(
+            command,
+            cwd=root,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
         if completed.returncode != 0:
-            print(f"commit check failed: {Path(command[2]).name}", file=sys.stderr)
+            name = Path(command[2]).name
+            sys.stderr.write(f"commit check failed: {name}\n")
+            sys.stderr.write(completed.stdout)
+            sys.stderr.write(completed.stderr)
             return completed.returncode
     return 0
 

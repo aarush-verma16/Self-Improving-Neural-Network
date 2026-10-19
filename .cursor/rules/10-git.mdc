@@ -7,7 +7,7 @@ alwaysApply: true
 
 Do not commit unless the user asks. Do not push unless the user asks. Do not force-push. Do not skip hooks.
 
-The commit hook is `.githooks/pre-commit`. It must call `.venv`'s Python by path. The editor's Git process resolves `python` to the Windows Store alias, which exits 9009. Do not point the hook at `python` or `uv` on PATH.
+The commit hook is `.githooks/pre-commit`. It must call `.venv`'s Python by path. The editor's Git process resolves `python` to the Windows Store alias, which exits 9009. Do not point the hook at `python` or `uv` on PATH. A passing hook must print nothing. The editor shows any hook text in an error dialog and then refuses the commit.
 
 `results/`, `.venv/`, and secrets stay untracked. `uv.lock` is tracked. The jupytext `.py` notebook is the source of truth. The paired `.ipynb` is generated and stripped.
 
