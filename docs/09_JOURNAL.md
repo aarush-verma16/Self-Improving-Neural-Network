@@ -43,7 +43,7 @@ The runs are meant to be watched. Each milestone notebook has to show the data a
 
 ## 2026-10-19 — Where training runs
 
-Short work stays on CPU: tests, the substrate checks, and `notebooks/02_gate.ipynb`. Heavy training uses the GPU under the 0.20 memory cap so a long schedule is not left on the CPU. The CUDA machine may still be shared, so the cap does not move. On the Mac the same heavy runs use MPS and are labeled MPS.
+Short work stays on CPU: tests, the substrate checks, and `notebooks/02_gate.ipynb`. Those run on the Mac. Heavy training is a switch to the CUDA PC, under the 0.20 memory cap. Say that switch before the run. A short MPS smoke on the Mac stays labeled MPS and is not pooled with CUDA.
 
 ## 2026-10-19 — Milestone 2, the gate
 

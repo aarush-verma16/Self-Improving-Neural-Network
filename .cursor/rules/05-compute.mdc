@@ -5,12 +5,12 @@ alwaysApply: true
 
 # Compute
 
-Short work stays on CPU: unit tests, function-preserving checks, and toy notebooks that finish in well under a minute. Do not put those on the GPU.
+Short work stays on CPU: unit tests, function-preserving checks, and toy notebooks that finish in well under a minute. Do not put those on the GPU. Those notebooks run on the Mac.
 
-Heavy training uses the GPU. A run that would hold the CPU for a long stretch — task training, multi-seed comparisons, confirmatory schedules — sets `device: cuda` on this PC and `device: mps` on the Mac. The same code path. Record the device. Never pool CUDA and MPS.
+Heavy training is a PC step. Say so before handing it over: switch to the CUDA machine, set `device: cuda`, and stay inside the 0.20 memory cap. Do not start that run on the Mac and call it the canonical result. The Mac can repeat a short smoke on MPS; label it MPS and do not pool it with CUDA.
 
 Default memory fraction is 0.20 via `apply_compute_cap`. Do not call `torch.cuda.set_per_process_memory_fraction` anywhere else. Fractions above 0.25 require `allow_high_memory` in the config. The CUDA machine may be shared. The cap stays in place during heavy training.
 
 Do not launch a heavy run while changing code. Run the CPU smoke first. Mark a real CUDA test with `pytest.mark.gpu`. The default pytest command excludes that marker.
 
-Runs are resumable. If a run would exceed the cap, record that and stop. Do not raise the cap to finish a curve.
+Runs are resumable. If a run would exceed the cap, record that and stop. Do not raise the cap to finish a curve. Never hard-code `cuda`. `auto` is for smoke. An explicit `cuda` request fails on the Mac instead of silently switching devices.

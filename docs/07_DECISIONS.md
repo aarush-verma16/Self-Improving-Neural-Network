@@ -64,4 +64,4 @@ Pyright's `strict` mode reports the PyArrow, Plotly, and matplotlib APIs as unkn
 
 Date: 2026-10-19.
 
-Tests, morphism checks, and toy notebooks stay on CPU. Training that would occupy the CPU for a long time uses CUDA here, under the 0.20 memory fraction, and MPS on the Mac. The GPU stays shared. A heavy run is not moved onto the CPU to avoid the GPU, and a short notebook is not moved onto the GPU by default. `notebooks/02_gate.ipynb` remains a short CPU run.
+Tests, morphism checks, and toy notebooks stay on CPU and are expected to run on the Mac. Heavy training is announced as a switch to the CUDA PC, under the 0.20 memory fraction. A short MPS smoke on the Mac is labeled MPS and is not pooled with CUDA. The GPU stays shared. `notebooks/00_setup.ipynb`, `01_substrate.ipynb`, and `02_gate.ipynb` stay short CPU runs.

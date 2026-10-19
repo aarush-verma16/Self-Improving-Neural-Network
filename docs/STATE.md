@@ -21,7 +21,7 @@ Milestone 2 is ready to run: `notebooks/02_gate.ipynb`. The gate keeps a prune t
 
 1. You run `notebooks/02_gate.ipynb` and look at the loss curve, the gain chart, and the before/after fit.
 2. Phase 0b citation gaps before any published baseline number is used.
-3. The Mac checklist is still unverified.
+3. The Mac has not run `scripts/env_check.py` yet. Notebooks `00`, `01`, and `02` are short CPU runs and are the ones to open there. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
 
 ## Open questions
 
