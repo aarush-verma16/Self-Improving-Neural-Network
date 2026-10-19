@@ -41,6 +41,10 @@ Commit from the editor was failing with exit 9009 because every hook started wit
 
 The runs are meant to be watched. Each milestone notebook has to show the data and the process while it happens: edits, gate decisions, and learning curves as figures. A final scalar is not enough. Paper figures stay the static copy of those same views, with a provenance manifest.
 
+## 2026-10-19 — Where training runs
+
+Short work stays on CPU: tests, the substrate checks, and `notebooks/02_gate.ipynb`. Heavy training uses the GPU under the 0.20 memory cap so a long schedule is not left on the CPU. The CUDA machine may still be shared, so the cap does not move. On the Mac the same heavy runs use MPS and are labeled MPS.
+
 ## 2026-10-19 — Milestone 2, the gate
 
 The gate trains a copy of the network after a proposed edit and keeps the edit only when probe loss falls. A unit test removes a harmful hidden unit and accepts that prune, and removes a unit the fit needs and rejects that prune. The live network changes only on accept. `notebooks/02_gate.ipynb` is the run to watch: a sine fit, a damaged extra unit, one kept prune, one refused prune.

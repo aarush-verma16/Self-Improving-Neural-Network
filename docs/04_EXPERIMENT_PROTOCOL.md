@@ -21,14 +21,14 @@ For each task, freeze three disjoint subsets before training: train, probe, and 
 
 ## Smoke, then confirmatory
 
-Every later phase ships a `cpu_smoke` or device-`auto` config that:
+Every later phase ships a CPU smoke that:
 
 - uses a tiny width (32 unless a phase ADR says otherwise),
 - uses two tasks or a few hundred stream rows,
-- finishes in minutes on the M4,
+- finishes in minutes,
 - writes a real ledger.
 
-Confirmatory configs use the same code path, a pre-registered width and step budget, at least five seeds (ten when a smoke shows the run is cheap), and the 0.20 cap. They are resumable. They are not started in the same session as an untested code change.
+The heavy run uses the same code with `device: cuda` on the CUDA machine, or `device: mps` on the Mac. It stays inside the 0.20 cap, uses the pre-registered width and step budget, and at least five seeds (ten when a smoke shows the run is cheap). It is resumable. It is not started in the same session as an untested code change. It is not left on the CPU.
 
 ## Image protocols
 

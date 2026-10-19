@@ -26,7 +26,7 @@ The question is whether a small network's edits help, not whether a large model 
 
 - Development machine: Windows PC with an RTX 5080, 16 GB, compute capability 12.0. This is the canonical CUDA device. Another job may be using the GPU, so the process memory fraction defaults to 0.20 (about 3.3 GB) and the code refuses a fraction above 0.25 unless a config explicitly overrides it.
 - Development machine: MacBook Pro, Apple M4, 24 GB unified memory, 1 TB storage. The same configs run here on MPS. The MPS allocator watermark uses the same 0.20 fraction.
-- Every confirmatory comparison has a CPU or MPS smoke config that finishes in minutes. A result that appears only after a long, large-GPU run is out of scope.
+- Every confirmatory comparison has a short CPU smoke first. The heavy run itself uses the GPU under the 0.20 memory cap. A result that needs an uncapped GPU is out of scope. A long schedule is not left on the CPU.
 - Runs record device, capability, torch build, and a content hash of the ledger. Results from the 5080 and the M4 are never pooled.
 - Determinism is best-effort. We do not claim bit-exact equality across CUDA, MPS, and CPU.
 

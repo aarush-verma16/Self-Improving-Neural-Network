@@ -59,3 +59,9 @@ Identity widen and identity deepen do not depend on the unopened protocol papers
 Date: 2026-10-10.
 
 Pyright's `strict` mode reports the PyArrow, Plotly, and matplotlib APIs as unknown because those packages do not ship stubs. The project uses `standard` mode plus Ruff's type-related lint, and our own functions stay annotated. Turning `strict` on would require casts around the ledger and the figures without making those calls safer.
+
+## ADR-010 — CPU for short work, GPU for heavy training
+
+Date: 2026-10-19.
+
+Tests, morphism checks, and toy notebooks stay on CPU. Training that would occupy the CPU for a long time uses CUDA here, under the 0.20 memory fraction, and MPS on the Mac. The GPU stays shared. A heavy run is not moved onto the CPU to avoid the GPU, and a short notebook is not moved onto the GPU by default. `notebooks/02_gate.ipynb` remains a short CPU run.
