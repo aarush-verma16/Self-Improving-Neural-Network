@@ -12,6 +12,12 @@
 # and 30. Each copy leaves the function unchanged at that moment. Later
 # minibatch steps can use the new units.
 #
+# The 40-step run grew the hidden layer to 35. Probe accuracy was 0.634
+# with no edits and 0.636 with the schedule. The curves separated at step
+# 10, the largest gap was 0.020 at step 25, and they had nearly met again
+# by step 39. This run keeps those three widens and trains through step 80,
+# so the chart shows whether that lead stays closed.
+#
 # One seed. Short CPU run. Not a Level 1 comparison.
 
 # %%
@@ -52,7 +58,7 @@ _plain_loss, plain_accuracy = train_classifier(
     plain,
     train_x,
     train_y,
-    steps=40,
+    steps=80,
     batch_size=64,
     lr=0.1,
     probe_images=probe_x,
@@ -74,7 +80,8 @@ ledger = Ledger.create(
         config={
             "experiment": "scheduled-widen",
             "widths": [784, 32, 10],
-            "steps": 40,
+            "steps": 80,
+            "until": 30,
             "every": 10,
         },
         git_commit=git_commit(),
@@ -95,10 +102,11 @@ grown_accuracy = train_with_scheduled_widen(
     train_y,
     probe_images=probe_x,
     probe_labels=probe_y,
-    steps=40,
+    steps=80,
     batch_size=64,
     lr=0.1,
     every=10,
+    until=30,
 )
 width = int(grown.linear(0).out_features)
 accuracy_series = {"no edits": plain_accuracy, "scheduled widen": grown_accuracy}

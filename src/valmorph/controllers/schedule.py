@@ -24,16 +24,19 @@ def train_with_scheduled_widen(
     batch_size: int,
     lr: float,
     every: int = 10,
+    until: int | None = None,
 ) -> list[float]:
     """Train and widen hidden unit 0 of layer 0 every ``every`` steps.
 
+    ``until`` is the last step that may widen. Later steps only train.
     Returns probe accuracy after each minibatch step.
     """
 
     accuracies: list[float] = []
     count = int(images.shape[0])
     for step in range(steps):
-        if every > 0 and step > 0 and step % every == 0:
+        due = every > 0 and step > 0 and step % every == 0
+        if due and (until is None or step <= until):
             widen(net, 0, 0)
         start = (step * batch_size) % count
         index = torch.arange(start, start + batch_size) % count

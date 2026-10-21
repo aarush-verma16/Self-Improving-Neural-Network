@@ -121,3 +121,17 @@ def test_scheduled_widen_grows_on_the_interval() -> None:
     )
     assert len(accuracy) == 3
     assert int(net.linear(0).out_features) == 5
+    held = ValmorphMLP([4, 3, 2]).cpu()
+    train_with_scheduled_widen(
+        held,
+        images,
+        labels,
+        probe_images=images,
+        probe_labels=labels,
+        steps=3,
+        batch_size=4,
+        lr=0.1,
+        every=1,
+        until=1,
+    )
+    assert int(held.linear(0).out_features) == 4
