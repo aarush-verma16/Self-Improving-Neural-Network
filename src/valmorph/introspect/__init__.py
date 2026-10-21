@@ -8,6 +8,7 @@ from valmorph.introspect.signals import (
     mean_off_diagonal,
     most_silent_unit,
     singular_entropy_rank,
+    smallest_magnitude_unit,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "mean_off_diagonal",
     "most_silent_unit",
     "singular_entropy_rank",
+    "smallest_magnitude_unit",
 ]

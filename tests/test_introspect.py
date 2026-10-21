@@ -14,6 +14,17 @@ from valmorph.introspect import (
 from valmorph.models import ValmorphMLP
 
 
+def test_smallest_magnitude_unit_picks_the_short_row() -> None:
+    from valmorph.introspect import smallest_magnitude_unit
+
+    net = ValmorphMLP([2, 2, 1]).cpu()
+    with torch.no_grad():
+        net.linear(0).weight.copy_(torch.tensor([[3.0, 0.0], [0.0, 0.0]]))
+        net.linear(0).bias.zero_()
+    assert smallest_magnitude_unit(net) == 1
+    assert smallest_magnitude_unit(ValmorphMLP([2, 1, 1]).cpu()) is None
+
+
 def test_most_silent_unit_picks_the_quiet_column() -> None:
     from valmorph.introspect import most_silent_unit
 

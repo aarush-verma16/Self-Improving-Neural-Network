@@ -13,6 +13,23 @@ import torch
 from valmorph.models.mlp import ValmorphMLP
 
 
+def smallest_magnitude_unit(net: ValmorphMLP, layer: int = 0) -> int | None:
+    """Index of the hidden unit with the smallest incoming L2 norm.
+
+    The vector is that unit's incoming weight row with its bias appended.
+    Ties keep the lowest index. Returns None when the layer has fewer than
+    two units. This is our definition, not a formula from an unopened paper.
+    """
+
+    if layer < 0 or layer >= len(net.layers) - 1:
+        return None
+    linear = net.linear(layer)
+    if int(linear.out_features) < 2 or linear.bias is None:
+        return None
+    rows = torch.cat([linear.weight.detach(), linear.bias.detach().unsqueeze(1)], dim=1)
+    return int(torch.argmin(torch.linalg.vector_norm(rows, dim=1)))
+
+
 def dead_unit_fraction(activations: torch.Tensor, *, eps: float = 1e-6) -> float:
     """Fraction of units that stay silent on this batch.
 

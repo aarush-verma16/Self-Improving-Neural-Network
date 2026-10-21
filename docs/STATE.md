@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 08 is checked (`random-mnist-s0-2337dce6c530-20261021T040323Z`): random edits were all refused, and the only accuracy gap was the widen rule's adopted shadow steps. The gate now applies a kept edit at the live weights and does not copy those steps in. Notebook 07 shows that change: the dashed curve still takes the extra steps, the live widen curve should not. A local check kept `widen-30` again and ended at 0.634 / 0.668 / 0.634. The user reloads and re-runs `notebooks/07_widen_mnist.ipynb`. Still CPU.
+Notebook 07 was re-run by the user (`widen-mnist-s0-2337dce6c530-20261021T042444Z`). The gate kept `widen-30` (gain -0.000589, split `u0` to `u42`). Probe accuracy was 0.634 with no edits, 0.668 on the dashed extra-steps curve, and 0.634 on the live widen curve. The live curve differed by at most 0.002 and finished equal to no edits. Notebook 09 is ready: prune the smallest incoming-magnitude unit through the same gate. A local smoke accepted 0 of 3. The user runs it. Still CPU.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 08 is checked (`random-mnist-s0-2337dce6c530-20261021T040323Z`): random
 
 ## Next
 
-1. Reload `notebooks/07_widen_mnist.ipynb` from disk, restart the kernel, and run it. The widen curve should stay with the no-edit curve. The dashed curve is the old rule that copied the shadow steps in. Do not overwrite the file from an old Jupyter tab.
+1. Open `notebooks/09_magnitude_mnist.ipynb` fresh, restart the kernel, and run it. Read which prunes were kept and whether the magnitude curve leaves the no-edit curve. The dashed curve takes extra steps only when a prune is kept.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
