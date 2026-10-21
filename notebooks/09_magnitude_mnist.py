@@ -12,6 +12,12 @@
 # at the current weights. The dashed curve takes the extra steps when a prune
 # is kept and does not prune.
 #
+# The first run proposed unit ``u2`` at steps 10, 20, and 30. All three were
+# refused, with gains +0.00312, +0.00474, and +0.00578, and the accuracy
+# stayed on the no-edit curve at 0.634. A refusal left that unit in the
+# network, so it stayed the smallest. A refused unit is now skipped for the
+# rest of the run.
+#
 # One seed. Short CPU run. Not a Level 1 comparison.
 
 # %%

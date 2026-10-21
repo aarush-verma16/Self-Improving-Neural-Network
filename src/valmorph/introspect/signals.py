@@ -13,12 +13,19 @@ import torch
 from valmorph.models.mlp import ValmorphMLP
 
 
-def smallest_magnitude_unit(net: ValmorphMLP, layer: int = 0) -> int | None:
+def smallest_magnitude_unit(
+    net: ValmorphMLP,
+    layer: int = 0,
+    *,
+    skip: set[str] | None = None,
+) -> int | None:
     """Index of the hidden unit with the smallest incoming L2 norm.
 
     The vector is that unit's incoming weight row with its bias appended.
-    Ties keep the lowest index. Returns None when the layer has fewer than
-    two units. This is our definition, not a formula from an unopened paper.
+    Ties keep the lowest index. ``skip`` holds unit ids to pass over.
+    Returns None when the layer has fewer than two units, or when every
+    remaining unit is skipped. This is our definition, not a formula from
+    an unopened paper.
     """
 
     if layer < 0 or layer >= len(net.layers) - 1:
@@ -27,7 +34,13 @@ def smallest_magnitude_unit(net: ValmorphMLP, layer: int = 0) -> int | None:
     if int(linear.out_features) < 2 or linear.bias is None:
         return None
     rows = torch.cat([linear.weight.detach(), linear.bias.detach().unsqueeze(1)], dim=1)
-    return int(torch.argmin(torch.linalg.vector_norm(rows, dim=1)))
+    blocked = skip or set()
+    norms = torch.linalg.vector_norm(rows, dim=1)
+    for index in torch.argsort(norms).tolist():
+        chosen = int(index)
+        if net.unit_ids[layer][chosen] not in blocked:
+            return chosen
+    return None
 
 
 def dead_unit_fraction(activations: torch.Tensor, *, eps: float = 1e-6) -> float:

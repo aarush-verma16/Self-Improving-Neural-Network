@@ -95,7 +95,11 @@ The user's re-run is `widen-mnist-s0-2337dce6c530-20261021T042444Z`, git `2b9b23
 
 ## 2026-10-21 — Magnitude prune
 
-A function-preserving widen did not move accuracy, so the next proposal is an edit that can change the function. Every 10 steps the controller offers to prune the hidden unit with the smallest incoming L2 norm, weights and bias together. That definition is ours. The gate is unchanged, and a kept prune is applied at the current weights. `notebooks/09_magnitude_mnist.ipynb` is the run. A local smoke proposed 3 and accepted 0, so all three accuracy series stayed at 0.634. The user runs it. Still CPU, one seed.
+A function-preserving widen did not move accuracy, so the next proposal is an edit that can change the function. Every 10 steps the controller offers to prune the hidden unit with the smallest incoming L2 norm, weights and bias together. That definition is ours. The gate is unchanged, and a kept prune is applied at the current weights.
+
+The user's run is `magnitude-mnist-s0-2337dce6c530-20261021T042853Z`, git `46ac3877-dirty`, CPU, synthetic false, seed 0. All three proposals pruned `u2`. Gains were +0.00312, +0.00474, and +0.00578, so probe loss rose and the gate refused each one. There is no lineage table. Probe accuracy was 0.634 for no edits, magnitude prune, and extra steps, equal at every step. Provenance `results/figures/09_magnitude_accuracy.provenance.json`. On this seed the smallest unit is still useful, and a refusal leaves it smallest, so the controller asked for it again.
+
+A refused unit is now skipped for the rest of the run. A local check of that revision proposed `u2`, `u3`, and `u24` and refused all three. Gains were +0.00312, +0.00845, and +0.000030. Accuracy stayed 0.634. The user re-runs notebook 09. Still CPU, one seed.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 

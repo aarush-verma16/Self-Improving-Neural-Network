@@ -34,12 +34,14 @@ def train_with_magnitude_prune(
 ) -> tuple[list[float], list[float]]:
     """Train and periodically propose pruning the smallest unit in layer 0.
 
-    Magnitude is the L2 norm of the incoming weights and bias. Returns probe
-    accuracy for the editor and for ``matched``.
+    Magnitude is the L2 norm of the incoming weights and bias. A unit the
+    gate refuses is skipped for the rest of the run. Returns probe accuracy
+    for the editor and for ``matched``.
     """
 
     accuracies: list[float] = []
     matched_accuracies: list[float] = []
+    refused: set[str] = set()
     count = int(images.shape[0])
 
     def minibatch(model: ValmorphMLP, index: torch.Tensor) -> None:
@@ -51,7 +53,7 @@ def train_with_magnitude_prune(
 
     for step in range(steps):
         if every > 0 and step > 0 and step % every == 0:
-            unit = smallest_magnitude_unit(net, 0)
+            unit = smallest_magnitude_unit(net, 0, skip=refused)
             if unit is not None:
                 unit_id = net.unit_ids[0][unit]
 
@@ -91,6 +93,8 @@ def train_with_magnitude_prune(
                     twin = clone_net(matched)
                     train_cross_entropy_steps(twin, images, labels, shadow_steps, lr)
                     adopt_shadow(matched, twin)
+                else:
+                    refused.add(unit_id)
         start = (step * batch_size) % count
         index = torch.arange(start, start + batch_size) % count
         minibatch(net, index)

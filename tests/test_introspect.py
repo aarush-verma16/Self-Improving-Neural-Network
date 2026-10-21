@@ -22,6 +22,7 @@ def test_smallest_magnitude_unit_picks_the_short_row() -> None:
         net.linear(0).weight.copy_(torch.tensor([[3.0, 0.0], [0.0, 0.0]]))
         net.linear(0).bias.zero_()
     assert smallest_magnitude_unit(net) == 1
+    assert smallest_magnitude_unit(net, skip={net.unit_ids[0][1]}) == 0
     assert smallest_magnitude_unit(ValmorphMLP([2, 1, 1]).cpu()) is None
 
 
