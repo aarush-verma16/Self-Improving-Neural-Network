@@ -23,7 +23,7 @@ Notebooks in `notebooks/` only call this package. Configs in `configs/` are YAML
 
 `resolve_device` accepts `auto`, `cuda`, `mps`, and `cpu`. `auto` prefers CUDA, then MPS, then CPU. An explicit request never falls back. A Mac run that asks for `cuda` fails. A Windows run that asks for `mps` fails. That failure is preferable to a silent device change.
 
-`apply_compute_cap` runs before the first tensor on that device. CUDA uses `torch.cuda.set_per_process_memory_fraction`. MPS sets `PYTORCH_MPS_HIGH_WATERMARK_RATIO` to the same fraction. CPU still rejects an illegal fraction, and otherwise does nothing, because there is no CUDA-style allocator cap.
+`apply_compute_cap` runs before the first tensor on that device. CUDA uses `torch.cuda.set_per_process_memory_fraction`. MPS sets `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the same fraction. The low ratio has to be at most the high ratio, and PyTorch's default low ratio is 1.4, so the high ratio cannot be lowered alone. CPU still rejects an illegal fraction, and otherwise does nothing, because there is no CUDA-style allocator cap.
 
 ## Ledger
 

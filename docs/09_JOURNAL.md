@@ -49,6 +49,14 @@ Short work stays on CPU: tests, the substrate checks, and `notebooks/02_gate.ipy
 
 The gate trains a copy of the network after a proposed edit and keeps the edit only when probe loss falls. A unit test removes a harmful hidden unit and accepts that prune, and removes a unit the fit needs and rejects that prune. The live network changes only on accept. `notebooks/02_gate.ipynb` is the run to watch: a sine fit, a damaged extra unit, one kept prune, one refused prune.
 
+## 2026-10-19 — Mac setup and the gate run
+
+This machine had no `uv` and the system Python was 3.9.6. Installed uv 0.13.1, pinned Python 3.12, and `uv sync --group dev` used the existing CPython 3.12.6 framework build. Torch resolved to the PyPI 2.14.1 wheel. Local `core.hooksPath` is `.githooks`.
+
+The first `env_check` selected MPS and then failed the matmul: `RuntimeError: invalid low watermark ratio 1.4`. PyTorch's default low watermark is 1.4, and it must be at most the high watermark. Setting only `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.2` makes the first MPS allocation illegal. `apply_compute_cap` now sets both watermarks to the configured fraction. The retry wrote `results/env/20261019T071452Z.json`: device `mps`, `matmul_ok` true, result `[[1.0, 2.0], [3.0, 4.0]]`. pytest: 32 passed, 1 skipped (CUDA env check).
+
+`notebooks/00_setup.py` wrote a synthetic timeline. `notebooks/02_gate.py` then ran on CPU. Training loss fell from 0.625 to 0.011 over 60 steps. The damaged unit left the fit near a constant around 11–13 (mean squared error about 144 against the sine). The gate accepted `prune-junk` (probe gain −143.9385) and the live fit came back to the sine (mean squared error about 0.011). It rejected `prune-useful` (probe gain +0.3496), so the live network stayed on the repaired fit. Ledger `gate-s0-2337dce6c530-20261019T071507Z`, finding `gate-toy`, provenance `results/figures/02_gate_timeline.provenance.json` with `synthetic` false. This is the toy gate on one seed. It is not a Level 1 result, and it is not pooled with the CUDA machine.
+
 The user's run `gate-s0-2337dce6c530-20261021T021223Z` matches that: repair gain -143.9385 accepted, useful-unit prune gain +0.3496 refused. Lineage contains only the kept prune. Training loss fell from about 0.62 to near 0. The refused point sits near the zero line on the chart because the kept point is about -144; the ledger value is the one that counts.
 
 ## 2026-10-20 — Milestone 3, diagnostics

@@ -34,5 +34,7 @@ def test_override_allows_a_higher_fraction() -> None:
 
 def test_mps_cap_sets_the_watermark(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("PYTORCH_MPS_HIGH_WATERMARK_RATIO", raising=False)
+    monkeypatch.delenv("PYTORCH_MPS_LOW_WATERMARK_RATIO", raising=False)
     apply_compute_cap(torch.device("mps"), 0.2)
     assert os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] == "0.2"
+    assert os.environ["PYTORCH_MPS_LOW_WATERMARK_RATIO"] == "0.2"

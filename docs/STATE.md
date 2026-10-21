@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Milestone 2 was run by the user on CPU (`gate-s0-2337dce6c530-20261021T021223Z`). The damaged-unit prune was kept (gain -143.94) and the useful-unit prune was refused (gain +0.35). Milestone 3 is ready to run: `notebooks/03_diagnostics.ipynb`, still a short CPU notebook.
+Milestone 2 has been run on the Mac: `notebooks/02_gate.py` (CPU). The gate kept the prune that removes the damaged unit and refused the prune that would break the sine fit. The user's run `gate-s0-2337dce6c530-20261021T021223Z` matches the Mac ledger: damaged-unit prune kept (gain -143.94), useful-unit prune refused (gain +0.35). The loss curve, the gain chart, and the before/after fit are in `results/figures/` (gitignored). Milestone 3 is ready to run: `notebooks/03_diagnostics.ipynb`, still a short CPU notebook.
 
 ## Done
 
@@ -16,12 +16,14 @@ Milestone 2 was run by the user on CPU (`gate-s0-2337dce6c530-20261021T021223Z`)
 - Notebook `notebooks/00_setup.py` (jupytext percent format) and the generated `notebooks/00_setup.ipynb`.
 - Pre-commit hook installed locally (ruff, pyright, pytest excluding the gpu marker, nbstripout). It calls `.venv` through `scripts/run_tool.py`, because the editor's git process does not have `uv` on PATH. No GitHub Actions.
 - Verification on this PC, 2026-10-10: ruff clean, pyright clean, 25 pytest passed, CUDA matmul succeeded, setup notebook wrote a synthetic figure.
+- Mac verification, 2026-10-19: uv 0.13.1, Python 3.12.6, torch 2.14.1 (PyPI), `env_check` device `mps` with `matmul_ok` true, pytest 32 passed and 1 skipped (the CUDA env check), setup notebook wrote a synthetic figure, gate notebook wrote a non-synthetic ledger.
 
 ## Next
 
 1. You run `notebooks/03_diagnostics.ipynb` and look at the three traces and the covariance heatmap.
 2. Phase 0b citation gaps before any published baseline number is used.
-3. The Mac has not run `scripts/env_check.py` yet. Notebooks `00` through `03` are short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC.
+3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
+4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
 
 ## Open questions
 
@@ -42,14 +44,19 @@ Last verified: 2026-10-10, `results/env/20261010T150959Z.json` (gitignored).
 - Git commit: `cc4b8ec` on `main`. Not pushed.
 - Setup note: uv 0.13's TLS client rejected GitHub and PyPI with `UnknownIssuer` on this PC. curl could reach GitHub. The downloads used `uv --allow-insecure-host` for those hosts. That flag is not part of the project config. If a later `uv sync` fails the same way, repeat the flag rather than changing the lockfile.
 
-## Environment — MacBook Pro M4
+## Environment — MacBook Pro
 
-Last verified: never.
+Last verified: 2026-10-19, `results/env/20261019T071452Z.json` (gitignored). An earlier check the same minute, `results/env/20261019T071321Z.json`, found MPS and then failed the matmul because only the high watermark was set.
 
-- Expected: Apple M4, 24 GB unified memory, 1 TB storage, device `mps`
-- Torch: PyPI 2.14.1 wheel, not the cu132 index
-- `matmul_ok`:
-- env JSON path:
+- Machine: MacBook Pro Mac16,8, Apple M4 Pro, 24 GB unified memory, 994 GB SSD
+- OS: Darwin 27.0.0 arm64
+- Project Python: 3.12.6 at `/Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12`, via uv 0.13.1. `.python-version` is `3.12`.
+- Torch: 2.14.1 from PyPI, not the cu132 index. `torch.version.cuda` is null.
+- `device_type`: `mps`. `matmul_ok`: true, result `[[1.0, 2.0], [3.0, 4.0]]`
+- Memory fraction applied: 0.2, on both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO`
+- Git commit: `954818b` on `main`, dirty with the watermark fix. Not pushed.
+- Hooks: local `core.hooksPath` is `.githooks`.
+- Milestone 2 ledger: `results/ledgers/gate-s0-2337dce6c530-20261019T071507Z`. Provenance `results/figures/02_gate_timeline.provenance.json`, `synthetic` false. Probe gain for `prune-junk` was −143.9385 (accepted). Probe gain for `prune-useful` was +0.3496 (rejected).
 
 ## Mac checklist
 
