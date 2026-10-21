@@ -103,7 +103,11 @@ A refused unit is now skipped for the rest of the run. The user's re-run is `mag
 
 ## 2026-10-21 — Scheduled widen, no gate
 
-Magnitude pruning did not find an edit to keep, and the gated widen did not move accuracy once the shadow steps stayed off the live network. `notebooks/10_scheduled_widen.ipynb` copies hidden unit 0 at steps 10, 20, and 30 and does not ask the gate. A local check ended at hidden width 35. Final probe accuracy was 0.634 with no edits and 0.636 with the schedule. The curves separate after step 10 and the largest gap in that check was 0.020. The user runs the notebook. Still CPU, one seed.
+Magnitude pruning did not find an edit to keep, and the gated widen did not move accuracy once the shadow steps stayed off the live network. `notebooks/10_scheduled_widen.ipynb` copies hidden unit 0 at steps 10, 20, and 30 and does not ask the gate.
+
+The user's 40-step run is `scheduled-widen-s0-2337dce6c530-20261021T043703Z`, git `922ad864-dirty`, CPU, synthetic false, seed 0. Hidden width ended at 35. Final probe accuracy was 0.634 with no edits and 0.636 with the schedule. The series differ at 24 steps, first at step 10. The largest gap is 0.020 at step 25, where the schedule is ahead, 0.616 against 0.596. Provenance `results/figures/10_scheduled_accuracy.provenance.json`. On this seed the schedule moves the middle of the curve and finishes one probe example ahead. That is not a 2 percentage point final gap.
+
+The right edge of that plot was not a plateau. The same three widens now train through step 80. A local check reproduces step 39 at 0.634 and 0.636. Step 79 is 0.752 and 0.754. The largest gap after step 40 in that check is 0.010. The user re-runs notebook 10. Still CPU, one seed.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 

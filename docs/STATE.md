@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 09's skip-refusal run is `magnitude-mnist-s0-2337dce6c530-20261021T043213Z`. Proposals pruned `u2`, `u3`, and `u24`. All were refused (gains +0.00312, +0.00845, +0.000030). Probe accuracy stayed 0.634 on every curve, equal at every step. No lineage. Notebook 10 is ready: widen unit 0 at steps 10, 20, and 30 with no gate. A local check ended at hidden width 35, probe accuracy 0.634 with no edits and 0.636 with the schedule. The user runs it. Still CPU.
+Notebook 10's 40-step run is `scheduled-widen-s0-2337dce6c530-20261021T043703Z`. Three ungated widens, hidden width 35. Probe accuracy 0.634 with no edits and 0.636 with the schedule. The curves split at step 10 and the largest gap was 0.020 at step 25. The same notebook now trains through step 80 with no further widens. A local check still matches at step 39, then both curves reach about 0.75 and finish 0.002 apart. The user reloads and re-runs it. Still CPU.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 09's skip-refusal run is `magnitude-mnist-s0-2337dce6c530-20261021T0432
 
 ## Next
 
-1. Open `notebooks/10_scheduled_widen.ipynb` fresh, restart the kernel, and run it. Compare the scheduled-widen curve with the no-edit curve. There is no gate on this run.
+1. Reload `notebooks/10_scheduled_widen.ipynb` from disk, restart the kernel, and run it. Widens stay at steps 10, 20, and 30. Training continues through step 80. Do not overwrite the file from an old tab.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
