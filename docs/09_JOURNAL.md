@@ -107,7 +107,9 @@ Magnitude pruning did not find an edit to keep, and the gated widen did not move
 
 The user's 40-step run is `scheduled-widen-s0-2337dce6c530-20261021T043703Z`, git `922ad864-dirty`, CPU, synthetic false, seed 0. Hidden width ended at 35. Final probe accuracy was 0.634 with no edits and 0.636 with the schedule. The series differ at 24 steps, first at step 10. The largest gap is 0.020 at step 25, where the schedule is ahead, 0.616 against 0.596. Provenance `results/figures/10_scheduled_accuracy.provenance.json`. On this seed the schedule moves the middle of the curve and finishes one probe example ahead. That is not a 2 percentage point final gap.
 
-The right edge of that plot was not a plateau. The same three widens now train through step 80. A local check reproduces step 39 at 0.634 and 0.636. Step 79 is 0.752 and 0.754. The largest gap after step 40 in that check is 0.010. The user re-runs notebook 10. Still CPU, one seed.
+The right edge of that plot was not a plateau. The same three widens now train through step 80. A local check reproduces step 39 at 0.634 and 0.636. Step 79 is 0.752 and 0.754. The largest gap after step 40 in that check is 0.010.
+
+The later user run `scheduled-widen-s0-2337dce6c530-20261021T044319Z` repeats the 40-step result: config `steps` is 40, finals 0.634 and 0.636, largest gap 0.020 at step 25. The file on disk already has `steps` 80 and `until` 30. Jupyter ran the notebook that was already open. Still CPU. Reload and restart, then run again.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
