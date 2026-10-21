@@ -83,6 +83,10 @@ The later user run `widen-mnist-s0-2337dce6c530-20261021T035219Z` has the same t
 
 The reloaded run is `widen-mnist-s0-2337dce6c530-20261021T035630Z`, git `4a89b86`, CPU, synthetic false, seed 0. Same gate decisions. Final probe accuracy was 0.634 with no edits, 0.668 with extra steps only, and 0.668 with the kept widen. The widen curve and the extra-steps curve differed at steps 31, 36, 37, and 38, by at most 0.004, and finished equal. Provenance `results/figures/07_widen_accuracy.provenance.json`. On this seed the kept unit does not move probe accuracy beyond the 8 extra steps the gate adopted with it. Method finding only.
 
+## 2026-10-20 — Random-edit control
+
+The pre-registered control uses the same proposal times and the same gate. Only the edit is random: prune or widen of one unit in the first hidden layer. `notebooks/08_random_mnist.ipynb` plots that run against no edits and against the unit-0 widen rule. A dashed curve takes the extra shadow steps when a random edit is kept. A local smoke accepted none of the three random proposals, so that curve stayed on the no-edit accuracy of 0.634. The unit-0 rule again kept `widen-30`. The user runs the notebook. Still CPU, one seed, not Level 1.
+
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
 The gate now scores digit classification by probe cross-entropy. Notebook 05 trains the same small permuted-MNIST net, breaks it with one added unit, then offers a prune that removes that unit and a prune that removes a useful unit. A local smoke restored accuracy from 0.084 to 0.630 and refused the second prune. The user runs the notebook. Still CPU.

@@ -99,6 +99,7 @@ def consider_edit(
     proposal_id: str,
     edit_type: str,
     target: str,
+    controller: str = "L0",
     params: dict[str, object] | None = None,
     train_x: torch.Tensor | None = None,
     train_y: torch.Tensor | None = None,
@@ -143,7 +144,7 @@ def consider_edit(
                 EditProposal(
                     proposal_id=proposal_id,
                     step=step,
-                    controller="L0",
+                    controller=controller,
                     edit_type=edit_type,
                     target=target,
                     params_json=json.dumps(params or {}, sort_keys=True),

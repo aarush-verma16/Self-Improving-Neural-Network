@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 07's three-curve run is `widen-mnist-s0-2337dce6c530-20261021T035630Z`. Three widens were proposed and `widen-30` was kept (gain -0.000589, split `u0` to `u42`). Final probe accuracy was 0.634 with no edits, 0.668 with the extra steps only, and 0.668 with the kept widen. Those last two curves differed by at most 0.004. The accuracy gap against the no-edit run is the adopted shadow training. CPU, seed 0, synthetic false. Still not a Level 1 result.
+Notebook 07 is checked (`widen-mnist-s0-2337dce6c530-20261021T035630Z`): the kept widen matched extra training steps, not a gain from the new unit. Notebook 08 is ready. It proposes a random prune or widen at the same steps, through the same gate, and plots that against no edits and against the unit-0 widen rule. A local smoke accepted 0 of 3 random edits. The user runs it. Still CPU.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 07's three-curve run is `widen-mnist-s0-2337dce6c530-20261021T035630Z`.
 
 ## Next
 
-1. Notebook 07 is checked. The next controller comparison is a new question, not a patch to this chart. Phase 0b citation gaps still come before any published baseline number.
+1. You run `notebooks/08_random_mnist.ipynb`. Open that file fresh. Read which random edits were kept, and whether the random curve stays with the no-edit curve. The widen curve is the same rule as notebook 07. Still one seed, not Level 1.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
