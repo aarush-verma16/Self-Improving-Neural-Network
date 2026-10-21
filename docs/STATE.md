@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 10 on disk trains through step 80, with widens only at steps 10, 20, and 30. The run `scheduled-widen-s0-2337dce6c530-20261021T044319Z` is the previous 40-step notebook again: config `steps` is 40, hidden width 35, probe accuracy 0.634 and 0.636, largest gap 0.020 at step 25. Jupyter executed the copy it already had open. Reload the file from disk and restart the kernel. Still CPU.
+Notebook 10 on disk trains through step 80, with widens only at steps 10, 20, and 30. Two user runs, `20261021T044319Z` and `20261021T044559Z`, both executed the 40-step notebook that Jupyter already had open. Each ended at 0.634 and 0.636. The 80-step file has not been executed by the user. Still CPU.
 
 ## Done
 

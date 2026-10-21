@@ -109,7 +109,7 @@ The user's 40-step run is `scheduled-widen-s0-2337dce6c530-20261021T043703Z`, gi
 
 The right edge of that plot was not a plateau. The same three widens now train through step 80. A local check reproduces step 39 at 0.634 and 0.636. Step 79 is 0.752 and 0.754. The largest gap after step 40 in that check is 0.010.
 
-The later user run `scheduled-widen-s0-2337dce6c530-20261021T044319Z` repeats the 40-step result: config `steps` is 40, finals 0.634 and 0.636, largest gap 0.020 at step 25. The file on disk already has `steps` 80 and `until` 30. Jupyter ran the notebook that was already open. Still CPU. Reload and restart, then run again.
+The later user runs `scheduled-widen-s0-2337dce6c530-20261021T044319Z` and `scheduled-widen-s0-2337dce6c530-20261021T044559Z` both repeat the 40-step result: config `steps` is 40, finals 0.634 and 0.636, largest gap 0.020 at step 25. The file on disk already has `steps` 80 and `until` 30. Jupyter ran the notebook that was already open. Still CPU. Close that tab without saving, then open the file again.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
