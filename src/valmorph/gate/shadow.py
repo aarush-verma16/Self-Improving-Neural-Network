@@ -47,6 +47,28 @@ def train_steps(
     return losses
 
 
+def train_cross_entropy_steps(
+    net: ValmorphMLP,
+    x: torch.Tensor,
+    y: torch.Tensor,
+    steps: int,
+    lr: float,
+) -> list[float]:
+    """Full-batch cross-entropy SGD. ``y`` is integer labels of shape ``[batch]``."""
+
+    if steps < 0:
+        raise ValueError("steps must be >= 0")
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
+    losses: list[float] = []
+    for _ in range(steps):
+        optimizer.zero_grad()
+        loss = torch.nn.functional.cross_entropy(net(x), y)
+        loss.backward()
+        optimizer.step()
+        losses.append(float(loss.detach()))
+    return losses
+
+
 def clone_net(net: ValmorphMLP) -> ValmorphMLP:
     """Deep copy, including unit ids."""
 
@@ -84,6 +106,7 @@ def consider_edit(
     lr: float = 1e-2,
     min_gain: float = 1e-4,
     score: Callable[[ValmorphMLP, torch.Tensor, torch.Tensor], float] | None = None,
+    train_fn: Callable[..., list[float]] | None = None,
 ) -> GateDecision:
     """Trial ``edit`` on a copy. Keep it only when probe loss falls enough.
 
@@ -94,21 +117,22 @@ def consider_edit(
     """
 
     metric = probe_mse if score is None else score
+    trainer = train_steps if train_fn is None else train_fn
     baseline = clone_net(net)
     if shadow_steps:
         if train_x is None or train_y is None:
             raise ValueError("shadow training requires train_x and train_y")
         trained_x = train_x
         trained_y = train_y
-        train_steps(baseline, trained_x, trained_y, shadow_steps, lr)
+        trainer(baseline, trained_x, trained_y, shadow_steps, lr)
     before = metric(baseline, probe_x, probe_y)
     before_ids = _unit_ids(net)
     shadow = clone_net(net)
-    edit(shadow)
+    produced = edit(shadow)
     if shadow_steps:
         if train_x is None or train_y is None:
             raise ValueError("shadow training requires train_x and train_y")
-        train_steps(shadow, train_x, train_y, shadow_steps, lr)
+        trainer(shadow, train_x, train_y, shadow_steps, lr)
     after = metric(shadow, probe_x, probe_y)
     gain = after - before
     accepted = gain < -min_gain
@@ -143,16 +167,24 @@ def consider_edit(
         added = _unit_ids(shadow) - before_ids
         removed = before_ids - _unit_ids(shadow)
         adopt_shadow(net, shadow)
-        if ledger is not None and (added or removed):
-            edges = [
-                LineageEdge(step=step, parent_unit=unit, child_unit=unit, relation="split")
-                for unit in sorted(added)
-            ]
-            edges.extend(
-                LineageEdge(step=step, parent_unit=unit, child_unit=unit, relation="prune")
-                for unit in sorted(removed)
-            )
-            ledger.append_lineage(edges)
+        if ledger is not None:
+            if isinstance(produced, LineageEdge):
+                edges = [produced]
+            elif isinstance(produced, list) and all(
+                isinstance(edge, LineageEdge) for edge in produced
+            ):
+                edges = list(produced)
+            else:
+                edges = [
+                    LineageEdge(step=step, parent_unit=unit, child_unit=unit, relation="split")
+                    for unit in sorted(added)
+                ]
+                edges.extend(
+                    LineageEdge(step=step, parent_unit=unit, child_unit=unit, relation="prune")
+                    for unit in sorted(removed)
+                )
+            if edges:
+                ledger.append_lineage(edges)
     return GateDecision(
         proposal_id=proposal_id,
         step=step,

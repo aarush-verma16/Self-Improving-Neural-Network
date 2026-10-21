@@ -69,7 +69,11 @@ Going forward, a paper-worthy figure gets a ledger finding and a provenance mani
 
 ## 2026-10-20 — Milestone 6, proposals from silent units
 
-The controller now looks at the current batch. If a hidden unit is silent, it proposes pruning that unit. The existing gate still keeps the edit only when probe loss falls. A local smoke on the same permuted-MNIST slice proposed 2 prunes and accepted 0. Final probe accuracy was 0.634 with and without those proposals. The static gain chart no longer draws a line through unrelated decisions, and each point is labeled with its gain. `notebooks/06_l0_mnist.ipynb` is the run to watch. Still CPU.
+The controller now looks at the current batch. If a hidden unit is silent, it proposes pruning that unit. The existing gate still keeps the edit only when probe loss falls. The user's run `l0-mnist-s0-2337dce6c530-20261021T033055Z` proposed 2 and accepted 0. Gains were about +1.1e-5 and -7.6e-6, both inside the refusal band. Final probe accuracy was 0.634 with and without those proposals, so the two curves sit on top of each other. Lineage is empty. CPU, synthetic false, seed 0. Removing a silent unit does not lower probe loss, so this gate refuses the cleanup. The static gain chart no longer draws a line through unrelated decisions, and each point is labeled with its gain.
+
+## 2026-10-20 — Milestone 7, widen with matched shadow training
+
+A function-preserving widen has immediate gain 0, so the gate that only looks at the edit itself will refuse it. `train_with_widen_trials` proposes `widen` of hidden unit 0 every 10 steps. The gate then trains the widened copy and an unedited copy for 8 full-batch cross-entropy steps and keeps the widen only when the widened copy has lower probe loss. Shadow training for classification uses cross-entropy. The sine gate still uses mean squared error. `notebooks/07_widen_mnist.ipynb` is the run to watch. Still CPU.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
