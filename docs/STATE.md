@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 10 on disk trains through step 80, with widens only at steps 10, 20, and 30. Two user runs, `20261021T044319Z` and `20261021T044559Z`, both executed the 40-step notebook that Jupyter already had open. Each ended at 0.634 and 0.636. The 80-step file has not been executed by the user. Still CPU.
+Notebook 10's 80-step run is `scheduled-widen-s0-2337dce6c530-20261021T044713Z`. Widens at steps 10, 20, and 30, hidden width 35. Step 39 is 0.634 and 0.636. Step 79 is 0.752 with no edits and 0.754 with the schedule. The largest gap is 0.020 at step 25. After step 40 the largest gap is 0.010. Notebook 11 is ready: the same 80 steps, but unit-0 widens go through the gate. A local check proposed 7, kept 5, and finished at 0.752 / 0.806 / 0.750. The user runs it. Still CPU.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 10 on disk trains through step 80, with widens only at steps 10, 20, an
 
 ## Next
 
-1. In Jupyter, reload `notebooks/10_scheduled_widen.ipynb` from disk. Do not overwrite. Restart the kernel and run all cells. The x-axis should reach step 80, and the saved config should say `"steps": 80`.
+1. Open `notebooks/11_widen_long.ipynb` as a new tab, restart the kernel, and run it. The gain chart is the decision. On the accuracy chart, see whether the live widen curve leaves the no-edit curve. The dashed curve takes the extra shadow steps on each keep.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.

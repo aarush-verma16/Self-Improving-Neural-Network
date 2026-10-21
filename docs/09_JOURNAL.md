@@ -109,7 +109,11 @@ The user's 40-step run is `scheduled-widen-s0-2337dce6c530-20261021T043703Z`, gi
 
 The right edge of that plot was not a plateau. The same three widens now train through step 80. A local check reproduces step 39 at 0.634 and 0.636. Step 79 is 0.752 and 0.754. The largest gap after step 40 in that check is 0.010.
 
-The later user runs `scheduled-widen-s0-2337dce6c530-20261021T044319Z` and `scheduled-widen-s0-2337dce6c530-20261021T044559Z` both repeat the 40-step result: config `steps` is 40, finals 0.634 and 0.636, largest gap 0.020 at step 25. The file on disk already has `steps` 80 and `until` 30. Jupyter ran the notebook that was already open. Still CPU. Close that tab without saving, then open the file again.
+The later user runs `scheduled-widen-s0-2337dce6c530-20261021T044319Z` and `scheduled-widen-s0-2337dce6c530-20261021T044559Z` both repeat the 40-step result. The 80-step run is `scheduled-widen-s0-2337dce6c530-20261021T044713Z`, git `3207268e-dirty`, CPU, synthetic false, seed 0. Config `steps` is 80 and `until` is 30. Hidden width 35. Step 39 is 0.634 and 0.636. Step 79 is 0.752 with no edits and 0.754 with the schedule. The largest gap remains 0.020 at step 25. After step 40 the largest gap is 0.010, at step 40. Provenance `results/figures/10_scheduled_accuracy.provenance.json`. On this seed the schedule's lead does not grow while both curves climb from about 0.63 to about 0.75.
+
+## 2026-10-21 — Gated widen over 80 steps
+
+Step 40 was mid-training, so the gate is asked again across 80 steps. Every 10 steps the proposal is a widen of unit 0, with 8 matched shadow steps. A kept edit is applied at the current weights. `notebooks/11_widen_long.ipynb` is the run. A local check proposed 7 and accepted 5, from step 30 through step 70, each a split of `u0`. Final probe accuracy was 0.752 with no edits, 0.806 on the dashed extra-steps curve, and 0.750 with the live widens. The user runs the notebook. Still CPU, one seed.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
