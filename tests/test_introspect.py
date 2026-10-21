@@ -14,7 +14,12 @@ from valmorph.introspect import (
 from valmorph.models import ValmorphMLP
 
 
-def test_dead_fraction_on_a_known_batch() -> None:
+def test_most_silent_unit_picks_the_quiet_column() -> None:
+    from valmorph.introspect import most_silent_unit
+
+    activations = torch.tensor([[0.0, 1.0], [0.0, 2.0]])
+    assert most_silent_unit(activations) == 0
+    assert most_silent_unit(torch.ones(2, 3)) is None
     activations = torch.tensor([[0.0, 2.0], [0.0, 3.0]])
     assert dead_unit_fraction(activations) == 0.5
     assert dead_unit_fraction(torch.ones(4, 3)) == 0.0

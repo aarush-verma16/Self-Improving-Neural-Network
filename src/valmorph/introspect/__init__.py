@@ -6,6 +6,7 @@ from valmorph.introspect.signals import (
     hidden_activations,
     layer_gradient_norms,
     mean_off_diagonal,
+    most_silent_unit,
     singular_entropy_rank,
 )
 
@@ -15,5 +16,6 @@ __all__ = [
     "hidden_activations",
     "layer_gradient_norms",
     "mean_off_diagonal",
+    "most_silent_unit",
     "singular_entropy_rank",
 ]

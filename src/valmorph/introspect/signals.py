@@ -28,6 +28,21 @@ def dead_unit_fraction(activations: torch.Tensor, *, eps: float = 1e-6) -> float
     return float(silent.to(dtype=torch.float32).mean())
 
 
+def most_silent_unit(activations: torch.Tensor, *, eps: float = 1e-6) -> int | None:
+    """Index of a unit that is silent on this batch, or None.
+
+    ``activations`` has shape ``[batch, units]``. If several units are silent,
+    the one with the smallest peak activation is returned.
+    """
+
+    if activations.ndim != 2 or int(activations.shape[1]) == 0:
+        return None
+    peak = activations.detach().abs().amax(dim=0)
+    if float(peak.min()) > eps:
+        return None
+    return int(torch.argmin(peak))
+
+
 def singular_entropy_rank(activations: torch.Tensor) -> float:
     """Exponential entropy of the normalized singular values.
 

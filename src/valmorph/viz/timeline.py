@@ -63,13 +63,21 @@ def save_gate_timeline_png(table: pa.Table, path: Path, *, synthetic: bool) -> N
     steps, accepted, gains, _proposals = _columns(table)
     figure, ax = plt.subplots(figsize=(6.0, 3.2))
     ax.axhline(0.0, color="#000000", linewidth=0.6)
-    ax.plot(steps, gains, color=COLOR_CYCLE[1], linewidth=1.0)
     accept_x = [step for step, flag in zip(steps, accepted, strict=True) if flag]
     accept_y = [gain for gain, flag in zip(gains, accepted, strict=True) if flag]
     reject_x = [step for step, flag in zip(steps, accepted, strict=True) if not flag]
     reject_y = [gain for gain, flag in zip(gains, accepted, strict=True) if not flag]
     ax.scatter(accept_x, accept_y, color=COLOR_CYCLE[0], label="accepted", zorder=3)
     ax.scatter(reject_x, reject_y, color=COLOR_CYCLE[5], label="rejected", zorder=3)
+    for step, gain, proposal in zip(steps, gains, _proposals, strict=True):
+        ax.annotate(
+            f"{proposal}\n{gain:.3g}",
+            (step, gain),
+            textcoords="offset points",
+            xytext=(0, 6),
+            ha="center",
+            fontsize=7,
+        )
     prefix = "SYNTHETIC — " if synthetic else ""
     ax.set_title(f"{prefix}validated gain per proposal")
     ax.set_xlabel("step")

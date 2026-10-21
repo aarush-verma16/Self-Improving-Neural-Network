@@ -65,7 +65,11 @@ While the sine net trains, the notebook records three of our own measurements: d
 
 ## 2026-10-20 — Milestone 4, one permuted-MNIST task
 
-Going forward, a paper-worthy figure gets a ledger finding and a provenance manifest in the same session. Only `claim` figures are copied into `paper/figures/`. Downloads and run outputs stay gitignored (`data/`, `results/`). The user's notebook 04 run reached probe accuracy 0.634 from 0.224. Loss fell from 2.32 to 1.53. The permuted digits are scrambled. Method check only.
+Going forward, a paper-worthy figure gets a ledger finding and a provenance manifest in the same session. Only `claim` figures are copied into `paper/figures/`. Downloads and run outputs stay gitignored (`data/`, `results/`). The user's notebook 04 run reached probe accuracy 0.634 from 0.224. Loss fell from 2.32 to 1.53. The permuted digits are scrambled. Method check only. Notebook 05 then put a planted damaged unit through the gate: accuracy fell to 0.084 and returned to 0.630 when that unit was removed. The useful-unit prune was refused.
+
+## 2026-10-20 — Milestone 6, proposals from silent units
+
+The controller now looks at the current batch. If a hidden unit is silent, it proposes pruning that unit. The existing gate still keeps the edit only when probe loss falls. A local smoke on the same permuted-MNIST slice proposed 2 prunes and accepted 0. Final probe accuracy was 0.634 with and without those proposals. The static gain chart no longer draws a line through unrelated decisions, and each point is labeled with its gain. `notebooks/06_l0_mnist.ipynb` is the run to watch. Still CPU.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 

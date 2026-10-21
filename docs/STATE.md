@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 04 was run by the user (`permuted-mnist-smoke-s0-2337dce6c530-20261021T023044Z`): probe accuracy rose from 0.224 to 0.634 on one pixel permutation, CPU, 2000 training rows. That is a method check. Notebook 05 is ready: the same task, with the gate offered a repair prune and a harmful prune. Still a short CPU run.
+Notebook 05 was run by the user (`mnist-gate-s0-2337dce6c530-20261021T031345Z`): accuracy 0.630, damaged to 0.084, restored to 0.630 by a kept prune, and a useful prune was refused. Notebook 06 is ready: the network itself proposes pruning silent units during the same permuted-MNIST task. A local smoke proposed 2 and accepted 0, with both copies at probe accuracy 0.634. The user runs it. Still CPU.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 04 was run by the user (`permuted-mnist-smoke-s0-2337dce6c530-20261021T
 
 ## Next
 
-1. You run `notebooks/05_mnist_gate.ipynb`. Look at the four accuracy points and the gain chart.
+1. You run `notebooks/06_l0_mnist.ipynb`. Compare the two accuracy curves and read how many silent-unit prunes were kept.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
