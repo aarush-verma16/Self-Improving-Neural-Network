@@ -8,6 +8,13 @@ from torch.nn import functional as F
 from valmorph.models.mlp import ValmorphMLP
 
 
+def probe_cross_entropy(net: ValmorphMLP, x: torch.Tensor, y: torch.Tensor) -> float:
+    """Mean cross-entropy. ``y`` is integer class labels of shape ``[batch]``."""
+
+    with torch.no_grad():
+        return float(F.cross_entropy(net(x), y))
+
+
 def batch_accuracy(logits: torch.Tensor, labels: torch.Tensor) -> float:
     """Fraction of correct rows. ``logits`` is ``[batch, classes]``."""
 

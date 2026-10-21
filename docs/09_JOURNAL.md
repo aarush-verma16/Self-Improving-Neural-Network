@@ -65,4 +65,8 @@ While the sine net trains, the notebook records three of our own measurements: d
 
 ## 2026-10-20 — Milestone 4, one permuted-MNIST task
 
-Going forward, a paper-worthy figure gets a ledger finding and a provenance manifest in the same session. Only `claim` figures are copied into `paper/figures/`. Downloads and run outputs stay gitignored (`data/`, `results/`). The next notebook is a short CPU smoke: 2000 permuted training images, 40 steps, width 32. A local smoke reached probe accuracy about 0.63. That is a method check, not a result to publish.
+Going forward, a paper-worthy figure gets a ledger finding and a provenance manifest in the same session. Only `claim` figures are copied into `paper/figures/`. Downloads and run outputs stay gitignored (`data/`, `results/`). The user's notebook 04 run reached probe accuracy 0.634 from 0.224. Loss fell from 2.32 to 1.53. The permuted digits are scrambled. Method check only.
+
+## 2026-10-20 — Milestone 5, gate on permuted MNIST
+
+The gate now scores digit classification by probe cross-entropy. Notebook 05 trains the same small permuted-MNIST net, breaks it with one added unit, then offers a prune that removes that unit and a prune that removes a useful unit. A local smoke restored accuracy from 0.084 to 0.630 and refused the second prune. The user runs the notebook. Still CPU.

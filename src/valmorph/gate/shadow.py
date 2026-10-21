@@ -83,6 +83,7 @@ def consider_edit(
     shadow_steps: int = 0,
     lr: float = 1e-2,
     min_gain: float = 1e-4,
+    score: Callable[[ValmorphMLP, torch.Tensor, torch.Tensor], float] | None = None,
 ) -> GateDecision:
     """Trial ``edit`` on a copy. Keep it only when probe loss falls enough.
 
@@ -92,6 +93,7 @@ def consider_edit(
     gain: the loss went down.
     """
 
+    metric = probe_mse if score is None else score
     baseline = clone_net(net)
     if shadow_steps:
         if train_x is None or train_y is None:
@@ -99,7 +101,7 @@ def consider_edit(
         trained_x = train_x
         trained_y = train_y
         train_steps(baseline, trained_x, trained_y, shadow_steps, lr)
-    before = probe_mse(baseline, probe_x, probe_y)
+    before = metric(baseline, probe_x, probe_y)
     before_ids = _unit_ids(net)
     shadow = clone_net(net)
     edit(shadow)
@@ -107,7 +109,7 @@ def consider_edit(
         if train_x is None or train_y is None:
             raise ValueError("shadow training requires train_x and train_y")
         train_steps(shadow, train_x, train_y, shadow_steps, lr)
-    after = probe_mse(shadow, probe_x, probe_y)
+    after = metric(shadow, probe_x, probe_y)
     gain = after - before
     accepted = gain < -min_gain
     reason = "probe loss fell" if accepted else "probe loss did not fall enough"
