@@ -6,7 +6,11 @@ from pathlib import Path
 
 import torch
 
-from valmorph.controllers import train_with_random_edits, train_with_widen_trials
+from valmorph.controllers import (
+    train_with_random_edits,
+    train_with_scheduled_widen,
+    train_with_widen_trials,
+)
 from valmorph.core.ledger import LEDGER_VERSION, Ledger, RunMeta
 from valmorph.gate import clone_net
 from valmorph.models import ValmorphMLP
@@ -97,3 +101,23 @@ def test_random_controller_is_labeled_and_leaves_the_matched_width(tmp_path: Pat
     assert opened.read("gate_decisions").column("accepted").to_pylist() == [True, True, True]
     assert int(matched.linear(0).out_features) == 3
     assert opened.read("lineage").num_rows == 3
+
+
+def test_scheduled_widen_grows_on_the_interval() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2]).cpu()
+    images = torch.randn(8, 4)
+    labels = torch.randint(0, 2, (8,))
+    accuracy = train_with_scheduled_widen(
+        net,
+        images,
+        labels,
+        probe_images=images,
+        probe_labels=labels,
+        steps=3,
+        batch_size=4,
+        lr=0.1,
+        every=1,
+    )
+    assert len(accuracy) == 3
+    assert int(net.linear(0).out_features) == 5

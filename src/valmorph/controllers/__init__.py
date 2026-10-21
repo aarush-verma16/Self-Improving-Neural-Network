@@ -3,11 +3,13 @@
 from valmorph.controllers.l0 import train_with_silent_prune, train_with_widen_trials
 from valmorph.controllers.magnitude import train_with_magnitude_prune
 from valmorph.controllers.random_controller import choose_edit, train_with_random_edits
+from valmorph.controllers.schedule import train_with_scheduled_widen
 
 __all__ = [
     "choose_edit",
     "train_with_magnitude_prune",
     "train_with_random_edits",
+    "train_with_scheduled_widen",
     "train_with_silent_prune",
     "train_with_widen_trials",
 ]

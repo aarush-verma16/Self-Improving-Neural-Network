@@ -99,7 +99,11 @@ A function-preserving widen did not move accuracy, so the next proposal is an ed
 
 The user's run is `magnitude-mnist-s0-2337dce6c530-20261021T042853Z`, git `46ac3877-dirty`, CPU, synthetic false, seed 0. All three proposals pruned `u2`. Gains were +0.00312, +0.00474, and +0.00578, so probe loss rose and the gate refused each one. There is no lineage table. Probe accuracy was 0.634 for no edits, magnitude prune, and extra steps, equal at every step. Provenance `results/figures/09_magnitude_accuracy.provenance.json`. On this seed the smallest unit is still useful, and a refusal leaves it smallest, so the controller asked for it again.
 
-A refused unit is now skipped for the rest of the run. A local check of that revision proposed `u2`, `u3`, and `u24` and refused all three. Gains were +0.00312, +0.00845, and +0.000030. Accuracy stayed 0.634. The user re-runs notebook 09. Still CPU, one seed.
+A refused unit is now skipped for the rest of the run. The user's re-run is `magnitude-mnist-s0-2337dce6c530-20261021T043213Z`, git `3b477ff`, CPU, synthetic false, seed 0. The proposals pruned `u2`, `u3`, and `u24`. Gains were +0.00312, +0.00845, and +0.000030. All refused. No lineage table. Probe accuracy was 0.634 for no edits, magnitude prune, and extra steps, equal at every step. Provenance `results/figures/09_magnitude_accuracy.provenance.json`. On this seed the three smallest units are still useful. Removing them does not lower probe loss.
+
+## 2026-10-21 — Scheduled widen, no gate
+
+Magnitude pruning did not find an edit to keep, and the gated widen did not move accuracy once the shadow steps stayed off the live network. `notebooks/10_scheduled_widen.ipynb` copies hidden unit 0 at steps 10, 20, and 30 and does not ask the gate. A local check ended at hidden width 35. Final probe accuracy was 0.634 with no edits and 0.636 with the schedule. The curves separate after step 10 and the largest gap in that check was 0.020. The user runs the notebook. Still CPU, one seed.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
