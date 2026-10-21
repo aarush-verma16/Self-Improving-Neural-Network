@@ -11,6 +11,7 @@ Public pages (`README.md`, `CONTRIBUTING.md`) describe the project. They do not 
 3. Update `docs/STATE.md` and add an entry to `docs/09_JOURNAL.md` before stopping.
 4. Record analytical findings and visual findings in the ledger. A paper claim names a provenance manifest. Synthetic output does not count.
 5. When a notebook's result calls for a fix or a missing comparison, add it to that notebook. Do not open a new notebook for a small follow-up.
+6. After checking a notebook's output, take the next step that output calls for. Do not stop at the check.
 
 ## Rules
 

@@ -3,7 +3,8 @@
 ``probe_x`` is ``[probe_batch, in_features]`` and ``probe_y`` is
 ``[probe_batch, out_features]``. The live network changes only when the
 edited copy beats a matched copy that trained for the same number of steps
-without the edit.
+without the edit. An accepted edit is applied at the live weights. The
+shadow's extra training steps are not copied in.
 """
 
 from __future__ import annotations
@@ -114,7 +115,8 @@ def consider_edit(
     When ``shadow_steps`` is positive, both the edited copy and an unedited
     copy train for that many steps. ``validated_gain`` is probe loss after
     minus probe loss before, matching the ledger. A kept edit has a negative
-    gain: the loss went down.
+    gain: the loss went down. The live network then receives that edit at
+    the weights it had before the shadow training.
     """
 
     metric = probe_mse if score is None else score
@@ -130,6 +132,7 @@ def consider_edit(
     before_ids = _unit_ids(net)
     shadow = clone_net(net)
     produced = edit(shadow)
+    kept = clone_net(shadow)
     if shadow_steps:
         if train_x is None or train_y is None:
             raise ValueError("shadow training requires train_x and train_y")
@@ -165,9 +168,9 @@ def consider_edit(
             ]
         )
     if accepted:
-        added = _unit_ids(shadow) - before_ids
-        removed = before_ids - _unit_ids(shadow)
-        adopt_shadow(net, shadow)
+        added = _unit_ids(kept) - before_ids
+        removed = before_ids - _unit_ids(kept)
+        adopt_shadow(net, kept)
         if ledger is not None:
             if isinstance(produced, LineageEdge):
                 edges = [produced]

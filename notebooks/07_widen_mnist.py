@@ -12,11 +12,12 @@
 #
 # The first run kept one widen, `widen-30`, with gain -0.000589. Probe accuracy
 # then moved from 0.634 with no edits to 0.668 with the proposal. That keep
-# also adopted the 8 extra training steps, so the accuracy gap was not a
-# matched-step comparison. This notebook now trains a third copy that receives
-# those extra steps when a widen is kept, and does not widen. A dotted line
-# marks each kept step. The gain chart is the gate's decision. The accuracy
-# chart asks whether the extra unit did more than the extra steps.
+# had copied the shadow's 8 extra training steps into the live network. The
+# dashed curve still takes those steps when a widen is kept. The live network
+# no longer does: a kept widen is applied at the current weights, and training
+# continues from there. The gain chart is the gate's decision. The accuracy
+# chart asks whether the extra unit changes probe accuracy once those steps
+# stay on the dashed curve.
 #
 # Run this yourself. Short CPU run. Not yet a claim that self-edits help.
 

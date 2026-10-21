@@ -7,7 +7,7 @@ from pathlib import Path
 import torch
 
 from valmorph.core.ledger import LEDGER_VERSION, Ledger, LineageEdge, RunMeta
-from valmorph.gate import consider_edit, probe_mse
+from valmorph.gate import clone_net, consider_edit, probe_mse, train_steps
 from valmorph.models import ValmorphMLP, prune, widen
 
 
@@ -127,3 +127,35 @@ def test_accepted_widen_lineage_names_parent_and_child(tmp_path: Path) -> None:
     assert edges.column("parent_unit").to_pylist() == [net.unit_ids[0][0]]
     assert edges.column("child_unit").to_pylist() != edges.column("parent_unit").to_pylist()
     assert edges.column("relation").to_pylist() == ["split"]
+
+
+def test_accept_keeps_the_edit_not_the_shadow_training(tmp_path: Path) -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([2, 2, 1]).cpu()
+    original = clone_net(net)
+    x = torch.randn(16, 2)
+    y = torch.randn(16, 1)
+    decision = consider_edit(
+        net,
+        lambda shadow: widen(shadow, 0, 0),
+        probe_x=x[:4],
+        probe_y=y[:4],
+        train_x=x,
+        train_y=y,
+        shadow_steps=5,
+        lr=0.5,
+        min_gain=-1.0e9,
+        ledger=_ledger(tmp_path),
+        step=1,
+        proposal_id="widen-shadow",
+        edit_type="widen",
+        target="layer0",
+    )
+    assert decision.accepted is True
+    expected = clone_net(original)
+    widen(expected, 0, 0)
+    assert torch.allclose(net.linear(0).weight, expected.linear(0).weight)
+    assert torch.allclose(net.linear(1).weight, expected.linear(1).weight)
+    trained = clone_net(expected)
+    train_steps(trained, x, y, 5, 0.5)
+    assert not torch.allclose(net.linear(0).weight, trained.linear(0).weight)

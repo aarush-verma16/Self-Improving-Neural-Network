@@ -48,8 +48,9 @@ def train_with_random_edits(
     """Train and periodically propose a random prune or widen.
 
     The gate matches ``shadow_steps`` of training on the edited and unedited
-    copies. ``matched`` sees the same minibatches and, when an edit is kept,
-    the same extra steps, without the edit. Returns probe accuracy for the
+    copies. The live network receives a kept edit at its current weights.
+    ``matched`` sees the same minibatches and, when an edit is kept, the
+    shadow's extra steps without the edit. Returns probe accuracy for the
     editor and for ``matched``.
     """
 

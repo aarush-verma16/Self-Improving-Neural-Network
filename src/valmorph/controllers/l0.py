@@ -88,8 +88,10 @@ def train_with_widen_trials(
 
     The gate trains an edited copy and an unedited copy for ``shadow_steps``
     on the full training set. The widen is kept only when the edited copy has
-    lower probe loss. ``matched`` sees the same minibatches. When a widen is
-    kept, ``matched`` also receives those extra steps and does not widen.
+    lower probe loss. The live network receives the widen at its current
+    weights and does not keep the shadow's extra steps. ``matched`` sees the
+    same minibatches, and on a kept widen it does take those extra steps, so
+    the two curves separate the unit from the old adoption rule.
     Returns probe accuracy for the editor and for ``matched``.
     """
 
