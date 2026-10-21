@@ -9,24 +9,46 @@ import plotly.graph_objects as go
 
 from valmorph.viz.theme import COLOR_CYCLE, apply_matplotlib_style
 
+_PLOTLY_DASH = {"solid": "solid", "dash": "dash", "dot": "dot", "dashdot": "dashdot"}
+_MPL_DASH = {"solid": "solid", "dash": "dashed", "dot": "dotted", "dashdot": "dashdot"}
+
 
 def plot_diagnostic_traces(
     series: dict[str, list[float]],
     *,
     title: str = "diagnostics during training",
     y_title: str = "value",
+    marks: list[int] | None = None,
+    dashes: dict[str, str] | None = None,
 ) -> go.Figure:
-    """One line per diagnostic. Each list is one finite scalar per recorded step."""
+    """One line per diagnostic. Each list is one finite scalar per recorded step.
+
+    ``marks`` are step numbers drawn as dotted vertical lines, labeled ``kept``.
+    ``dashes`` maps a series name to ``solid``, ``dash``, ``dot``, or ``dashdot``.
+    """
 
     figure = go.Figure()
+    style = dashes or {}
     for index, (name, values) in enumerate(series.items()):
         figure.add_trace(
             go.Scatter(
                 y=values,
                 mode="lines",
                 name=name,
-                line={"color": COLOR_CYCLE[index % len(COLOR_CYCLE)], "width": 2},
+                line={
+                    "color": COLOR_CYCLE[index % len(COLOR_CYCLE)],
+                    "width": 2,
+                    "dash": _PLOTLY_DASH[style.get(name, "solid")],
+                },
             )
+        )
+    for step in marks or []:
+        figure.add_vline(
+            x=step,
+            line_dash="dot",
+            line_color="#000000",
+            annotation_text="kept",
+            annotation_position="top",
         )
     figure.update_layout(
         template="plotly_white",
@@ -56,13 +78,26 @@ def save_diagnostic_traces_png(
     *,
     title: str = "diagnostics during training",
     y_title: str = "value",
+    marks: list[int] | None = None,
+    dashes: dict[str, str] | None = None,
 ) -> None:
-    """Static copy of the diagnostic traces."""
+    """Static copy of the diagnostic traces. ``marks`` are dotted ``kept`` lines."""
 
     apply_matplotlib_style()
     figure, ax = plt.subplots(figsize=(6.0, 3.2))
+    style = dashes or {}
     for name, values in series.items():
-        ax.plot(values, label=name)
+        ax.plot(values, label=name, linestyle=_MPL_DASH[style.get(name, "solid")])
+    labeled = False
+    for step in marks or []:
+        ax.axvline(
+            step,
+            color="#000000",
+            linestyle=":",
+            linewidth=1,
+            label=None if labeled else "kept",
+        )
+        labeled = True
     ax.set_title(title)
     ax.set_xlabel("step")
     ax.set_ylabel(y_title)

@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 06 was run by the user (`l0-mnist-s0-2337dce6c530-20261021T033055Z`): two silent-unit prunes were proposed and both were refused (gains about +1.1e-5 and -7.6e-6). Both copies ended at probe accuracy 0.634. Removing a silent unit did not lower probe loss, so the gate kept the network unchanged. Notebook 07 is ready: the same task, but each proposal is a function-preserving widen that the gate trains for 8 matched steps before deciding. Still a short CPU run.
+Notebook 07 was run by the user (`widen-mnist-s0-2337dce6c530-20261021T033931Z`): 3 widens proposed, 1 kept (`widen-30`, gain -0.000589, split `u0` to `u42`). Probe accuracy ended at 0.634 with no edits and 0.668 with the proposals. The curves split at the kept step, and that keep also adopted 8 extra training steps. The same notebook now trains a third copy that gets those extra steps and does not widen. Still a short CPU run. Re-run `notebooks/07_widen_mnist.ipynb`.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 06 was run by the user (`l0-mnist-s0-2337dce6c530-20261021T033055Z`): t
 
 ## Next
 
-1. You run `notebooks/07_widen_mnist.ipynb`. Read how many widens were kept, and whether the editing curve separates from the no-edit curve. The gain chart is the decision. An accepted widen also keeps the shadow's extra training, so the accuracy curves are no longer step-matched after an accept.
+1. Re-run `notebooks/07_widen_mnist.ipynb`. The gain chart is the decision. On the accuracy chart, compare the widen curve with the dashed extra-steps curve. A local check of this revision ended at 0.634 / 0.668 / 0.668, and those last two stayed within 0.004. Your re-run is the record.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.

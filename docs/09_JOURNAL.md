@@ -73,7 +73,11 @@ The controller now looks at the current batch. If a hidden unit is silent, it pr
 
 ## 2026-10-20 — Milestone 7, widen with matched shadow training
 
-A function-preserving widen has immediate gain 0, so the gate that only looks at the edit itself will refuse it. `train_with_widen_trials` proposes `widen` of hidden unit 0 every 10 steps. The gate then trains the widened copy and an unedited copy for 8 full-batch cross-entropy steps and keeps the widen only when the widened copy has lower probe loss. Shadow training for classification uses cross-entropy. The sine gate still uses mean squared error. `notebooks/07_widen_mnist.ipynb` is the run to watch. Still CPU.
+A function-preserving widen has immediate gain 0, so the gate that only looks at the edit itself will refuse it. `train_with_widen_trials` proposes `widen` of hidden unit 0 every 10 steps. The gate then trains the widened copy and an unedited copy for 8 full-batch cross-entropy steps and keeps the widen only when the widened copy has lower probe loss. Shadow training for classification uses cross-entropy. The sine gate still uses mean squared error.
+
+The user's run `widen-mnist-s0-2337dce6c530-20261021T033931Z` proposed 3 and accepted 1. `widen-10` gain +0.00436 and `widen-20` gain +0.00103 were refused. `widen-30` gain -0.000589 was kept, lineage `u0` split to `u42`. Final probe accuracy was 0.634 with no edits and 0.668 with the proposals. CPU, synthetic false, seed 0. The accuracy curves lie on top of each other until the kept step. That keep also adopted the 8 extra steps, so the 0.034 accuracy gap is not a matched-step comparison.
+
+The follow-up stays in notebook 07. A third copy now receives the same extra steps when a widen is kept, and does not widen. The kept step is a dotted line. The extra-steps curve is dashed so it stays visible when it matches the widen curve. A local check of that revision ended at 0.634, 0.668, and 0.668. The widen curve and the extra-steps curve differed by at most 0.004 (steps 31, 36, 37, 38) and finished equal. The user re-runs the notebook. Still CPU. A small follow-up belongs in the notebook that produced it.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 

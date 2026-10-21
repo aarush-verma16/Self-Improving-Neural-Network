@@ -8,9 +8,15 @@
 # This notebook proposes a widen instead. A widen does not change the function
 # at the moment it is applied. The gate therefore trains the widened copy and
 # an unedited copy for 8 steps on the same data, and keeps the widen only if
-# the widened copy has lower probe loss. An accepted edit also keeps those
-# extra steps. The gain chart is the decision. The accuracy chart compares
-# the editing run with a run that never edits.
+# the widened copy has lower probe loss.
+#
+# The first run kept one widen, `widen-30`, with gain -0.000589. Probe accuracy
+# then moved from 0.634 with no edits to 0.668 with the proposal. That keep
+# also adopted the 8 extra training steps, so the accuracy gap was not a
+# matched-step comparison. This notebook now trains a third copy that receives
+# those extra steps when a widen is kept, and does not widen. A dotted line
+# marks each kept step. The gain chart is the gate's decision. The accuracy
+# chart asks whether the extra unit did more than the extra steps.
 #
 # Run this yourself. Short CPU run. Not yet a claim that self-edits help.
 
@@ -29,7 +35,14 @@ from valmorph.benchmarks.mnist import (
 )
 from valmorph.controllers import train_with_widen_trials
 from valmorph.core.config import config_hash, load_run_config
-from valmorph.core.ledger import LEDGER_VERSION, Finding, Ledger, RunMeta, make_run_id
+from valmorph.core.ledger import (
+    LEDGER_VERSION,
+    Finding,
+    Ledger,
+    RunMeta,
+    StepMetric,
+    make_run_id,
+)
 from valmorph.core.runtime import git_commit, library_versions, platform_string, repo_root
 from valmorph.gate import clone_net
 from valmorph.models import ValmorphMLP
@@ -54,6 +67,7 @@ probe_x = apply_permutation(test_x[:500], permutation)
 probe_y = test_y[:500]
 editor = ValmorphMLP([784, 32, 10]).cpu()
 plain = clone_net(editor)
+matched = clone_net(editor)
 _plain_loss, plain_accuracy = train_classifier(
     plain,
     train_x,
@@ -95,7 +109,7 @@ ledger = Ledger.create(
         libraries=library_versions(),
     ),
 )
-editor_accuracy = train_with_widen_trials(
+editor_accuracy, matched_accuracy = train_with_widen_trials(
     editor,
     train_x,
     train_y,
@@ -105,16 +119,31 @@ editor_accuracy = train_with_widen_trials(
     batch_size=64,
     lr=0.1,
     ledger=ledger,
+    matched=matched,
     every=10,
     shadow_steps=8,
 )
 decisions = ledger.read("gate_decisions")
-accepted = int(sum(bool(value) for value in decisions.column("accepted").to_pylist()))
+accepted_flags = [bool(value) for value in decisions.column("accepted").to_pylist()]
+accepted = int(sum(accepted_flags))
 proposed = int(decisions.num_rows)
+kept_steps = [
+    int(step)
+    for step, flag in zip(decisions.column("step").to_pylist(), accepted_flags, strict=True)
+    if flag
+]
+accuracy_series = {
+    "no edits": plain_accuracy,
+    "widen proposals": editor_accuracy,
+    "extra steps only": matched_accuracy,
+}
+accuracy_dashes = {"extra steps only": "dash"}
 curves = plot_diagnostic_traces(
-    {"no edits": plain_accuracy, "widen proposals": editor_accuracy},
+    accuracy_series,
     title="probe accuracy",
     y_title="accuracy",
+    marks=kept_steps,
+    dashes=accuracy_dashes,
 )
 timeline = plot_gate_timeline(decisions, synthetic=False)
 
@@ -123,13 +152,26 @@ figure_dir = root / "results" / "figures"
 figure_dir.mkdir(parents=True, exist_ok=True)
 curves.write_html(figure_dir / "07_widen_accuracy.html")
 save_diagnostic_traces_png(
-    {"no edits": plain_accuracy, "widen proposals": editor_accuracy},
+    accuracy_series,
     figure_dir / "07_widen_accuracy.png",
     title="probe accuracy",
     y_title="accuracy",
+    marks=kept_steps,
+    dashes=accuracy_dashes,
 )
 timeline.write_html(figure_dir / "07_widen_timeline.html")
 save_gate_timeline_png(decisions, figure_dir / "07_widen_timeline.png", synthetic=False)
+ledger.append_step_metrics(
+    [
+        StepMetric(step=step, split="probe", name=name, value=float(value))
+        for name, series in (
+            ("accuracy_no_edits", plain_accuracy),
+            ("accuracy_extra_steps", matched_accuracy),
+            ("accuracy_widen", editor_accuracy),
+        )
+        for step, value in enumerate(series)
+    ]
+)
 ledger.append_findings(
     [
         Finding(
@@ -138,8 +180,8 @@ ledger.append_findings(
             statement=(
                 f"Proposed {proposed} widens with 8 matched shadow steps, "
                 f"accepted {accepted}. Final probe accuracy no-edit="
-                f"{plain_accuracy[-1]:.3f}, with proposals="
-                f"{editor_accuracy[-1]:.3f}."
+                f"{plain_accuracy[-1]:.3f}, extra-steps={matched_accuracy[-1]:.3f}, "
+                f"with widens={editor_accuracy[-1]:.3f}."
             ),
             evidence_ref="results/figures/07_widen_accuracy.provenance.json",
         )
@@ -158,6 +200,7 @@ print(
             "proposed": proposed,
             "accepted": accepted,
             "plain_accuracy": plain_accuracy[-1],
+            "matched_accuracy": matched_accuracy[-1],
             "editor_accuracy": editor_accuracy[-1],
             "synthetic": manifest["synthetic"],
         }

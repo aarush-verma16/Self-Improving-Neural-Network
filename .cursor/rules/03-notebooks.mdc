@@ -10,6 +10,8 @@ Edit the percent-format `.py` file. Regenerate the `.ipynb` with `uv run jupytex
 
 Notebooks are the place the work is seen. Each milestone notebook plots the data and the process as the cells run: the network, the edit, the gate, the curve. A cell that only prints a scalar is not the result. Algorithm code goes in `src/valmorph`.
 
+When a notebook's result calls for a fix or a missing comparison, add it to that notebook. Do not open a new notebook for a small follow-up.
+
 The first cell of an analysis notebook states the phase, the config path, and whether the run is smoke or confirmatory. Synthetic output is titled SYNTHETIC.
 
 Commit the `.py`. The git hook runs nbstripout on `notebooks/*.ipynb`. Do not commit `results/`.

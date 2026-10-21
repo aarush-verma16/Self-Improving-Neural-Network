@@ -11,7 +11,7 @@ from torch.nn import functional as F
 
 from valmorph.benchmarks.classify import batch_accuracy
 from valmorph.core.ledger import Ledger, LineageEdge
-from valmorph.gate import consider_edit, train_cross_entropy_steps
+from valmorph.gate import adopt_shadow, clone_net, consider_edit, train_cross_entropy_steps
 from valmorph.introspect import hidden_activations, most_silent_unit
 from valmorph.models import ValmorphMLP, prune, widen
 
@@ -79,18 +79,31 @@ def train_with_widen_trials(
     batch_size: int,
     lr: float,
     ledger: Ledger,
+    matched: ValmorphMLP,
     every: int = 20,
     shadow_steps: int = 8,
-) -> list[float]:
+    min_gain: float = 1e-4,
+) -> tuple[list[float], list[float]]:
     """Train and periodically propose a function-preserving widen.
 
     The gate trains an edited copy and an unedited copy for ``shadow_steps``
     on the full training set. The widen is kept only when the edited copy has
-    lower probe loss. Returns probe accuracy after each minibatch step.
+    lower probe loss. ``matched`` sees the same minibatches. When a widen is
+    kept, ``matched`` also receives those extra steps and does not widen.
+    Returns probe accuracy for the editor and for ``matched``.
     """
 
     accuracies: list[float] = []
+    matched_accuracies: list[float] = []
     count = int(images.shape[0])
+
+    def minibatch(model: ValmorphMLP, index: torch.Tensor) -> None:
+        optimizer = torch.optim.SGD(model.parameters(), lr=lr)
+        optimizer.zero_grad()
+        loss = F.cross_entropy(model(images[index]), labels[index])
+        loss.backward()
+        optimizer.step()
+
     for step in range(steps):
         if every > 0 and step > 0 and step % every == 0:
 
@@ -104,7 +117,7 @@ def train_with_widen_trials(
                     relation="split",
                 )
 
-            consider_edit(
+            decision = consider_edit(
                 net,
                 propose_widen,
                 probe_x=probe_images,
@@ -113,6 +126,7 @@ def train_with_widen_trials(
                 train_y=labels,
                 shadow_steps=shadow_steps,
                 lr=lr,
+                min_gain=min_gain,
                 score=_cross_entropy,
                 train_fn=train_cross_entropy_steps,
                 ledger=ledger,
@@ -122,16 +136,18 @@ def train_with_widen_trials(
                 target="layer0",
                 params={"unit": 0, "shadow_steps": shadow_steps},
             )
+            if decision.accepted:
+                twin = clone_net(matched)
+                train_cross_entropy_steps(twin, images, labels, shadow_steps, lr)
+                adopt_shadow(matched, twin)
         start = (step * batch_size) % count
         index = torch.arange(start, start + batch_size) % count
-        optimizer = torch.optim.SGD(net.parameters(), lr=lr)
-        optimizer.zero_grad()
-        loss = F.cross_entropy(net(images[index]), labels[index])
-        loss.backward()
-        optimizer.step()
+        minibatch(net, index)
+        minibatch(matched, index)
         with torch.no_grad():
             accuracies.append(batch_accuracy(net(probe_images), probe_labels))
-    return accuracies
+            matched_accuracies.append(batch_accuracy(matched(probe_images), probe_labels))
+    return accuracies, matched_accuracies
 
 
 def _cross_entropy(net: ValmorphMLP, x: torch.Tensor, y: torch.Tensor) -> float:

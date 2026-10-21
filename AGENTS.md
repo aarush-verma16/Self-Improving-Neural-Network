@@ -10,6 +10,7 @@ Public pages (`README.md`, `CONTRIBUTING.md`) describe the project. They do not 
 2. Do only the current phase in that file. The map is `docs/06_ROADMAP.md`.
 3. Update `docs/STATE.md` and add an entry to `docs/09_JOURNAL.md` before stopping.
 4. Record analytical findings and visual findings in the ledger. A paper claim names a provenance manifest. Synthetic output does not count.
+5. When a notebook's result calls for a fix or a missing comparison, add it to that notebook. Do not open a new notebook for a small follow-up.
 
 ## Rules
 
