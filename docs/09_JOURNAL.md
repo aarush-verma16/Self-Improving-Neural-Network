@@ -85,7 +85,9 @@ The reloaded run is `widen-mnist-s0-2337dce6c530-20261021T035630Z`, git `4a89b86
 
 ## 2026-10-20 — Random-edit control
 
-The pre-registered control uses the same proposal times and the same gate. Only the edit is random: prune or widen of one unit in the first hidden layer. `notebooks/08_random_mnist.ipynb` plots that run against no edits and against the unit-0 widen rule. A dashed curve takes the extra shadow steps when a random edit is kept. A local smoke accepted none of the three random proposals, so that curve stayed on the no-edit accuracy of 0.634. The unit-0 rule again kept `widen-30`. The user runs the notebook. Still CPU, one seed, not Level 1.
+The pre-registered control uses the same proposal times and the same gate. Only the edit is random: prune or widen of one unit in the first hidden layer. `notebooks/08_random_mnist.ipynb` plots that run against no edits and against the unit-0 widen rule. A dashed curve takes the extra shadow steps when a random edit is kept.
+
+The user's run is `random-mnist-s0-2337dce6c530-20261021T040323Z`, git `6ea3afd9-dirty`, CPU, synthetic false, seed 0. Random proposals: prune `u15` at step 10 (gain +0.00720), widen `u0` at step 20 (gain +0.00103), widen `u27` at step 30 (gain +0.000314). All three were refused. The unit-0 rule refused its first two widens and kept `widen-30` (gain -0.000589, lineage `u0` to `u42`). At step 20 both controllers widened `u0`, and the gains match. Probe accuracy was 0.634 for no edits, random edits, and the random extra-steps copy, equal at every step. The widen rule ended at 0.668, and that series separates only from step 30. Provenance `results/figures/08_random_accuracy.provenance.json`. On this seed the gate refuses the random edits, and the only kept edit is the one notebook 07 already matched to extra training steps. Method finding only. Two proposals share steps 20 and 30, so those timeline labels sit on the same point. The ledger values are the record.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
