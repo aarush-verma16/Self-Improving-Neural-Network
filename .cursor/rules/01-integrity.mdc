@@ -13,7 +13,7 @@ Analytical record, in the ledger: step metrics, diagnostics, every edit proposal
 
 Visual record, during the work and not only at the end: every milestone notebook shows the process in Plotly as it happens. Before and after an edit, the gate decision, the loss or accuracy trace, and the network changing over steps are figures, not printouts. matplotlib or seaborn, Okabe-Ito, is the paper copy of the same view. Each paper figure is exported by a notebook cell with a provenance manifest (git commit, config hash, seeds, ledger version, ledger hashes, device). The finding row's `evidence_ref` points at that manifest. Title synthetic figures `SYNTHETIC`. `assert_citable` rejects them.
 
-A claim in docs or in `paper/` names a manifest whose `synthetic` field is false. A number with no manifest is not a result.
+A claim in docs or in `paper/` names a manifest whose `synthetic` field is false. A number with no manifest is not a result. If a figure or number is worth the paper, write the ledger finding and the provenance manifest in the same session. Copy only `claim` figures into `paper/figures/`. Method checks stay in `results/` with their manifest.
 
 Citations are sources opened in this session. If the PDF was not opened, say so and leave it off `paper/refs.bib`.
 

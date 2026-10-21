@@ -61,4 +61,8 @@ The user's run `gate-s0-2337dce6c530-20261021T021223Z` matches that: repair gain
 
 ## 2026-10-20 — Milestone 3, diagnostics
 
-While the sine net trains, the notebook records three of our own measurements: dead-unit fraction, singular-entropy rank of the hidden activations, and gradient norm. CKA is still not implemented. `notebooks/03_diagnostics.ipynb` is the short CPU run to watch.
+While the sine net trains, the notebook records three of our own measurements: dead-unit fraction, singular-entropy rank of the hidden activations, and gradient norm. CKA is still not implemented. The user's run `diagnostics-s0-2337dce6c530-20261021T021711Z` ended at dead fraction 0.5, rank 2.327, gradient norm 0.029.
+
+## 2026-10-20 — Milestone 4, one permuted-MNIST task
+
+Going forward, a paper-worthy figure gets a ledger finding and a provenance manifest in the same session. Only `claim` figures are copied into `paper/figures/`. Downloads and run outputs stay gitignored (`data/`, `results/`). The next notebook is a short CPU smoke: 2000 permuted training images, 40 steps, width 32. A local smoke reached probe accuracy about 0.63. That is a method check, not a result to publish.

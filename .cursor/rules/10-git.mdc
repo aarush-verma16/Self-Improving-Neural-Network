@@ -9,8 +9,8 @@ Do not commit unless the user asks. Do not push unless the user asks. Do not for
 
 The commit hook is `.githooks/pre-commit`. It must call `.venv`'s Python by path. The editor's Git process resolves `python` to the Windows Store alias, which exits 9009. Do not point the hook at `python` or `uv` on PATH. A passing hook must print nothing. The editor shows any hook text in an error dialog and then refuses the commit.
 
-`results/`, `.venv/`, and secrets stay untracked. `uv.lock` is tracked. The jupytext `.py` notebook is the source of truth. The paired `.ipynb` is generated and stripped.
+`results/`, `data/`, `.venv/`, checkpoints, and secrets stay untracked. Dataset archives and local ledgers are not part of the public repo. `uv.lock` is tracked. The jupytext `.py` notebook is the source of truth. The paired `.ipynb` is generated and stripped.
 
-Do not commit dataset files. Record the license in an ADR before downloading.
+When a new local artifact appears (a download, a cache, a run output), add it to `.gitignore` in that same change. Do not commit it. Do not commit dataset files. Record the license in an ADR before a dataset is used in a paper comparison.
 
 Leave the GitHub remote alone until a push is requested.

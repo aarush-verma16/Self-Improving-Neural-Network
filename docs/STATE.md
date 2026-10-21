@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Milestone 2 has been run on the Mac: `notebooks/02_gate.py` (CPU). The gate kept the prune that removes the damaged unit and refused the prune that would break the sine fit. The user's run `gate-s0-2337dce6c530-20261021T021223Z` matches the Mac ledger: damaged-unit prune kept (gain -143.94), useful-unit prune refused (gain +0.35). The loss curve, the gain chart, and the before/after fit are in `results/figures/` (gitignored). Milestone 3 is ready to run: `notebooks/03_diagnostics.ipynb`, still a short CPU notebook.
+Milestone 3 has been run (`diagnostics-s0-2337dce6c530-20261021T021711Z`): dead-unit fraction stayed 0.5, singular entropy rank ended at 2.33, gradient norm fell to 0.029. Milestone 4 is ready to run: `notebooks/04_tasks.ipynb`, a short CPU slice of one permuted-MNIST task. The digit files stay in `data/` and are gitignored. The accuracy curve is a method check, not a paper claim.
 
 ## Done
 
@@ -20,7 +20,7 @@ Milestone 2 has been run on the Mac: `notebooks/02_gate.py` (CPU). The gate kept
 
 ## Next
 
-1. You run `notebooks/03_diagnostics.ipynb` and look at the three traces and the covariance heatmap.
+1. You run `notebooks/04_tasks.ipynb`. Look at the permuted digits and the loss and accuracy traces.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.

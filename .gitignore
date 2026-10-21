@@ -13,6 +13,12 @@ __pycache__/
 results/*
 !results/.gitkeep
 
+# Downloaded datasets and caches. Not part of the public repo.
+data/
+*.gz
+*.idx
+checkpoints/
+
 # LaTeX build products
 paper/**/*.aux
 paper/**/*.log
