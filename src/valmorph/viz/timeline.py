@@ -32,9 +32,13 @@ def plot_gate_timeline(table: pa.Table, *, synthetic: bool) -> go.Figure:
             go.Scatter(
                 x=steps,
                 y=gains,
-                mode="markers+lines",
-                marker={"color": colors, "size": 10},
-                text=proposals,
+                mode="markers+text",
+                marker={"color": colors, "size": 12},
+                text=[
+                    f"{proposal}<br>{gain:.3g}"
+                    for proposal, gain in zip(proposals, gains, strict=True)
+                ],
+                textposition="top center",
                 hovertemplate="step %{x}<br>gain %{y:.4f}<br>%{text}<extra></extra>",
                 name="validated gain",
             )

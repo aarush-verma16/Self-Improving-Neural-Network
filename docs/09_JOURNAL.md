@@ -48,3 +48,9 @@ Short work stays on CPU: tests, the substrate checks, and `notebooks/02_gate.ipy
 ## 2026-10-19 — Milestone 2, the gate
 
 The gate trains a copy of the network after a proposed edit and keeps the edit only when probe loss falls. A unit test removes a harmful hidden unit and accepts that prune, and removes a unit the fit needs and rejects that prune. The live network changes only on accept. `notebooks/02_gate.ipynb` is the run to watch: a sine fit, a damaged extra unit, one kept prune, one refused prune.
+
+The user's run `gate-s0-2337dce6c530-20261021T021223Z` matches that: repair gain -143.9385 accepted, useful-unit prune gain +0.3496 refused. Lineage contains only the kept prune. Training loss fell from about 0.62 to near 0. The refused point sits near the zero line on the chart because the kept point is about -144; the ledger value is the one that counts.
+
+## 2026-10-20 — Milestone 3, diagnostics
+
+While the sine net trains, the notebook records three of our own measurements: dead-unit fraction, singular-entropy rank of the hidden activations, and gradient norm. CKA is still not implemented. `notebooks/03_diagnostics.ipynb` is the short CPU run to watch.

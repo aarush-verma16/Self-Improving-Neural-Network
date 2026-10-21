@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Milestone 2 is ready to run: `notebooks/02_gate.ipynb`. The gate keeps a prune that removes a damaged unit and refuses a prune that would break the sine fit. The user runs that notebook and reads the three figures.
+Milestone 2 was run by the user on CPU (`gate-s0-2337dce6c530-20261021T021223Z`). The damaged-unit prune was kept (gain -143.94) and the useful-unit prune was refused (gain +0.35). Milestone 3 is ready to run: `notebooks/03_diagnostics.ipynb`, still a short CPU notebook.
 
 ## Done
 
@@ -19,9 +19,9 @@ Milestone 2 is ready to run: `notebooks/02_gate.ipynb`. The gate keeps a prune t
 
 ## Next
 
-1. You run `notebooks/02_gate.ipynb` and look at the loss curve, the gain chart, and the before/after fit.
+1. You run `notebooks/03_diagnostics.ipynb` and look at the three traces and the covariance heatmap.
 2. Phase 0b citation gaps before any published baseline number is used.
-3. The Mac has not run `scripts/env_check.py` yet. Notebooks `00`, `01`, and `02` are short CPU runs and are the ones to open there. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
+3. The Mac has not run `scripts/env_check.py` yet. Notebooks `00` through `03` are short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC.
 
 ## Open questions
 
