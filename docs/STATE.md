@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 07 was run by the user (`widen-mnist-s0-2337dce6c530-20261021T033931Z`): 3 widens proposed, 1 kept (`widen-30`, gain -0.000589, split `u0` to `u42`). Probe accuracy ended at 0.634 with no edits and 0.668 with the proposals. The curves split at the kept step, and that keep also adopted 8 extra training steps. The same notebook now trains a third copy that gets those extra steps and does not widen. Still a short CPU run. Re-run `notebooks/07_widen_mnist.ipynb`.
+Notebook 07's three-curve revision is committed (`dacc942`). The run at `widen-mnist-s0-2337dce6c530-20261021T035219Z` repeated the earlier two-curve result: 3 widens, 1 kept (`widen-30`, gain -0.000589), probe accuracy 0.634 and 0.668. Its finding sentence and figure have no extra-steps series, so that execution used the notebook Jupyter already had open. Reload the file from disk, restart the kernel, and run `notebooks/07_widen_mnist.ipynb` again. Still CPU.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 07 was run by the user (`widen-mnist-s0-2337dce6c530-20261021T033931Z`)
 
 ## Next
 
-1. Re-run `notebooks/07_widen_mnist.ipynb`. The gain chart is the decision. On the accuracy chart, compare the widen curve with the dashed extra-steps curve. A local check of this revision ended at 0.634 / 0.668 / 0.668, and those last two stayed within 0.004. Your re-run is the record.
+1. In JupyterLab, reload `notebooks/07_widen_mnist.ipynb` from disk and restart the kernel, then run it. The saved chart should show three curves, with the extra-steps curve dashed and a dotted line at the kept step. The 11:52 run did not.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
