@@ -79,7 +79,9 @@ The user's run `widen-mnist-s0-2337dce6c530-20261021T033931Z` proposed 3 and acc
 
 The follow-up stays in notebook 07. A third copy now receives the same extra steps when a widen is kept, and does not widen. The kept step is a dotted line. The extra-steps curve is dashed so it stays visible when it matches the widen curve. A local check of that revision ended at 0.634, 0.668, and 0.668. The widen curve and the extra-steps curve differed by at most 0.004 (steps 31, 36, 37, 38) and finished equal. That revision is commit `dacc942`.
 
-The later user run `widen-mnist-s0-2337dce6c530-20261021T035219Z` has the same three decisions and the same 0.634 / 0.668 accuracies. It has no `step_metrics` table, and the finding sentence is the two-curve sentence. The saved accuracy figure has two lines. Jupyter executed the notebook that was already open, not the file on disk. Still CPU. Reload and restart, then run again.
+The later user run `widen-mnist-s0-2337dce6c530-20261021T035219Z` has the same three decisions and the same 0.634 / 0.668 accuracies. It has no `step_metrics` table, and the finding sentence is the two-curve sentence. The saved accuracy figure has two lines. Jupyter executed the notebook that was already open, not the file on disk.
+
+The reloaded run is `widen-mnist-s0-2337dce6c530-20261021T035630Z`, git `4a89b86`, CPU, synthetic false, seed 0. Same gate decisions. Final probe accuracy was 0.634 with no edits, 0.668 with extra steps only, and 0.668 with the kept widen. The widen curve and the extra-steps curve differed at steps 31, 36, 37, and 38, by at most 0.004, and finished equal. Provenance `results/figures/07_widen_accuracy.provenance.json`. On this seed the kept unit does not move probe accuracy beyond the 8 extra steps the gate adopted with it. Method finding only.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 

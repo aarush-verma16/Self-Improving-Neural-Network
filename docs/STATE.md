@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 07's three-curve revision is committed (`dacc942`). The run at `widen-mnist-s0-2337dce6c530-20261021T035219Z` repeated the earlier two-curve result: 3 widens, 1 kept (`widen-30`, gain -0.000589), probe accuracy 0.634 and 0.668. Its finding sentence and figure have no extra-steps series, so that execution used the notebook Jupyter already had open. Reload the file from disk, restart the kernel, and run `notebooks/07_widen_mnist.ipynb` again. Still CPU.
+Notebook 07's three-curve run is `widen-mnist-s0-2337dce6c530-20261021T035630Z`. Three widens were proposed and `widen-30` was kept (gain -0.000589, split `u0` to `u42`). Final probe accuracy was 0.634 with no edits, 0.668 with the extra steps only, and 0.668 with the kept widen. Those last two curves differed by at most 0.004. The accuracy gap against the no-edit run is the adopted shadow training. CPU, seed 0, synthetic false. Still not a Level 1 result.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 07's three-curve revision is committed (`dacc942`). The run at `widen-m
 
 ## Next
 
-1. In JupyterLab, reload `notebooks/07_widen_mnist.ipynb` from disk and restart the kernel, then run it. The saved chart should show three curves, with the extra-steps curve dashed and a dotted line at the kept step. The 11:52 run did not.
+1. Notebook 07 is checked. The next controller comparison is a new question, not a patch to this chart. Phase 0b citation gaps still come before any published baseline number.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
