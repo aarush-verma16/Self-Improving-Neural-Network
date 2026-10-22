@@ -7,6 +7,7 @@ from pathlib import Path
 import torch
 
 from valmorph.controllers import (
+    EditBandit,
     train_across_tasks,
     train_with_random_edits,
     train_with_scheduled_widen,
@@ -171,3 +172,60 @@ def test_task_widen_trials_grow_only_when_the_gate_keeps_them(tmp_path: Path) ->
         min_gain=1e9,
     )
     assert int(refused.linear(0).out_features) == 3
+
+
+def test_bandit_tries_each_arm_then_follows_the_mean() -> None:
+    bandit = EditBandit()
+    generator = torch.Generator().manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    assert bandit.choose(net, generator)[0] == "prune"
+    bandit.observe("prune", 0.4)
+    assert bandit.choose(net, generator)[0] == "widen"
+    bandit.observe("widen", -0.2)
+    assert bandit.choose(net, generator)[0] == "widen"
+    bandit.observe("widen", 1.2)
+    assert bandit.choose(net, generator)[0] == "prune"
+
+
+def test_bandit_explore_step_retries_the_less_used_arm() -> None:
+    bandit = EditBandit()
+    generator = torch.Generator().manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    bandit.choose(net, generator)
+    bandit.observe("prune", 0.0)
+    bandit.choose(net, generator)
+    bandit.observe("widen", -1.0)
+    assert bandit.choose(net, generator)[0] == "widen"
+    bandit.observe("widen", -1.0)
+    assert bandit.choose(net, generator)[0] == "widen"
+    bandit.observe("widen", -1.0)
+    assert bandit.choose(net, generator)[0] == "prune"
+
+
+def test_l1_choice_is_labeled_on_the_ledger(tmp_path: Path) -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    bandit = EditBandit()
+    generator = torch.Generator().manual_seed(0)
+    tasks = [(torch.rand(6, 4), torch.randint(0, 2, (6,)))]
+    probes = [(torch.rand(4, 4), torch.randint(0, 2, (4,)))]
+    ledger = _ledger(tmp_path, "l1")
+    series = train_across_tasks(
+        net,
+        tasks,
+        probes,
+        steps_per_task=4,
+        batch_size=2,
+        lr=0.1,
+        ledger=ledger,
+        every=2,
+        shadow_steps=0,
+        min_gain=-1e9,
+        choose=bandit.choose,
+        controller="L1",
+        generator=generator,
+        on_decision=lambda kind, decision: bandit.observe(kind, decision.validated_gain),
+    )
+    assert len(series[0]) == 4
+    assert ledger.read("edit_proposals").column("controller").to_pylist() == ["L1"]
+    assert bandit.count["prune"] == 1

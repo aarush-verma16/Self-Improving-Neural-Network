@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 14 was run by the user (`three-task-s0-2337dce6c530-20261022T205509Z`) and matches the local check. Task A ends at 0.806, task B at 0.826, task C at 0.870. The gate on that same sequence is `gate-tasks-s0-2337dce6c530-20261022T205948Z`: 23 widen proposals, 2 kept, both before the first switch. Finals with the gate are 0.802, 0.824, and 0.872. The drop is unchanged. Short CPU runs are executed in the session. Still CPU.
+L1 is the two-arm bandit in ADR-011. On the three-task smoke (`bandit-tasks-s0-2337dce6c530-20261022T211018Z`) it kept 5 widens and the random controller kept 4 edits. Final task-A accuracy is 0.806 with no edits, 0.804 for the bandit, and 0.796 for random. The bandit's mean prune gain is +0.010 and its mean widen gain is about zero. Short CPU runs are executed in the session. Still CPU. Not a Level 1 claim.
 
 ## Done
 
@@ -20,8 +20,8 @@ Notebook 14 was run by the user (`three-task-s0-2337dce6c530-20261022T205509Z`) 
 
 ## Next
 
-1. Short CPU notebooks run in the session. A handoff is for a long GPU run, or when the next step is the L1 controller ADR.
-2. The L0 widen rule has been measured on the three-task drop and does not change it. The learned controller is an ADR before it is trained. EWC and experience replay stay blocked until their formulas are taken from the opened papers.
+1. Short CPU notebooks run in the session. A handoff is for a long GPU run.
+2. L1 is in place and has a one-seed smoke. It does not beat no-edits on that smoke. EWC and experience replay stay blocked until their formulas are taken from the opened papers. A five-seed comparison is the confirmatory run, and it waits until the protocol papers fix the task count.
 3. Phase 0b citation gaps before any published baseline number is used.
 4. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 5. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
@@ -29,7 +29,7 @@ Notebook 14 was run by the user (`three-task-s0-2337dce6c530-20261022T205509Z`) 
 ## Open questions
 
 - Electricity's license string on the OpenML dataset page itself, as opposed to the datahub mirror.
-- Which single learned controller is L1 (bandit, small RL, or evolution). Decide in a Phase 3 ADR, not now.
+- L1 is the two-arm bandit in ADR-011. Small RL and evolution were the alternatives and were not chosen.
 - Published Permuted MNIST and Split CIFAR-100 numbers. Blank until the protocol papers are opened.
 
 ## Environment — Windows PC

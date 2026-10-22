@@ -60,6 +60,18 @@ Date: 2026-10-10.
 
 Pyright's `strict` mode reports the PyArrow, Plotly, and matplotlib APIs as unknown because those packages do not ship stubs. The project uses `standard` mode plus Ruff's type-related lint, and our own functions stay annotated. Turning `strict` on would require casts around the ledger and the figures without making those calls safer.
 
+## ADR-011 — L1 is a two-arm bandit
+
+Date: 2026-10-22.
+
+No confirmatory ledger for H1 exists. The single-seed smokes are not that test.
+
+L1 chooses between prune and widen on the first hidden layer. The unit is drawn uniformly, with the same draw the random controller uses. An arm that has never been tried is taken first, prune before widen. After that, every fourth choice takes the arm with fewer pulls. The other choices take the arm with the lower mean validated gain. A tie keeps prune. The gain is the gate's validated gain, including refusals. Lower is better, because the gain is the change in probe loss. A layer with one unit can only widen.
+
+A small RL policy and an evolutionary search were the alternatives named in the vision. Both need a state or a population. This bandit learns from the reward the gate already writes, and it fits a CPU smoke. It is not a published bandit formula. L2, a controller that edits its own hyperparameters, is a later choice.
+
+The random controller stays uniform over the same two arms. Only the arm choice differs.
+
 ## ADR-010 — CPU for short work, GPU for heavy training
 
 Date: 2026-10-19.

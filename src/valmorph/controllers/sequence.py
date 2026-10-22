@@ -7,13 +7,15 @@ training uses only the task being trained. Both choices are ours.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import torch
 from torch.nn import functional as F
 
 from valmorph.benchmarks.classify import batch_accuracy
-from valmorph.core.ledger import Ledger, LineageEdge
+from valmorph.core.ledger import GateDecision, Ledger, LineageEdge
 from valmorph.gate import consider_edit, train_cross_entropy_steps
-from valmorph.models import ValmorphMLP, widen
+from valmorph.models import ValmorphMLP, prune, widen
 
 
 def train_across_tasks(
@@ -28,18 +30,26 @@ def train_across_tasks(
     every: int = 20,
     shadow_steps: int = 8,
     min_gain: float = 1e-4,
+    choose: Callable[[ValmorphMLP, torch.Generator], tuple[str, int]] | None = None,
+    controller: str = "L0",
+    generator: torch.Generator | None = None,
+    on_decision: Callable[[str, GateDecision], None] | None = None,
 ) -> list[list[float]]:
-    """Train tasks in order and propose a widen of unit 0 on a fixed interval.
+    """Train tasks in order and propose an edit on a fixed interval.
 
-    Returns one probe-accuracy list per task. Each list has length
-    ``steps_per_task * len(tasks)``. A kept widen is applied at the current
-    weights. The shadow's extra steps stay off the live network.
+    The default edit is a widen of unit 0, recorded as controller L0.
+    ``choose`` returns ``prune`` or ``widen`` and a unit index. The unit draw
+    uses ``generator``. Returns one probe-accuracy list per task. Each list
+    has length ``steps_per_task * len(tasks)``. A kept edit is applied at the
+    current weights. The shadow's extra steps stay off the live network.
     """
 
     if not tasks or len(tasks) != len(probes):
         raise ValueError("tasks and probes must be the same non-empty length")
     if steps_per_task < 1:
         raise ValueError("steps_per_task must be positive")
+    if choose is not None and generator is None:
+        raise ValueError("choose requires a generator")
     series: list[list[float]] = [[] for _ in probes]
     for task_index, (images, labels) in enumerate(tasks):
         count = int(images.shape[0])
@@ -48,20 +58,43 @@ def train_across_tasks(
         for local in range(steps_per_task):
             step = task_index * steps_per_task + local
             if every > 0 and step > 0 and step % every == 0:
+                if choose is None:
+                    kind, unit = "widen", 0
+                    proposal_id = f"widen-{step}"
+                    edit_controller = "L0"
+                else:
+                    assert generator is not None
+                    kind, unit = choose(net, generator)
+                    proposal_id = f"{controller.lower()}-{kind}-{step}"
+                    edit_controller = controller
+                unit_id = net.unit_ids[0][unit]
 
-                def propose_widen(shadow: ValmorphMLP, at: int = step) -> LineageEdge:
-                    parent = shadow.unit_ids[0][0]
-                    child = widen(shadow, 0, 0)
+                def propose(
+                    shadow: ValmorphMLP,
+                    at: int = step,
+                    chosen: int = unit,
+                    edit_kind: str = kind,
+                ) -> LineageEdge:
+                    if edit_kind == "widen":
+                        parent = shadow.unit_ids[0][chosen]
+                        child = widen(shadow, 0, chosen)
+                        return LineageEdge(
+                            step=at,
+                            parent_unit=parent,
+                            child_unit=child,
+                            relation="split",
+                        )
+                    removed = prune(shadow, 0, chosen)
                     return LineageEdge(
                         step=at,
-                        parent_unit=parent,
-                        child_unit=child,
-                        relation="split",
+                        parent_unit=removed,
+                        child_unit=removed,
+                        relation="prune",
                     )
 
-                consider_edit(
+                decision = consider_edit(
                     net,
-                    propose_widen,
+                    propose,
                     probe_x=probe_x,
                     probe_y=probe_y,
                     train_x=images,
@@ -73,16 +106,20 @@ def train_across_tasks(
                     train_fn=train_cross_entropy_steps,
                     ledger=ledger,
                     step=step,
-                    proposal_id=f"widen-{step}",
-                    edit_type="widen",
+                    proposal_id=proposal_id,
+                    edit_type=kind,
                     target="layer0",
+                    controller=edit_controller,
                     params={
-                        "unit": 0,
+                        "unit": unit,
+                        "unit_id": unit_id,
                         "shadow_steps": shadow_steps,
                         "task": task_index,
                         "probes": task_index + 1,
                     },
                 )
+                if on_decision is not None:
+                    on_decision(kind, decision)
             start = (local * batch_size) % count
             index = torch.arange(start, start + batch_size) % count
             optimizer = torch.optim.SGD(net.parameters(), lr=lr)
