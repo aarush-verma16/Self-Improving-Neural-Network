@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 13 was re-run by the user with 160 steps on task B (`two-task-s0-2337dce6c530-20261022T200410Z`). Task A finishes at 0.770. Task B finishes at 0.852. A fresh net on task B finishes at 0.836. The gap at 80 steps of task B was 0.054. Notebook 14 is ready: three permutations, 160 steps each, width 32, no edits. A local check leaves task A at 0.840, then 0.832, then 0.806. Task B goes from 0.858 to 0.826. Task C ends at 0.870, and a fresh net on task C ends at 0.846. The user runs it. Still CPU.
+Notebook 14 was run by the user (`three-task-s0-2337dce6c530-20261022T205509Z`) and matches the local check. Task A ends at 0.806, task B at 0.826, task C at 0.870. The gate on that same sequence is `gate-tasks-s0-2337dce6c530-20261022T205948Z`: 23 widen proposals, 2 kept, both before the first switch. Finals with the gate are 0.802, 0.824, and 0.872. The drop is unchanged. Short CPU runs are executed in the session. Still CPU.
 
 ## Done
 
@@ -20,10 +20,11 @@ Notebook 13 was re-run by the user with 160 steps on task B (`two-task-s0-2337dc
 
 ## Next
 
-1. Open `notebooks/14_three_tasks.ipynb` as a new tab, restart the kernel, and run it. Two vertical lines mark the switches. The dashed curve is a fresh network learning only the third permutation.
-2. Phase 0b citation gaps before any published baseline number is used.
-3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
-4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
+1. Short CPU notebooks run in the session. A handoff is for a long GPU run, or when the next step is the L1 controller ADR.
+2. The L0 widen rule has been measured on the three-task drop and does not change it. The learned controller is an ADR before it is trained. EWC and experience replay stay blocked until their formulas are taken from the opened papers.
+3. Phase 0b citation gaps before any published baseline number is used.
+4. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
+5. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
 
 ## Open questions
 

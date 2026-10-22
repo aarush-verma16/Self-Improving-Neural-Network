@@ -131,7 +131,13 @@ The same notebook now trains task B for 160 steps, because the fresh curve had n
 
 ## 2026-10-22 — A third permutation
 
-Two permutations left the old task above its switch accuracy. `notebooks/14_three_tasks.ipynb` trains three permutations, 160 steps each, width 32, no edits. A fresh copy trains only on the third. A local check, `three-task-s0-2337dce6c530-20261022T200723Z`, leaves task A at 0.840 after its own training, 0.832 after task B, and 0.806 at the end. Task B goes from 0.858 to 0.826. Task C ends at 0.870. The fresh net on task C ends at 0.846. The user runs the notebook. Still CPU, one seed.
+Two permutations left the old task above its switch accuracy. `notebooks/14_three_tasks.ipynb` trains three permutations, 160 steps each, width 32, no edits. A fresh copy trains only on the third. A local check, `three-task-s0-2337dce6c530-20261022T200723Z`, leaves task A at 0.840 after its own training, 0.832 after task B, and 0.806 at the end. Task B goes from 0.858 to 0.826. Task C ends at 0.870. The fresh net on task C ends at 0.846.
+
+The user's run is `three-task-s0-2337dce6c530-20261022T205509Z`, git `48b4ea7d-dirty`, CPU, synthetic false, seed 0. It matches that check at every step. Provenance `results/figures/14_three_task_accuracy.provenance.json`. On this seed the third permutation leaves both earlier tasks about 3 points below the accuracy they had at the end of their own training.
+
+## 2026-10-22 — Gate during the three permutations
+
+The plain network's drop is the first place an edit has something old to protect. `notebooks/15_gate_tasks.py` trains the same three tasks. Every 20 steps it proposes a widen of unit 0. The gate scores the probes of every task seen so far, and the shadow trains for 8 steps on the current task only. The run is `gate-tasks-s0-2337dce6c530-20261022T205948Z`, git `9fed6c05-dirty`, CPU, synthetic false, seed 0. The no-edit curves match notebook 14. Twenty-three proposals. Steps 40 and 60 were kept, gains -0.001586 and -0.000503, splits `u0` to `u42` and `u43`. Every proposal from step 80 on was refused, including the ones during the third task. Final probe accuracy is 0.806 and 0.802 on task A, 0.826 and 0.824 on task B, 0.870 and 0.872 on task C. The largest gap on any curve is 0.020. Provenance `results/figures/15_gate_tasks_accuracy.provenance.json`. On this seed the gate keeps two early splits and does not change the drop. Short CPU notebooks are run in the session from here.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
