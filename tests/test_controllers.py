@@ -7,6 +7,7 @@ from pathlib import Path
 import torch
 
 from valmorph.controllers import (
+    train_across_tasks,
     train_with_random_edits,
     train_with_scheduled_widen,
     train_with_widen_trials,
@@ -135,3 +136,38 @@ def test_scheduled_widen_grows_on_the_interval() -> None:
         until=1,
     )
     assert int(held.linear(0).out_features) == 4
+
+
+def test_task_widen_trials_grow_only_when_the_gate_keeps_them(tmp_path: Path) -> None:
+    torch.manual_seed(0)
+    tasks = [(torch.rand(6, 4), torch.randint(0, 2, (6,))) for _ in range(2)]
+    probes = [(torch.rand(4, 4), torch.randint(0, 2, (4,))) for _ in range(2)]
+    kept = ValmorphMLP([4, 3, 2])
+    series = train_across_tasks(
+        kept,
+        tasks,
+        probes,
+        steps_per_task=4,
+        batch_size=2,
+        lr=0.1,
+        ledger=_ledger(tmp_path, "kept"),
+        every=2,
+        shadow_steps=0,
+        min_gain=-1e9,
+    )
+    assert [len(values) for values in series] == [8, 8]
+    assert int(kept.linear(0).out_features) == 6
+    refused = ValmorphMLP([4, 3, 2])
+    train_across_tasks(
+        refused,
+        tasks,
+        probes,
+        steps_per_task=4,
+        batch_size=2,
+        lr=0.1,
+        ledger=_ledger(tmp_path, "refused"),
+        every=2,
+        shadow_steps=0,
+        min_gain=1e9,
+    )
+    assert int(refused.linear(0).out_features) == 3
