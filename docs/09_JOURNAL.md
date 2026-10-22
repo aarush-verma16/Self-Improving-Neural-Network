@@ -125,7 +125,9 @@ The user's run is `fixed-width-s0-2337dce6c530-20261022T195241Z`, git `896c3e97-
 
 ## 2026-10-22 — Two tasks, one pass
 
-One permutation gives the editor nothing old to protect. `notebooks/13_two_tasks.ipynb` trains width 32 for 80 steps on the same permutation as the earlier notebooks, then 80 steps on a second permutation. Both probes are scored every step. A copy with the same starting weights trains only on the second task, and that curve is drawn over the second half. No edits. A local check, `two-task-s0-2337dce6c530-20261022T195807Z`, leaves task A at 0.752 at the switch. During the second task it dips to 0.712 and finishes at 0.774. Task B finishes at 0.808. The fresh net on task B finishes at 0.754. The user runs the notebook. Still CPU, one seed.
+One permutation gives the editor nothing old to protect. `notebooks/13_two_tasks.ipynb` trains width 32 for 80 steps on the same permutation as the earlier notebooks, then 80 steps on a second permutation. Both probes are scored every step. A copy with the same starting weights trains only on the second task, and that curve is drawn over the second half. No edits. The user's run is `two-task-s0-2337dce6c530-20261022T200014Z`, git `ba9d4c42-dirty`, CPU, synthetic false, seed 0. Task A is 0.752 at the switch, dips to 0.712 at step 85, and is 0.774 after 80 steps of task B. Task B is 0.808. The fresh net on task B is 0.754, and that dashed curve is still rising. Provenance `results/figures/13_two_task_accuracy.provenance.json` for that run.
+
+The same notebook now trains task B for 160 steps, because the fresh curve had not leveled off. A local check, `two-task-s0-2337dce6c530-20261022T200237Z`, repeats the first 160 steps exactly. Task A finishes at 0.770. Task B finishes at 0.852. The fresh net finishes at 0.836. The gap at the old stopping point was 0.054, and at step 239 it is 0.016. The user reopens the notebook from disk and runs it. Still CPU, one seed.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 

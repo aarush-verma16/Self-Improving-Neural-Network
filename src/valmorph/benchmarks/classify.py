@@ -62,24 +62,31 @@ def train_on_tasks(
     tasks: list[tuple[torch.Tensor, torch.Tensor]],
     probes: list[tuple[torch.Tensor, torch.Tensor]],
     *,
-    steps_per_task: int,
+    steps_per_task: int | list[int],
     batch_size: int,
     lr: float,
 ) -> list[list[float]]:
     """Train tasks in order and score every probe after every step.
 
-    Each task and each probe is ``(images [n, features], labels [n])``. The
-    return value has one accuracy list per probe. Each list has length
-    ``steps_per_task * len(tasks)``. One SGD optimizer covers the whole run.
+    Each task and each probe is ``(images [n, features], labels [n])``.
+    ``steps_per_task`` is one count for every task, or one count per task.
+    The return value has one accuracy list per probe, and each list has
+    length equal to the sum of those counts. One SGD optimizer covers the run.
     """
 
     if not tasks or not probes:
         raise ValueError("tasks and probes must be non-empty")
+    if isinstance(steps_per_task, int):
+        counts = [steps_per_task] * len(tasks)
+    else:
+        counts = list(steps_per_task)
+    if len(counts) != len(tasks) or any(count < 1 for count in counts):
+        raise ValueError("steps_per_task must be a positive count for each task")
     optimizer = torch.optim.SGD(net.parameters(), lr=lr)
     series: list[list[float]] = [[] for _ in probes]
-    for images, labels in tasks:
+    for (images, labels), task_steps in zip(tasks, counts, strict=True):
         count = int(images.shape[0])
-        for step in range(steps_per_task):
+        for step in range(task_steps):
             start = (step * batch_size) % count
             index = torch.arange(start, start + batch_size) % count
             optimizer.zero_grad()

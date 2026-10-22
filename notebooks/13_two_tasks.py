@@ -7,9 +7,11 @@
 #
 # This is the two-task smoke from the protocol: one pass, width 32, no edits.
 # Task A uses the same pixel permutation as the earlier notebooks. Task B uses
-# a second permutation. The network trains 80 steps on A, then 80 on B, and
-# both probes are scored every step. A second copy starts from the same
-# weights and trains only on B. Its curve is drawn across the second half.
+# a second permutation. The 80-step run on B left task A at 0.752 at the
+# switch, down to 0.712, then up to 0.774. Task B finished at 0.808, and a
+# fresh net on B finished at 0.754 while its curve was still rising. Task B
+# now runs for 160 steps. Task A stays at 80. The fresh copy trains for the
+# same 160 steps, and its curve starts at the switch.
 #
 # Two tasks is the smoke size. It is not a published task count. Not Level 1.
 
@@ -49,7 +51,8 @@ for permutation_seed in (cfg.seed, cfg.seed + 1):
     permutation = pixel_permutation(permutation_seed)
     tasks.append((apply_permutation(train_rows, permutation), train_labels))
     probes.append((apply_permutation(probe_rows, permutation), probe_labels))
-steps_per_task = 80
+steps_a = 80
+steps_b = 160
 net = ValmorphMLP([784, 32, 10]).cpu()
 fresh = clone_net(net)
 
@@ -65,7 +68,7 @@ ledger = Ledger.create(
         experiment="two-task",
         seed=cfg.seed,
         config_hash=config_hash(cfg),
-        config={"experiment": "two-task", "tasks": 2, "steps_per_task": steps_per_task},
+        config={"experiment": "two-task", "tasks": 2, "steps": [steps_a, steps_b]},
         git_commit=git_commit(),
         device_type="cpu",
         device_name="cpu",
@@ -82,7 +85,7 @@ on_a, on_b = train_on_tasks(
     net,
     tasks,
     probes,
-    steps_per_task=steps_per_task,
+    steps_per_task=[steps_a, steps_b],
     batch_size=64,
     lr=0.1,
 )
@@ -90,13 +93,13 @@ _loss, fresh_b = train_classifier(
     fresh,
     tasks[1][0],
     tasks[1][1],
-    steps=steps_per_task,
+    steps=steps_b,
     batch_size=64,
     lr=0.1,
     probe_images=probes[1][0],
     probe_labels=probes[1][1],
 )
-fresh_aligned = [float("nan")] * steps_per_task + fresh_b
+fresh_aligned = [float("nan")] * steps_a + fresh_b
 accuracy_series = {
     "task A": on_a,
     "task B": on_b,
@@ -106,7 +109,7 @@ curves = plot_diagnostic_traces(
     accuracy_series,
     title="probe accuracy",
     y_title="accuracy",
-    marks=[steps_per_task],
+    marks=[steps_a],
     mark_label="task 2",
     dashes={"task B, fresh start": "dash"},
 )
@@ -120,13 +123,13 @@ save_diagnostic_traces_png(
     figure_dir / "13_two_task_accuracy.png",
     title="probe accuracy",
     y_title="accuracy",
-    marks=[steps_per_task],
+    marks=[steps_a],
     mark_label="task 2",
     dashes={"task B, fresh start": "dash"},
 )
-end_a = steps_per_task - 1
-end_b = 2 * steps_per_task - 1
-dip = min(on_a[steps_per_task:])
+end_a = steps_a - 1
+end_b = steps_a + steps_b - 1
+dip = min(on_a[steps_a:])
 ledger.append_step_metrics(
     [
         StepMetric(step=step, split="probe", name=name, value=float(value))
@@ -135,7 +138,7 @@ ledger.append_step_metrics(
     ]
     + [
         StepMetric(
-            step=steps_per_task + step,
+            step=steps_a + step,
             split="probe",
             name="accuracy_task_b_fresh",
             value=float(value),
@@ -149,7 +152,7 @@ ledger.append_findings(
             finding_id="two-task",
             kind="method",
             statement=(
-                "Two tasks, 80 steps each, no edits. "
+                f"Two tasks, {steps_a} steps then {steps_b}, no edits. "
                 f"Task A is {on_a[end_a]:.3f} at the switch, dips to {dip:.3f}, "
                 f"and finishes at {on_a[end_b]:.3f}. "
                 f"Task B finishes at {on_b[end_b]:.3f}. "
