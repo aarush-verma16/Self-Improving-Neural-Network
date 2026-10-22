@@ -98,6 +98,8 @@ ledger = Ledger.create(
         libraries=library_versions(),
     ),
 )
+
+
 def record_gain(kind: str, decision: GateDecision) -> None:
     bandit.observe(kind, decision.validated_gain)
 
@@ -286,8 +288,7 @@ print(
             "means": {"prune": bandit.mean("prune"), "widen": bandit.mean("widen")},
             "counts": bandit.count,
             "arms": [
-                f"{controller}:{kind}"
-                for controller, kind in zip(controllers, kinds, strict=True)
+                f"{controller}:{kind}" for controller, kind in zip(controllers, kinds, strict=True)
             ],
             "synthetic": manifest["synthetic"],
         }
