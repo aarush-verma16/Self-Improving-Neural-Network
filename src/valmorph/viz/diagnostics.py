@@ -20,11 +20,13 @@ def plot_diagnostic_traces(
     y_title: str = "value",
     marks: list[int] | None = None,
     dashes: dict[str, str] | None = None,
+    mark_label: str = "kept",
 ) -> go.Figure:
-    """One line per diagnostic. Each list is one finite scalar per recorded step.
+    """One line per diagnostic. Each list is one scalar per recorded step.
 
-    ``marks`` are step numbers drawn as dotted vertical lines, labeled ``kept``.
-    ``dashes`` maps a series name to ``solid``, ``dash``, ``dot``, or ``dashdot``.
+    ``marks`` are step numbers drawn as dotted vertical lines. ``mark_label``
+    is their annotation. ``dashes`` maps a series name to ``solid``, ``dash``,
+    ``dot``, or ``dashdot``.
     """
 
     figure = go.Figure()
@@ -47,7 +49,7 @@ def plot_diagnostic_traces(
             x=step,
             line_dash="dot",
             line_color="#000000",
-            annotation_text="kept",
+            annotation_text=mark_label,
             annotation_position="top",
         )
     figure.update_layout(
@@ -80,8 +82,9 @@ def save_diagnostic_traces_png(
     y_title: str = "value",
     marks: list[int] | None = None,
     dashes: dict[str, str] | None = None,
+    mark_label: str = "kept",
 ) -> None:
-    """Static copy of the diagnostic traces. ``marks`` are dotted ``kept`` lines."""
+    """Static copy of the diagnostic traces. ``marks`` are dotted vertical lines."""
 
     apply_matplotlib_style()
     figure, ax = plt.subplots(figsize=(6.0, 3.2))
@@ -95,7 +98,7 @@ def save_diagnostic_traces_png(
             color="#000000",
             linestyle=":",
             linewidth=1,
-            label=None if labeled else "kept",
+            label=None if labeled else mark_label,
         )
         labeled = True
     ax.set_title(title)

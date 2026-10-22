@@ -119,7 +119,13 @@ The user's run is `widen-long-s0-2337dce6c530-20261022T194419Z`, git `a24fd503`,
 
 ## 2026-10-22 — Fixed width from the same start
 
-Five kept widens end at hidden width 37 and do not beat width 32. `notebooks/12_fixed_width.ipynb` copies unit 0 five times before training, so the wider net starts as the same function, and also repeats the schedule that widens at steps 10, 20, and 30. A local check finished at 0.752, 0.754, and 0.750. Step 0 is 0.224 for all three. The user runs the notebook. Still CPU, one seed.
+Five kept widens end at hidden width 37 and do not beat width 32. `notebooks/12_fixed_width.ipynb` copies unit 0 five times before training, so the wider net starts as the same function, and also repeats the schedule that widens at steps 10, 20, and 30.
+
+The user's run is `fixed-width-s0-2337dce6c530-20261022T195241Z`, git `896c3e97-dirty`, CPU, synthetic false, seed 0. Step 0 is 0.224 for all three. Step 39 is 0.634, 0.636, and 0.634. Final probe accuracy is 0.752 at width 32, 0.754 for the schedule that grows to 35, and 0.750 after five copies made before training. The widest gap between width 37 and width 32 is 0.022 at step 14, with the wider net behind. The schedule's widest lead is 0.020 at step 25, the same step as notebook 10. Provenance `results/figures/12_fixed_width_accuracy.provenance.json`. On this seed, starting with the extra units does not beat width 32, and neither does growing into them.
+
+## 2026-10-22 — Two tasks, one pass
+
+One permutation gives the editor nothing old to protect. `notebooks/13_two_tasks.ipynb` trains width 32 for 80 steps on the same permutation as the earlier notebooks, then 80 steps on a second permutation. Both probes are scored every step. A copy with the same starting weights trains only on the second task, and that curve is drawn over the second half. No edits. A local check, `two-task-s0-2337dce6c530-20261022T195807Z`, leaves task A at 0.752 at the switch. During the second task it dips to 0.712 and finishes at 0.774. Task B finishes at 0.808. The fresh net on task B finishes at 0.754. The user runs the notebook. Still CPU, one seed.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 

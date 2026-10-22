@@ -55,3 +55,38 @@ def train_classifier(
         with torch.no_grad():
             accuracies.append(batch_accuracy(net(probe_images), probe_labels))
     return losses, accuracies
+
+
+def train_on_tasks(
+    net: ValmorphMLP,
+    tasks: list[tuple[torch.Tensor, torch.Tensor]],
+    probes: list[tuple[torch.Tensor, torch.Tensor]],
+    *,
+    steps_per_task: int,
+    batch_size: int,
+    lr: float,
+) -> list[list[float]]:
+    """Train tasks in order and score every probe after every step.
+
+    Each task and each probe is ``(images [n, features], labels [n])``. The
+    return value has one accuracy list per probe. Each list has length
+    ``steps_per_task * len(tasks)``. One SGD optimizer covers the whole run.
+    """
+
+    if not tasks or not probes:
+        raise ValueError("tasks and probes must be non-empty")
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
+    series: list[list[float]] = [[] for _ in probes]
+    for images, labels in tasks:
+        count = int(images.shape[0])
+        for step in range(steps_per_task):
+            start = (step * batch_size) % count
+            index = torch.arange(start, start + batch_size) % count
+            optimizer.zero_grad()
+            loss = F.cross_entropy(net(images[index]), labels[index])
+            loss.backward()
+            optimizer.step()
+            with torch.no_grad():
+                for slot, (probe_x, probe_y) in enumerate(probes):
+                    series[slot].append(batch_accuracy(net(probe_x), probe_y))
+    return series

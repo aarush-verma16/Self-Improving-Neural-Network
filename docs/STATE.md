@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Notebook 11 was run by the user (`widen-long-s0-2337dce6c530-20261022T194419Z`). Seven unit-0 widens, five kept, from step 30 through step 70. Final probe accuracy was 0.752 with no edits, 0.806 on the extra-steps curve, and 0.750 with the live widens. The live curve stays with no edits. Notebook 12 is ready: the same starting weights, one copy widened to 37 before training, one grown on the schedule, one left at 32. A local check finished at 0.752, 0.754, and 0.750. The user runs it. Still CPU.
+Notebook 12 was run by the user (`fixed-width-s0-2337dce6c530-20261022T195241Z`). Same starting weights, 80 steps, no gate. Final probe accuracy was 0.752 at width 32, 0.754 for the schedule that grows to 35, and 0.750 after five copies made before training. Notebook 13 is ready: 80 steps on that same permutation, then 80 on a second one, width 32, no edits. A local check leaves task A at 0.752 at the switch, dips to 0.712, and finishes at 0.774. Task B finishes at 0.808. A fresh net on task B finishes at 0.754. The user runs it. Still CPU.
 
 ## Done
 
@@ -20,7 +20,7 @@ Notebook 11 was run by the user (`widen-long-s0-2337dce6c530-20261022T194419Z`).
 
 ## Next
 
-1. Open `notebooks/12_fixed_width.ipynb` as a new tab, restart the kernel, and run it. The three curves start from the same weights. Width 37 is five copies made before training. Grow-to-35 widens at steps 10, 20, and 30. There is no gate.
+1. Open `notebooks/13_two_tasks.ipynb` as a new tab, restart the kernel, and run it. The vertical line is the switch to the second permutation. Task A should stay visible through the second half. The dashed curve is a fresh network learning only the second task.
 2. Phase 0b citation gaps before any published baseline number is used.
 3. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 4. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
