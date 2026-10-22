@@ -12,17 +12,18 @@ from torch.nn import functional as F
 from valmorph.benchmarks.classify import batch_accuracy
 from valmorph.core.ledger import Ledger, LineageEdge
 from valmorph.gate import adopt_shadow, clone_net, consider_edit, train_cross_entropy_steps
-from valmorph.models import ValmorphMLP, prune, widen
+from valmorph.models import ValmorphMLP, lr_change, prune, widen
 
 
 def choose_edit(net: ValmorphMLP, generator: torch.Generator) -> tuple[str, int]:
-    """Pick ``prune`` or ``widen``, then a unit in the first hidden layer.
+    """Pick prune, widen, or a learning-rate halving, then a unit.
 
-    A layer with one unit cannot be pruned, so the choice is ``widen``.
+    A layer with one unit cannot be pruned. The unit draw is unused when the
+    kind is ``lr_change``.
     """
 
     width = int(net.linear(0).out_features)
-    kinds = ("prune", "widen") if width > 1 else ("widen",)
+    kinds = ("prune", "widen", "lr_change") if width > 1 else ("widen", "lr_change")
     kind = kinds[int(torch.randint(0, len(kinds), (1,), generator=generator))]
     unit = int(torch.randint(0, width, (1,), generator=generator))
     return kind, unit
@@ -59,11 +60,7 @@ def train_with_random_edits(
     count = int(images.shape[0])
 
     def minibatch(model: ValmorphMLP, index: torch.Tensor) -> None:
-        optimizer = torch.optim.SGD(model.parameters(), lr=lr)
-        optimizer.zero_grad()
-        loss = F.cross_entropy(model(images[index]), labels[index])
-        loss.backward()
-        optimizer.step()
+        train_cross_entropy_steps(model, images[index], labels[index], 1, lr)
 
     for step in range(steps):
         if every > 0 and step > 0 and step % every == 0:
@@ -75,7 +72,7 @@ def train_with_random_edits(
                 at: int = step,
                 chosen: int = unit,
                 edit_kind: str = kind,
-            ) -> LineageEdge:
+            ) -> LineageEdge | None:
                 if edit_kind == "widen":
                     parent = shadow.unit_ids[0][chosen]
                     child = widen(shadow, 0, chosen)
@@ -85,13 +82,16 @@ def train_with_random_edits(
                         child_unit=child,
                         relation="split",
                     )
-                removed = prune(shadow, 0, chosen)
-                return LineageEdge(
-                    step=at,
-                    parent_unit=removed,
-                    child_unit=removed,
-                    relation="prune",
-                )
+                if edit_kind == "prune":
+                    removed = prune(shadow, 0, chosen)
+                    return LineageEdge(
+                        step=at,
+                        parent_unit=removed,
+                        child_unit=removed,
+                        relation="prune",
+                    )
+                lr_change(shadow, 0, 0.5)
+                return None
 
             decision = consider_edit(
                 net,

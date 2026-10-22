@@ -134,6 +134,7 @@ def identity_deepen(
     insert_at = after_layer + 1
     net.layers.insert(insert_at, _linear(weight, bias))
     net.use_relu.insert(insert_at, False)
+    net.lr_scale.insert(insert_at, 1.0)
     net.unit_ids.insert(insert_at, child_ids)
     _record(
         ledger,
@@ -190,3 +191,19 @@ def prune(
         edges=[LineageEdge(step=step, parent_unit=removed, child_unit=removed, relation="prune")],
     )
     return removed
+
+
+def lr_change(net: ValmorphMLP, layer: int, factor: float) -> float:
+    """Multiply the learning-rate scale of ``layer`` by ``factor``.
+
+    The forward function is unchanged. Later SGD steps use the base learning
+    rate times this scale. ``factor`` must be positive. The new scale is
+    returned.
+    """
+
+    if layer < 0 or layer >= len(net.layers):
+        raise EditError("learning-rate change applies to an existing layer")
+    if factor <= 0:
+        raise EditError("learning-rate factor must be positive")
+    net.lr_scale[layer] *= factor
+    return net.lr_scale[layer]

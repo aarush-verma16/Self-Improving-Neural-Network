@@ -59,14 +59,9 @@ def train_cross_entropy_steps(
 
     if steps < 0:
         raise ValueError("steps must be >= 0")
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
     losses: list[float] = []
     for _ in range(steps):
-        optimizer.zero_grad()
-        loss = torch.nn.functional.cross_entropy(net(x), y)
-        loss.backward()
-        optimizer.step()
-        losses.append(float(loss.detach()))
+        losses.append(_cross_entropy_step(net, x, y, lr))
     return losses
 
 
@@ -81,8 +76,29 @@ def adopt_shadow(live: ValmorphMLP, shadow: ValmorphMLP) -> None:
 
     live.layers = copy.deepcopy(shadow.layers)
     live.use_relu = list(shadow.use_relu)
+    live.lr_scale = list(shadow.lr_scale)
     live.unit_ids = copy.deepcopy(shadow.unit_ids)
     live._next_unit = shadow._next_unit
+
+
+def _cross_entropy_step(
+    net: ValmorphMLP,
+    x: torch.Tensor,
+    y: torch.Tensor,
+    lr: float,
+) -> float:
+    """One full-batch cross-entropy step. Each layer uses ``lr * lr_scale``."""
+
+    groups = [
+        {"params": list(net.linear(index).parameters()), "lr": lr * net.lr_scale[index]}
+        for index in range(len(net.layers))
+    ]
+    optimizer = torch.optim.SGD(groups)
+    optimizer.zero_grad()
+    loss = torch.nn.functional.cross_entropy(net(x), y)
+    loss.backward()
+    optimizer.step()
+    return float(loss.detach())
 
 
 def _unit_ids(net: ValmorphMLP) -> set[str]:

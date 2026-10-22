@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-L1 is the two-arm bandit in ADR-011. On the three-task smoke (`bandit-tasks-s0-2337dce6c530-20261022T211018Z`) it kept 5 widens and the random controller kept 4 edits. Final task-A accuracy is 0.806 with no edits, 0.804 for the bandit, and 0.796 for random. The bandit's mean prune gain is +0.010 and its mean widen gain is about zero. Short CPU runs are executed in the session. Still CPU. Not a Level 1 claim.
+L1 now has three arms (ADR-012): prune, widen, and halving the first hidden layer's learning rate. The run is `lr-tasks-s0-2337dce6c530-20261022T212758Z`. The bandit refused all three halvings. Its hidden scale stays 1. Final task-A accuracy is 0.806 with no edits, 0.804 for the bandit, and 0.808 for random. Random kept one halving at step 420 and ends task C at 0.852 against 0.870. Mean halving gain for the bandit is +0.023. Short CPU runs are executed in the session. Still CPU. Not a Level 1 claim.
 
 ## Done
 
@@ -21,7 +21,7 @@ L1 is the two-arm bandit in ADR-011. On the three-task smoke (`bandit-tasks-s0-2
 ## Next
 
 1. Short CPU notebooks run in the session. A handoff is for a long GPU run.
-2. L1 is in place and has a one-seed smoke. It does not beat no-edits on that smoke. EWC and experience replay stay blocked until their formulas are taken from the opened papers. A five-seed comparison is the confirmatory run, and it waits until the protocol papers fix the task count.
+2. The learning-rate arm has a one-seed smoke. The bandit refuses it. EWC and experience replay stay blocked until their formulas are taken from the opened papers. A five-seed comparison waits until the protocol papers fix the task count.
 3. Phase 0b citation gaps before any published baseline number is used.
 4. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 5. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.

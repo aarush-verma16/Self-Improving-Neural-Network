@@ -99,10 +99,13 @@ def test_random_controller_is_labeled_and_leaves_the_matched_width(tmp_path: Pat
     opened = Ledger.reopen(tmp_path, "random")
     proposals = opened.read("edit_proposals")
     assert proposals.column("controller").to_pylist() == ["random", "random", "random"]
-    assert set(proposals.column("edit_type").to_pylist()) <= {"prune", "widen"}
+    kinds = proposals.column("edit_type").to_pylist()
+    assert set(kinds) <= {"prune", "widen", "lr_change"}
     assert opened.read("gate_decisions").column("accepted").to_pylist() == [True, True, True]
     assert int(matched.linear(0).out_features) == 3
-    assert opened.read("lineage").num_rows == 3
+    structural = sum(kind != "lr_change" for kind in kinds)
+    if structural:
+        assert opened.read("lineage").num_rows == structural
 
 
 def test_scheduled_widen_grows_on_the_interval() -> None:
@@ -182,21 +185,21 @@ def test_bandit_tries_each_arm_then_follows_the_mean() -> None:
     bandit.observe("prune", 0.4)
     assert bandit.choose(net, generator)[0] == "widen"
     bandit.observe("widen", -0.2)
+    assert bandit.choose(net, generator)[0] == "lr_change"
+    bandit.observe("lr_change", 0.5)
     assert bandit.choose(net, generator)[0] == "widen"
-    bandit.observe("widen", 1.2)
-    assert bandit.choose(net, generator)[0] == "prune"
 
 
 def test_bandit_explore_step_retries_the_less_used_arm() -> None:
     bandit = EditBandit()
     generator = torch.Generator().manual_seed(0)
     net = ValmorphMLP([4, 3, 2])
-    bandit.choose(net, generator)
+    assert bandit.choose(net, generator)[0] == "prune"
     bandit.observe("prune", 0.0)
-    bandit.choose(net, generator)
-    bandit.observe("widen", -1.0)
     assert bandit.choose(net, generator)[0] == "widen"
     bandit.observe("widen", -1.0)
+    assert bandit.choose(net, generator)[0] == "lr_change"
+    bandit.observe("lr_change", 0.0)
     assert bandit.choose(net, generator)[0] == "widen"
     bandit.observe("widen", -1.0)
     assert bandit.choose(net, generator)[0] == "prune"

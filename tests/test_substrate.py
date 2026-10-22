@@ -10,7 +10,8 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from valmorph.core.ledger import LEDGER_VERSION, Ledger, RunMeta
-from valmorph.models.edits import EditError, identity_deepen, widen
+from valmorph.gate import adopt_shadow, clone_net, train_cross_entropy_steps
+from valmorph.models.edits import EditError, identity_deepen, lr_change, widen
 from valmorph.models.mlp import SubstrateError, ValmorphMLP
 
 
@@ -113,3 +114,40 @@ def test_edits_preserve_the_function(widths: list[int], seed: int) -> None:
     identity_deepen(net, 0)
     assert torch.allclose(net(batch), before_batch, rtol=1e-5, atol=1e-5)
     assert torch.allclose(net(held_out), before_held, rtol=1e-5, atol=1e-5)
+
+
+def test_lr_change_keeps_logits_and_halves_the_hidden_step() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    plain = clone_net(net)
+    images = torch.rand(6, 4)
+    labels = torch.randint(0, 2, (6,))
+    before = net(images).detach().clone()
+    assert lr_change(net, 0, 0.5) == 0.5
+    assert torch.equal(net(images), before)
+    hidden_before = net.linear(0).weight.detach().clone()
+    output_before = net.linear(1).weight.detach().clone()
+    train_cross_entropy_steps(net, images, labels, 1, 0.2)
+    train_cross_entropy_steps(plain, images, labels, 1, 0.2)
+    hidden_delta = net.linear(0).weight.detach() - hidden_before
+    plain_hidden = plain.linear(0).weight.detach() - hidden_before
+    assert torch.allclose(hidden_delta, 0.5 * plain_hidden)
+    output_delta = net.linear(1).weight.detach() - output_before
+    plain_output = plain.linear(1).weight.detach() - output_before
+    assert torch.allclose(output_delta, plain_output)
+    with pytest.raises(EditError):
+        lr_change(net, 0, 0)
+
+
+def test_adopted_shadow_keeps_the_learning_rate_scale() -> None:
+    live = ValmorphMLP([4, 3, 2])
+    shadow = clone_net(live)
+    lr_change(shadow, 0, 0.5)
+    adopt_shadow(live, shadow)
+    assert live.lr_scale == [0.5, 1.0]
+
+
+def test_identity_deepen_inserts_a_unit_learning_rate_scale() -> None:
+    net = ValmorphMLP([4, 3, 2])
+    identity_deepen(net, 0)
+    assert net.lr_scale == [1.0, 1.0, 1.0]

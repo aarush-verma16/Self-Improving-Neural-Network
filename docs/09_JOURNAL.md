@@ -145,6 +145,12 @@ ADR-011 chooses L1: a two-arm bandit over prune and widen. The unit is a uniform
 
 `notebooks/16_bandit_tasks.py` trains the three permutations from notebook 14. The run is `bandit-tasks-s0-2337dce6c530-20261022T211018Z`, git `fe292ca4-dirty`, CPU, synthetic false, seed 0. The no-edit curves match notebook 14: task A 0.806, task B 0.826, task C 0.870. The bandit kept five widens, at steps 40, 80, 200, 360, and 460, each with a gain between -0.000150 and -0.000428. It ends at 0.804, 0.824, and 0.868. The random controller kept four edits, including a prune at step 440, and ends at 0.796, 0.826, and 0.868. The bandit pulled prune 6 times and widen 17 times. Mean prune gain is +0.010. Mean widen gain is about +0.00004. Provenance `results/figures/16_bandit_task_a.provenance.json`. On this seed the bandit learns that prune raises probe loss, and neither controller moves the task-A curve off the no-edit line.
 
+## 2026-10-22 — Learning-rate arm
+
+ADR-012 adds a third arm. It multiplies the first hidden layer's learning-rate scale by one half. The forward function is unchanged. Shadow steps and later steps use the scale. The output layer stays at 1.
+
+`notebooks/17_lr_tasks.py` trains the same three permutations. The run is `lr-tasks-s0-2337dce6c530-20261022T212758Z`, git `e4d24f6a-dirty`, CPU, synthetic false, seed 0. The no-edit curves match notebook 14. The bandit proposes the halving at steps 60, 180, and 340. Gains are +0.026, +0.028, and +0.014, all refused. It keeps five widens, the same steps as the two-arm run. Hidden scale stays 1. Finals are 0.804, 0.824, and 0.868. Mean gains are prune +0.013, widen about +0.00005, and halving +0.023. The random controller keeps a halving at step 420, gain -0.000804, so its hidden scale ends at 0.5. Its finals are 0.808, 0.828, and 0.852. Provenance `results/figures/17_lr_task_a.provenance.json`. On this seed, slowing the hidden layer raises probe loss during the shadow trial, and the one accepted halving does not lift the old task.
+
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
 The gate now scores digit classification by probe cross-entropy. Notebook 05 trains the same small permuted-MNIST net, breaks it with one added unit, then offers a prune that removes that unit and a prune that removes a useful unit. A local smoke restored accuracy from 0.084 to 0.630 and refused the second prune. The user runs the notebook. Still CPU.

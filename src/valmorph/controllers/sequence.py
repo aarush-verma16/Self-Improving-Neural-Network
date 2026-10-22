@@ -15,7 +15,7 @@ from torch.nn import functional as F
 from valmorph.benchmarks.classify import batch_accuracy
 from valmorph.core.ledger import GateDecision, Ledger, LineageEdge
 from valmorph.gate import consider_edit, train_cross_entropy_steps
-from valmorph.models import ValmorphMLP, prune, widen
+from valmorph.models import ValmorphMLP, lr_change, prune, widen
 
 
 def train_across_tasks(
@@ -74,7 +74,7 @@ def train_across_tasks(
                     at: int = step,
                     chosen: int = unit,
                     edit_kind: str = kind,
-                ) -> LineageEdge:
+                ) -> LineageEdge | None:
                     if edit_kind == "widen":
                         parent = shadow.unit_ids[0][chosen]
                         child = widen(shadow, 0, chosen)
@@ -84,13 +84,16 @@ def train_across_tasks(
                             child_unit=child,
                             relation="split",
                         )
-                    removed = prune(shadow, 0, chosen)
-                    return LineageEdge(
-                        step=at,
-                        parent_unit=removed,
-                        child_unit=removed,
-                        relation="prune",
-                    )
+                    if edit_kind == "prune":
+                        removed = prune(shadow, 0, chosen)
+                        return LineageEdge(
+                            step=at,
+                            parent_unit=removed,
+                            child_unit=removed,
+                            relation="prune",
+                        )
+                    lr_change(shadow, 0, 0.5)
+                    return None
 
                 decision = consider_edit(
                     net,
@@ -116,17 +119,14 @@ def train_across_tasks(
                         "shadow_steps": shadow_steps,
                         "task": task_index,
                         "probes": task_index + 1,
+                        "lr_factor": 0.5 if kind == "lr_change" else None,
                     },
                 )
                 if on_decision is not None:
                     on_decision(kind, decision)
             start = (local * batch_size) % count
             index = torch.arange(start, start + batch_size) % count
-            optimizer = torch.optim.SGD(net.parameters(), lr=lr)
-            optimizer.zero_grad()
-            loss = F.cross_entropy(net(images[index]), labels[index])
-            loss.backward()
-            optimizer.step()
+            train_cross_entropy_steps(net, images[index], labels[index], 1, lr)
             with torch.no_grad():
                 for slot, (seen_x, seen_y) in enumerate(probes):
                     series[slot].append(batch_accuracy(net(seen_x), seen_y))

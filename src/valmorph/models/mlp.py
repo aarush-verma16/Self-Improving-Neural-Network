@@ -32,6 +32,7 @@ class ValmorphMLP(nn.Module):
             nn.Linear(widths[i], widths[i + 1]) for i in range(len(widths) - 1)
         )
         self.use_relu: list[bool] = [True] * (len(self.layers) - 1) + [False]
+        self.lr_scale: list[float] = [1.0] * len(self.layers)
         self._next_unit = 0
         self.unit_ids: list[list[str]] = []
         for module in self.layers:

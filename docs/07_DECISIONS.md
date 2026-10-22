@@ -60,6 +60,16 @@ Date: 2026-10-10.
 
 Pyright's `strict` mode reports the PyArrow, Plotly, and matplotlib APIs as unknown because those packages do not ship stubs. The project uses `standard` mode plus Ruff's type-related lint, and our own functions stay annotated. Turning `strict` on would require casts around the ledger and the figures without making those calls safer.
 
+## ADR-012 — L1 can halve a layer's learning rate
+
+Date: 2026-10-22.
+
+No confirmatory ledger for H1 exists. This adds an arm to ADR-011. It does not replace the gate.
+
+`lr_change` multiplies the learning-rate scale of the first hidden layer by one half. The forward function is unchanged. Later SGD steps, including the gate's shadow steps, use the base learning rate times that scale. The output layer stays at scale 1. Accepting the arm again halves the scale again.
+
+The bandit and the random controller both choose among prune, widen, and this halving. Untried arms go first in that order. Every fourth later choice retries the arm with fewer pulls. The rest follow the lower mean validated gain. A tie keeps the earlier arm. A layer of width 1 cannot be pruned. The unit draw is unused for the learning-rate arm.
+
 ## ADR-011 — L1 is a two-arm bandit
 
 Date: 2026-10-22.
