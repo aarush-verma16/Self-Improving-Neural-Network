@@ -113,7 +113,13 @@ The later user runs `scheduled-widen-s0-2337dce6c530-20261021T044319Z` and `sche
 
 ## 2026-10-21 — Gated widen over 80 steps
 
-Step 40 was mid-training, so the gate is asked again across 80 steps. Every 10 steps the proposal is a widen of unit 0, with 8 matched shadow steps. A kept edit is applied at the current weights. `notebooks/11_widen_long.ipynb` is the run. A local check proposed 7 and accepted 5, from step 30 through step 70, each a split of `u0`. Final probe accuracy was 0.752 with no edits, 0.806 on the dashed extra-steps curve, and 0.750 with the live widens. The user runs the notebook. Still CPU, one seed.
+Step 40 was mid-training, so the gate is asked again across 80 steps. Every 10 steps the proposal is a widen of unit 0, with 8 matched shadow steps. A kept edit is applied at the current weights.
+
+The user's run is `widen-long-s0-2337dce6c530-20261022T194419Z`, git `a24fd503`, CPU, synthetic false, seed 0. An earlier run the same minute, `20261022T194248Z`, has the same decisions and the same finals. Seven proposals. Steps 10 and 20 were refused (gains +0.00436 and +0.00103). Steps 30, 40, 50, 60, and 70 were kept, gains -0.000589, -0.002145, -0.000955, -0.000393, and -0.000328. Each kept edit splits `u0`, into `u42` through `u46`. Step 39 matches notebook 07: no edits and the live widen are 0.634, and the extra-steps curve is 0.668. Step 79 is 0.752, 0.750, and 0.806. The live widen differs from no edits by at most 0.008 and is behind at 26 steps. Provenance `results/figures/11_widen_long_accuracy.provenance.json`. On this seed the gate keeps the later widens, and the live accuracy does not rise. The 0.054 final gap belongs to the accumulated shadow steps.
+
+## 2026-10-22 — Fixed width from the same start
+
+Five kept widens end at hidden width 37 and do not beat width 32. `notebooks/12_fixed_width.ipynb` copies unit 0 five times before training, so the wider net starts as the same function, and also repeats the schedule that widens at steps 10, 20, and 30. A local check finished at 0.752, 0.754, and 0.750. Step 0 is 0.224 for all three. The user runs the notebook. Still CPU, one seed.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
