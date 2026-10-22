@@ -127,7 +127,11 @@ The user's run is `fixed-width-s0-2337dce6c530-20261022T195241Z`, git `896c3e97-
 
 One permutation gives the editor nothing old to protect. `notebooks/13_two_tasks.ipynb` trains width 32 for 80 steps on the same permutation as the earlier notebooks, then 80 steps on a second permutation. Both probes are scored every step. A copy with the same starting weights trains only on the second task, and that curve is drawn over the second half. No edits. The user's run is `two-task-s0-2337dce6c530-20261022T200014Z`, git `ba9d4c42-dirty`, CPU, synthetic false, seed 0. Task A is 0.752 at the switch, dips to 0.712 at step 85, and is 0.774 after 80 steps of task B. Task B is 0.808. The fresh net on task B is 0.754, and that dashed curve is still rising. Provenance `results/figures/13_two_task_accuracy.provenance.json` for that run.
 
-The same notebook now trains task B for 160 steps, because the fresh curve had not leveled off. A local check, `two-task-s0-2337dce6c530-20261022T200237Z`, repeats the first 160 steps exactly. Task A finishes at 0.770. Task B finishes at 0.852. The fresh net finishes at 0.836. The gap at the old stopping point was 0.054, and at step 239 it is 0.016. The user reopens the notebook from disk and runs it. Still CPU, one seed.
+The same notebook now trains task B for 160 steps, because the fresh curve had not leveled off. The user's re-run is `two-task-s0-2337dce6c530-20261022T200410Z`, git `ba8be9b3-dirty`, CPU, synthetic false, seed 0. Config `steps` is `[80, 160]`. It matches the local check at every step. Task A is 0.752 at the switch, dips to 0.712 at step 85, and finishes at 0.770. Task B is 0.808 at step 159 and 0.852 at step 239. The fresh net is 0.754 at its step 80 and 0.836 at its step 160. The gap shrinks from 0.054 to 0.016. Provenance `results/figures/13_two_task_accuracy.provenance.json`. On this seed the old task does not stay down, and most of the lead on the new task was a head start.
+
+## 2026-10-22 — A third permutation
+
+Two permutations left the old task above its switch accuracy. `notebooks/14_three_tasks.ipynb` trains three permutations, 160 steps each, width 32, no edits. A fresh copy trains only on the third. A local check, `three-task-s0-2337dce6c530-20261022T200723Z`, leaves task A at 0.840 after its own training, 0.832 after task B, and 0.806 at the end. Task B goes from 0.858 to 0.826. Task C ends at 0.870. The fresh net on task C ends at 0.846. The user runs the notebook. Still CPU, one seed.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
