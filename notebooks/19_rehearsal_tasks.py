@@ -8,7 +8,8 @@
 # rows of each finished task, in their existing order.
 #
 # This mix is ours. It is not a published replay method. Same three
-# permutations, 160 steps each, width 32, no gate. One seed. CPU.
+# permutations, 160 steps each, width 32, no gate. Seeds 0-4 also keep
+# 512 and 1024 rows. The dotted line on the dose chart is 2 pp. CPU.
 
 # %%
 import json
@@ -205,8 +206,23 @@ for seed in range(5):
             memory=256,
         ),
     ]
-    seed_rows.append([curve[task][end] for curve in trained for task in range(3)])
-if seed_rows[0] != [
+    row = [curve[task][end] for curve in trained for task in range(3)]
+    torch.manual_seed(seed)
+    longer = ValmorphMLP([784, 32, 10]).cpu()
+    for kept in (512, 1024):
+        copy = clone_net(longer)
+        curves = train_with_rehearsal(
+            copy,
+            seeded_tasks,
+            seeded_probes,
+            steps_per_task=task_steps,
+            batch_size=64,
+            lr=0.1,
+            memory=kept,
+        )
+        row.extend(curves[task][end] for task in range(3))
+    seed_rows.append(row)
+if seed_rows[0][:9] != [
     plain_curves[0][end],
     plain_curves[1][end],
     plain_curves[2][end],
@@ -218,7 +234,23 @@ if seed_rows[0] != [
     short_curves[2][end],
 ]:
     raise RuntimeError("seed 0 summary does not match the plotted run")
-labels = ("a_plain", "b_plain", "c_plain", "a_full", "b_full", "c_full", "a_256", "b_256", "c_256")
+labels = (
+    "a_plain",
+    "b_plain",
+    "c_plain",
+    "a_full",
+    "b_full",
+    "c_full",
+    "a_256",
+    "b_256",
+    "c_256",
+    "a_512",
+    "b_512",
+    "c_512",
+    "a_1024",
+    "b_1024",
+    "c_1024",
+)
 ledger.append_step_metrics(
     [
         StepMetric(step=step, split="probe", name=name, value=float(value))
@@ -245,6 +277,10 @@ full_a = [row[3] - row[0] for row in seed_rows]
 full_c = [row[5] - row[2] for row in seed_rows]
 short_a = [row[6] - row[0] for row in seed_rows]
 short_c = [row[8] - row[2] for row in seed_rows]
+mid_a = [row[9] - row[0] for row in seed_rows]
+mid_c = [row[11] - row[2] for row in seed_rows]
+long_a = [row[12] - row[0] for row in seed_rows]
+long_c = [row[14] - row[2] for row in seed_rows]
 ledger.append_findings(
     [
         Finding(
@@ -267,9 +303,17 @@ ledger.append_findings(
                 + ", ".join(f"{gap:+.3f}" for gap in short_a)
                 + "; task C "
                 + ", ".join(f"{gap:+.3f}" for gap in short_c)
+                + ". Memory 512, task A "
+                + ", ".join(f"{gap:+.3f}" for gap in mid_a)
+                + "; task C "
+                + ", ".join(f"{gap:+.3f}" for gap in mid_c)
+                + ". Memory 1024, task A "
+                + ", ".join(f"{gap:+.3f}" for gap in long_a)
+                + "; task C "
+                + ", ".join(f"{gap:+.3f}" for gap in long_c)
                 + "."
             ),
-            evidence_ref="results/figures/19_rehearsal_gaps.provenance.json",
+            evidence_ref="results/figures/19_rehearsal_dose.provenance.json",
         )
     ]
 )
@@ -316,6 +360,45 @@ axes.legend()
 plt.tight_layout()
 plt.savefig(figure_dir / "19_rehearsal_gaps.png")
 plt.close()
+dose = {
+    "all rows": full_a,
+    "1024 rows": long_a,
+    "512 rows": mid_a,
+    "256 rows": short_a,
+}
+dose_figure = go.Figure(
+    data=[
+        go.Bar(name=name, x=seeds, y=values, marker_color=COLOR_CYCLE[index])
+        for index, (name, values) in enumerate(dose.items())
+    ]
+)
+dose_figure.update_layout(
+    barmode="group",
+    title="task A, final accuracy minus the no-edit run",
+    xaxis_title="seed",
+    yaxis_title="accuracy gap",
+    template="plotly_white",
+)
+dose_figure.write_html(figure_dir / "19_rehearsal_dose.html")
+apply_matplotlib_style()
+dose_axes = plt.subplots()[1]
+for index, (name, values) in enumerate(dose.items()):
+    dose_axes.bar(
+        [seed + (index - 1.5) * width for seed in seeds],
+        values,
+        width=width,
+        label=name,
+        color=COLOR_CYCLE[index],
+    )
+dose_axes.axhline(0.0, color="black", linewidth=0.8)
+dose_axes.axhline(0.02, color="black", linewidth=0.6, linestyle="dotted", label="2 pp")
+dose_axes.set_title("task A, final accuracy minus the no-edit run")
+dose_axes.set_xlabel("seed")
+dose_axes.set_ylabel("accuracy gap")
+dose_axes.legend()
+plt.tight_layout()
+plt.savefig(figure_dir / "19_rehearsal_dose.png")
+plt.close()
 manifest = write_provenance(
     figure_dir / "19_rehearsal_task_a.provenance.json",
     figure="19_rehearsal_task_a",
@@ -337,6 +420,13 @@ write_provenance(
     config_hash=config_hash(cfg),
     seeds=list(range(5)),
 )
+write_provenance(
+    figure_dir / "19_rehearsal_dose.provenance.json",
+    figure="19_rehearsal_dose",
+    ledgers=[ledger],
+    config_hash=config_hash(cfg),
+    seeds=list(range(5)),
+)
 print(
     json.dumps(
         {
@@ -349,6 +439,10 @@ print(
             "full_minus_plain_c": full_c,
             "memory256_minus_plain_a": short_a,
             "memory256_minus_plain_c": short_c,
+            "memory512_minus_plain_a": mid_a,
+            "memory512_minus_plain_c": mid_c,
+            "memory1024_minus_plain_a": long_a,
+            "memory1024_minus_plain_c": long_c,
             "synthetic": manifest["synthetic"],
         }
     )

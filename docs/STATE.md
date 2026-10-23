@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Layer locks are `freeze-tasks-s0-2337dce6c530-20261023T211904Z`. Seeds 0–4, freeze at step 160. A hidden-layer lock drops task A by 0.402, 0.272, 0.156, 0.134, and 0.246, and drops task C by 0.472, 0.608, 0.464, 0.496, and 0.498. An output-layer lock moves task A by +0.012, +0.018, −0.002, −0.014, and +0.010, all inside 2 pp. Task C moves by −0.034, −0.008, −0.018, −0.024, and −0.024. The rehearsal run `rehearsal-tasks-s0-2337dce6c530-20261023T211353Z` is the comparison that holds task A, and only when every earlier training row stays in the batch. Still CPU. Not a Level 1 claim.
+The rehearsal dose is `rehearsal-tasks-s0-2337dce6c530-20261023T212304Z`. Seeds 0–4. Half of each later batch is stored rows from earlier tasks. Task A minus the plain run, 1024 rows: +0.042, +0.082, +0.060, +0.026, +0.054. That clears 2 pp on every seed. 512 rows does not: seed 3 is +0.016. 256 rows does not: seed 3 is −0.008. Every one of these stores lowers task C by more than 2 pp. The layer-lock run `freeze-tasks-s0-2337dce6c530-20261023T211904Z` is the comparison that does not: a hidden lock drops both tasks, and an output lock stays inside 2 pp on task A. Still CPU. Not a Level 1 claim.
 
 ## Done
 
@@ -21,7 +21,7 @@ Layer locks are `freeze-tasks-s0-2337dce6c530-20261023T211904Z`. Seeds 0–4, fr
 ## Next
 
 1. Short CPU notebooks run in the session. A handoff is for a long GPU run.
-2. Keeping every earlier training row in the later minibatch holds task A on these five seeds and costs task C. A 256-row prefix does not. Locking the hidden layer makes the drop worse. Locking the output layer stays inside 2 pp on task A. EWC and a published replay method stay blocked until their formulas are taken from the opened papers. A confirmatory comparison waits until the protocol papers fix the task count.
+2. On this smoke, task A clears 2 pp when the store keeps 1024 rows from each finished task. 512 and 256 do not. The cost is task C. Locking the hidden layer makes the drop worse. Locking the output layer stays inside 2 pp on task A. EWC and a published replay method stay blocked until their formulas are taken from the opened papers. A confirmatory comparison waits until the protocol papers fix the task count.
 3. Phase 0b citation gaps before any published baseline number is used.
 4. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 5. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.

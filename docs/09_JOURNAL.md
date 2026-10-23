@@ -57,15 +57,7 @@ The first `env_check` selected MPS and then failed the matmul: `RuntimeError: in
 
 `notebooks/00_setup.py` wrote a synthetic timeline. `notebooks/02_gate.py` then ran on CPU. Training loss fell from 0.625 to 0.011 over 60 steps. The damaged unit left the fit near a constant around 11–13 (mean squared error about 144 against the sine). The gate accepted `prune-junk` (probe gain −143.9385) and the live fit came back to the sine (mean squared error about 0.011). It rejected `prune-useful` (probe gain +0.3496), so the live network stayed on the repaired fit. Ledger `gate-s0-2337dce6c530-20261019T071507Z`, finding `gate-toy`, provenance `results/figures/02_gate_timeline.provenance.json` with `synthetic` false. This is the toy gate on one seed. It is not a Level 1 result, and it is not pooled with the CUDA machine.
 
-On this seed, locking the hidden representation does not hold the old task. Training the output layer on the new permutation is enough to pull it down, and the new task learns poorly from a frozen representation.
-
-## 2026-10-23 — Old rows in the minibatch
-
-`train_with_rehearsal` keeps earlier training rows and puts them in later minibatches. Half of each later batch, rounded down, comes from those rows. One copy keeps every previous training row. One copy keeps the first 256 rows of each finished task, in their existing order. The first task matches the plain run. This is our mix. The experience-replay paper is still not opened.
-
-`notebooks/19_rehearsal_tasks.py` uses the same three permutations and 160 steps. The run is `rehearsal-tasks-s0-2337dce6c530-20261023T211353Z`, CPU, synthetic false. Seed 0 ends at 0.806, 0.826, and 0.870 with no old rows; 0.856, 0.828, and 0.814 when every earlier row stays in the batch; and 0.820, 0.830, and 0.834 with the 256-row prefix. Task A after its own training is 0.840, and the first 160 steps match the plain curve.
-
-Seeds 0 through 4 reroll the initialization and the three permutations. Full memory minus the plain run, task A: +0.050, +0.066, +0.058, +0.032, +0.068. Task C: −0.056, −0.022, −0.040, −0.062, −0.038. The 256-row prefix minus plain, task A: +0.014, +0.036, +0.022, −0.008, +0.034. Task C: −0.036, −0.032, −0.034, −0.046, −0.046. Provenance `results/figures/19_rehearsal_gaps.provenance.json`. On these seeds, the gradient has to keep seeing the old rows. A short prefix is not enough, and the cost lands on the newest task. Not a Level 1 claim.
+The user's run `gate-s0-2337dce6c530-20261021T021223Z` matches that: repair gain -143.9385 accepted, useful-unit prune gain +0.3496 refused. Lineage contains only the kept prune. Training loss fell from about 0.62 to near 0. The refused point sits near the zero line on the chart because the kept point is about -144; the ledger value is the one that counts.
 
 ## 2026-10-20 — Milestone 3, diagnostics
 
@@ -172,6 +164,8 @@ The run is `freeze-tasks-s0-2337dce6c530-20261023T210417Z`, git `9f2afedd-dirty`
 `notebooks/19_rehearsal_tasks.py` uses the same three permutations and 160 steps. The run is `rehearsal-tasks-s0-2337dce6c530-20261023T211353Z`, CPU, synthetic false. Seed 0 ends at 0.806, 0.826, and 0.870 with no old rows; 0.856, 0.828, and 0.814 when every earlier row stays in the batch; and 0.820, 0.830, and 0.834 with the 256-row prefix. Task A after its own training is 0.840, and the first 160 steps match the plain curve.
 
 Seeds 0 through 4 reroll the initialization and the three permutations. Full memory minus the plain run, task A: +0.050, +0.066, +0.058, +0.032, +0.068. Task C: −0.056, −0.022, −0.040, −0.062, −0.038. The 256-row prefix minus plain, task A: +0.014, +0.036, +0.022, −0.008, +0.034. Task C: −0.036, −0.032, −0.034, −0.046, −0.046. Provenance `results/figures/19_rehearsal_gaps.provenance.json`. On these seeds, the gradient has to keep seeing the old rows. A short prefix is not enough, and the cost lands on the newest task. Not a Level 1 claim.
+
+The same notebook then keeps 512 and 1024 rows. The run is `rehearsal-tasks-s0-2337dce6c530-20261023T212304Z`. Task A minus plain, 512 rows: +0.040, +0.064, +0.048, +0.016, +0.044. 1024 rows: +0.042, +0.082, +0.060, +0.026, +0.054. Task C minus plain, 512 rows: −0.046, −0.024, −0.040, −0.040, −0.038. 1024 rows: −0.042, −0.032, −0.036, −0.044, −0.044. Provenance `results/figures/19_rehearsal_dose.provenance.json`. 1024 rows clears 2 pp on task A for every seed. 512 does not: seed 3 is +0.016. Every one of these stores costs task C more than 2 pp. Not a Level 1 claim.
 
 ## 2026-10-23 — Which layer, if locked
 
