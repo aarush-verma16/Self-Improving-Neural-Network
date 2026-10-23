@@ -5,6 +5,8 @@ from __future__ import annotations
 import torch
 from torch.nn import functional as F
 
+from valmorph.gate import train_cross_entropy_steps
+from valmorph.models import freeze
 from valmorph.models.mlp import ValmorphMLP
 
 
@@ -93,6 +95,44 @@ def train_on_tasks(
             loss = F.cross_entropy(net(images[index]), labels[index])
             loss.backward()
             optimizer.step()
+            with torch.no_grad():
+                for slot, (probe_x, probe_y) in enumerate(probes):
+                    series[slot].append(batch_accuracy(net(probe_x), probe_y))
+    return series
+
+
+def train_with_frozen_layer(
+    net: ValmorphMLP,
+    tasks: list[tuple[torch.Tensor, torch.Tensor]],
+    probes: list[tuple[torch.Tensor, torch.Tensor]],
+    *,
+    steps_per_task: int,
+    batch_size: int,
+    lr: float,
+    freeze_at: int,
+    layer: int = 0,
+) -> list[list[float]]:
+    """Train tasks in order. At global step ``freeze_at``, stop updating ``layer``.
+
+    Steps before the freeze use each layer's scale, which starts at 1. The
+    returned lists have one probe accuracy per step, length
+    ``steps_per_task * len(tasks)``.
+    """
+
+    if not tasks or len(tasks) != len(probes):
+        raise ValueError("tasks and probes must be the same non-empty length")
+    if freeze_at < 0:
+        raise ValueError("freeze_at must be non-negative")
+    series: list[list[float]] = [[] for _ in probes]
+    for task_index, (images, labels) in enumerate(tasks):
+        count = int(images.shape[0])
+        for local in range(steps_per_task):
+            step = task_index * steps_per_task + local
+            if step == freeze_at:
+                freeze(net, layer)
+            start = (local * batch_size) % count
+            index = torch.arange(start, start + batch_size) % count
+            train_cross_entropy_steps(net, images[index], labels[index], 1, lr)
             with torch.no_grad():
                 for slot, (probe_x, probe_y) in enumerate(probes):
                     series[slot].append(batch_accuracy(net(probe_x), probe_y))

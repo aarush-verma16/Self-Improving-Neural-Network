@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import torch
 
-from valmorph.benchmarks.classify import train_classifier, train_on_tasks
-from valmorph.gate import clone_net
+from valmorph.benchmarks.classify import train_classifier, train_on_tasks, train_with_frozen_layer
+from valmorph.gate import clone_net, train_cross_entropy_steps
 from valmorph.models import ValmorphMLP
 
 
@@ -59,3 +59,24 @@ def test_task_step_counts_can_differ() -> None:
     probes = [(torch.rand(4, 4), torch.randint(0, 2, (4,)))]
     series = train_on_tasks(net, tasks, probes, steps_per_task=[2, 5], batch_size=2, lr=0.1)
     assert len(series[0]) == 7
+
+
+def test_freeze_at_a_step_holds_the_hidden_weights() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    images = torch.rand(6, 4)
+    labels = torch.randint(0, 2, (6,))
+    probes = [(torch.rand(4, 4), torch.randint(0, 2, (4,)))]
+    train_with_frozen_layer(
+        net,
+        [(images, labels)],
+        probes,
+        steps_per_task=3,
+        batch_size=2,
+        lr=0.1,
+        freeze_at=1,
+    )
+    held = net.linear(0).weight.detach().clone()
+    train_cross_entropy_steps(net, images, labels, 1, 0.1)
+    assert net.lr_scale[0] == 0.0
+    assert torch.equal(net.linear(0).weight.detach(), held)

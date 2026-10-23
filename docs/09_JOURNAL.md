@@ -151,6 +151,12 @@ ADR-012 adds a third arm. It multiplies the first hidden layer's learning-rate s
 
 `notebooks/17_lr_tasks.py` trains the same three permutations. The run is `lr-tasks-s0-2337dce6c530-20261022T212758Z`, git `e4d24f6a-dirty`, CPU, synthetic false, seed 0. The no-edit curves match notebook 14. The bandit proposes the halving at steps 60, 180, and 340. Gains are +0.026, +0.028, and +0.014, all refused. It keeps five widens, the same steps as the two-arm run. Hidden scale stays 1. Finals are 0.804, 0.824, and 0.868. Mean gains are prune +0.013, widen about +0.00005, and halving +0.023. The random controller keeps a halving at step 420, gain -0.000804, so its hidden scale ends at 0.5. Its finals are 0.808, 0.828, and 0.852. Provenance `results/figures/17_lr_task_a.provenance.json`. On this seed, slowing the hidden layer raises probe loss during the shadow trial, and the one accepted halving does not lift the old task.
 
+## 2026-10-23 — Freeze the hidden layer
+
+The halving was only an 8-step shadow. `notebooks/18_freeze_tasks.py` sets the first hidden layer's learning-rate scale to zero and leaves it there. One copy freezes at step 160, the start of task B. The other freezes at step 320, the start of task C. The output layer keeps training. No gate.
+
+The run is `freeze-tasks-s0-2337dce6c530-20261023T210417Z`, git `9f2afedd-dirty`, CPU, synthetic false, seed 0. Both freeze curves match the no-edit curve up to the freeze step. Task A is 0.840 at step 159 and ends at 0.404 when the freeze is then. It is 0.832 at step 319 and ends at 0.572 when the freeze waits for task C. With no freeze it ends at 0.806. Task B ends at 0.826, 0.252, and 0.610. Task C ends at 0.870, 0.398, and 0.364. Provenance `results/figures/18_freeze_task_a.provenance.json`. On this seed, locking the hidden representation does not hold the old task. Training the output layer on the new permutation is enough to pull it down, and the new task learns poorly from a frozen representation.
+
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
 The gate now scores digit classification by probe cross-entropy. Notebook 05 trains the same small permuted-MNIST net, breaks it with one added unit, then offers a prune that removes that unit and a prune that removes a useful unit. A local smoke restored accuracy from 0.084 to 0.630 and refused the second prune. The user runs the notebook. Still CPU.

@@ -207,3 +207,16 @@ def lr_change(net: ValmorphMLP, layer: int, factor: float) -> float:
         raise EditError("learning-rate factor must be positive")
     net.lr_scale[layer] *= factor
     return net.lr_scale[layer]
+
+
+def freeze(net: ValmorphMLP, layer: int) -> float:
+    """Set the learning-rate scale of ``layer`` to zero.
+
+    The forward function is unchanged. Later SGD steps do not update that
+    layer. The new scale, ``0.0``, is returned.
+    """
+
+    if layer < 0 or layer >= len(net.layers):
+        raise EditError("freeze applies to an existing layer")
+    net.lr_scale[layer] = 0.0
+    return net.lr_scale[layer]

@@ -11,7 +11,7 @@ from hypothesis import strategies as st
 
 from valmorph.core.ledger import LEDGER_VERSION, Ledger, RunMeta
 from valmorph.gate import adopt_shadow, clone_net, train_cross_entropy_steps
-from valmorph.models.edits import EditError, identity_deepen, lr_change, widen
+from valmorph.models.edits import EditError, freeze, identity_deepen, lr_change, widen
 from valmorph.models.mlp import SubstrateError, ValmorphMLP
 
 
@@ -151,3 +151,18 @@ def test_identity_deepen_inserts_a_unit_learning_rate_scale() -> None:
     net = ValmorphMLP([4, 3, 2])
     identity_deepen(net, 0)
     assert net.lr_scale == [1.0, 1.0, 1.0]
+
+
+def test_freeze_stops_one_layer() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    images = torch.rand(6, 4)
+    labels = torch.randint(0, 2, (6,))
+    before = net(images).detach().clone()
+    assert freeze(net, 0) == 0.0
+    assert torch.equal(net(images), before)
+    hidden = net.linear(0).weight.detach().clone()
+    output = net.linear(1).weight.detach().clone()
+    train_cross_entropy_steps(net, images, labels, 1, 0.2)
+    assert torch.equal(net.linear(0).weight.detach(), hidden)
+    assert not torch.equal(net.linear(1).weight.detach(), output)
