@@ -87,6 +87,28 @@ def test_freeze_at_a_step_holds_the_hidden_weights() -> None:
     assert torch.equal(net.linear(0).weight.detach(), held)
 
 
+def test_freeze_can_hold_the_output_layer() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    images = torch.rand(6, 4)
+    labels = torch.randint(0, 2, (6,))
+    probes = [(torch.rand(4, 4), torch.randint(0, 2, (4,)))]
+    train_with_frozen_layer(
+        net,
+        [(images, labels)],
+        probes,
+        steps_per_task=3,
+        batch_size=2,
+        lr=0.1,
+        freeze_at=1,
+        layer=1,
+    )
+    held = net.linear(1).weight.detach().clone()
+    train_cross_entropy_steps(net, images, labels, 1, 0.1)
+    assert net.lr_scale == [1.0, 0.0]
+    assert torch.equal(net.linear(1).weight.detach(), held)
+
+
 def test_rehearsal_without_stored_rows_matches_plain_training() -> None:
     torch.manual_seed(0)
     images = torch.rand(8, 4)

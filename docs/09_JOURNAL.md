@@ -173,6 +173,12 @@ The run is `freeze-tasks-s0-2337dce6c530-20261023T210417Z`, git `9f2afedd-dirty`
 
 Seeds 0 through 4 reroll the initialization and the three permutations. Full memory minus the plain run, task A: +0.050, +0.066, +0.058, +0.032, +0.068. Task C: −0.056, −0.022, −0.040, −0.062, −0.038. The 256-row prefix minus plain, task A: +0.014, +0.036, +0.022, −0.008, +0.034. Task C: −0.036, −0.032, −0.034, −0.046, −0.046. Provenance `results/figures/19_rehearsal_gaps.provenance.json`. On these seeds, the gradient has to keep seeing the old rows. A short prefix is not enough, and the cost lands on the newest task. Not a Level 1 claim.
 
+## 2026-10-23 — Which layer, if locked
+
+Notebook 18 now freezes either the first hidden layer or the output layer. The run is `freeze-tasks-s0-2337dce6c530-20261023T211904Z`, CPU, synthetic false. Seed 0 still matches the earlier hidden-layer curves: task A ends at 0.806, 0.404, and 0.572. Freezing the output instead ends task A at 0.818 if the freeze is at step 160, and 0.816 if it is at step 320. The curves match the no-edit run until the freeze step.
+
+Seeds 0 through 4 freeze at step 160 and reroll the initialization and the permutations. Hidden lock minus plain, task A: −0.402, −0.272, −0.156, −0.134, −0.246. Task C: −0.472, −0.608, −0.464, −0.496, −0.498. Output lock minus plain, task A: +0.012, +0.018, −0.002, −0.014, +0.010. Task C: −0.034, −0.008, −0.018, −0.024, −0.024. Provenance `results/figures/18_freeze_gaps.provenance.json`. The hidden layer has to keep learning. Locking the output does not clear the 2 pp bar on task A. Not a Level 1 claim.
+
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
 The gate now scores digit classification by probe cross-entropy. Notebook 05 trains the same small permuted-MNIST net, breaks it with one added unit, then offers a prune that removes that unit and a prune that removes a useful unit. A local smoke restored accuracy from 0.084 to 0.630 and refused the second prune. The user runs the notebook. Still CPU.
