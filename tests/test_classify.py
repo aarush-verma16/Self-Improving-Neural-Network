@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import torch
 
-from valmorph.benchmarks.classify import train_classifier, train_on_tasks, train_with_frozen_layer
+from valmorph.benchmarks.classify import (
+    train_classifier,
+    train_on_tasks,
+    train_with_frozen_layer,
+    train_with_rehearsal,
+)
 from valmorph.gate import clone_net, train_cross_entropy_steps
 from valmorph.models import ValmorphMLP
 
@@ -80,3 +85,42 @@ def test_freeze_at_a_step_holds_the_hidden_weights() -> None:
     train_cross_entropy_steps(net, images, labels, 1, 0.1)
     assert net.lr_scale[0] == 0.0
     assert torch.equal(net.linear(0).weight.detach(), held)
+
+
+def test_rehearsal_without_stored_rows_matches_plain_training() -> None:
+    torch.manual_seed(0)
+    images = torch.rand(8, 4)
+    labels = torch.randint(0, 2, (8,))
+    probes = [(torch.rand(4, 4), torch.randint(0, 2, (4,)))]
+    tasks = [(images, labels), (torch.rand(8, 4), torch.randint(0, 2, (8,)))]
+    plain = ValmorphMLP([4, 3, 2])
+    mixed = clone_net(plain)
+    plain_series = train_on_tasks(plain, tasks, probes, steps_per_task=3, batch_size=4, lr=0.1)
+    mixed_series = train_with_rehearsal(
+        mixed,
+        tasks,
+        probes,
+        steps_per_task=3,
+        batch_size=4,
+        lr=0.1,
+        memory=0,
+    )
+    assert mixed_series == plain_series
+
+
+def test_rehearsal_keeps_a_prefix_of_each_finished_task() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    tasks = [(torch.rand(8, 4), torch.randint(0, 2, (8,))) for _ in range(2)]
+    probes = [(torch.rand(4, 4), torch.randint(0, 2, (4,))) for _ in range(2)]
+    series = train_with_rehearsal(
+        net,
+        tasks,
+        probes,
+        steps_per_task=2,
+        batch_size=4,
+        lr=0.1,
+        memory=3,
+    )
+    assert [len(values) for values in series] == [4, 4]
+    assert all(0.0 <= value <= 1.0 for values in series for value in values)

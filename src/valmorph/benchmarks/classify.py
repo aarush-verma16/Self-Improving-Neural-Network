@@ -137,3 +137,60 @@ def train_with_frozen_layer(
                 for slot, (probe_x, probe_y) in enumerate(probes):
                     series[slot].append(batch_accuracy(net(probe_x), probe_y))
     return series
+
+
+def train_with_rehearsal(
+    net: ValmorphMLP,
+    tasks: list[tuple[torch.Tensor, torch.Tensor]],
+    probes: list[tuple[torch.Tensor, torch.Tensor]],
+    *,
+    steps_per_task: int,
+    batch_size: int,
+    lr: float,
+    memory: int | None = None,
+    old_fraction: float = 0.5,
+) -> list[list[float]]:
+    """Train tasks in order. Later minibatches include rows from earlier tasks.
+
+    This is our mix, not a published replay method. ``memory`` is how many
+    training rows to keep from each finished task, in their existing order.
+    ``None`` keeps every row. Half of each later minibatch, rounded down, comes
+    from those rows. The first task matches a plain run. Returns one probe
+    accuracy list per task.
+    """
+
+    if not tasks or not probes:
+        raise ValueError("tasks and probes must be non-empty")
+    if not 0.0 <= old_fraction < 1.0:
+        raise ValueError("old_fraction must be in [0, 1)")
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
+    past_x: list[torch.Tensor] = []
+    past_y: list[torch.Tensor] = []
+    series: list[list[float]] = [[] for _ in probes]
+    for images, labels in tasks:
+        count = int(images.shape[0])
+        old_x = torch.cat(past_x) if past_x else None
+        old_y = torch.cat(past_y) if past_y else None
+        old_count = 0 if old_x is None else int(old_x.shape[0])
+        for local in range(steps_per_task):
+            n_old = 0 if old_count == 0 else min(int(batch_size * old_fraction), batch_size - 1)
+            n_new = batch_size - n_old
+            new_index = (torch.arange(local * n_new, local * n_new + n_new)) % count
+            batch_x = images[new_index]
+            batch_y = labels[new_index]
+            if n_old and old_x is not None and old_y is not None:
+                old_index = (torch.arange(local * n_old, local * n_old + n_old)) % old_count
+                batch_x = torch.cat((batch_x, old_x[old_index]))
+                batch_y = torch.cat((batch_y, old_y[old_index]))
+            optimizer.zero_grad()
+            loss = F.cross_entropy(net(batch_x), batch_y)
+            loss.backward()
+            optimizer.step()
+            with torch.no_grad():
+                for slot, (probe_x, probe_y) in enumerate(probes):
+                    series[slot].append(batch_accuracy(net(probe_x), probe_y))
+        keep = count if memory is None else min(memory, count)
+        if keep > 0:
+            past_x.append(images[:keep])
+            past_y.append(labels[:keep])
+    return series

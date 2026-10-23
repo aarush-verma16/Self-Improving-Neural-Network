@@ -57,7 +57,15 @@ The first `env_check` selected MPS and then failed the matmul: `RuntimeError: in
 
 `notebooks/00_setup.py` wrote a synthetic timeline. `notebooks/02_gate.py` then ran on CPU. Training loss fell from 0.625 to 0.011 over 60 steps. The damaged unit left the fit near a constant around 11–13 (mean squared error about 144 against the sine). The gate accepted `prune-junk` (probe gain −143.9385) and the live fit came back to the sine (mean squared error about 0.011). It rejected `prune-useful` (probe gain +0.3496), so the live network stayed on the repaired fit. Ledger `gate-s0-2337dce6c530-20261019T071507Z`, finding `gate-toy`, provenance `results/figures/02_gate_timeline.provenance.json` with `synthetic` false. This is the toy gate on one seed. It is not a Level 1 result, and it is not pooled with the CUDA machine.
 
-The user's run `gate-s0-2337dce6c530-20261021T021223Z` matches that: repair gain -143.9385 accepted, useful-unit prune gain +0.3496 refused. Lineage contains only the kept prune. Training loss fell from about 0.62 to near 0. The refused point sits near the zero line on the chart because the kept point is about -144; the ledger value is the one that counts.
+On this seed, locking the hidden representation does not hold the old task. Training the output layer on the new permutation is enough to pull it down, and the new task learns poorly from a frozen representation.
+
+## 2026-10-23 — Old rows in the minibatch
+
+`train_with_rehearsal` keeps earlier training rows and puts them in later minibatches. Half of each later batch, rounded down, comes from those rows. One copy keeps every previous training row. One copy keeps the first 256 rows of each finished task, in their existing order. The first task matches the plain run. This is our mix. The experience-replay paper is still not opened.
+
+`notebooks/19_rehearsal_tasks.py` uses the same three permutations and 160 steps. The run is `rehearsal-tasks-s0-2337dce6c530-20261023T211353Z`, CPU, synthetic false. Seed 0 ends at 0.806, 0.826, and 0.870 with no old rows; 0.856, 0.828, and 0.814 when every earlier row stays in the batch; and 0.820, 0.830, and 0.834 with the 256-row prefix. Task A after its own training is 0.840, and the first 160 steps match the plain curve.
+
+Seeds 0 through 4 reroll the initialization and the three permutations. Full memory minus the plain run, task A: +0.050, +0.066, +0.058, +0.032, +0.068. Task C: −0.056, −0.022, −0.040, −0.062, −0.038. The 256-row prefix minus plain, task A: +0.014, +0.036, +0.022, −0.008, +0.034. Task C: −0.036, −0.032, −0.034, −0.046, −0.046. Provenance `results/figures/19_rehearsal_gaps.provenance.json`. On these seeds, the gradient has to keep seeing the old rows. A short prefix is not enough, and the cost lands on the newest task. Not a Level 1 claim.
 
 ## 2026-10-20 — Milestone 3, diagnostics
 
@@ -156,6 +164,14 @@ ADR-012 adds a third arm. It multiplies the first hidden layer's learning-rate s
 The halving was only an 8-step shadow. `notebooks/18_freeze_tasks.py` sets the first hidden layer's learning-rate scale to zero and leaves it there. One copy freezes at step 160, the start of task B. The other freezes at step 320, the start of task C. The output layer keeps training. No gate.
 
 The run is `freeze-tasks-s0-2337dce6c530-20261023T210417Z`, git `9f2afedd-dirty`, CPU, synthetic false, seed 0. Both freeze curves match the no-edit curve up to the freeze step. Task A is 0.840 at step 159 and ends at 0.404 when the freeze is then. It is 0.832 at step 319 and ends at 0.572 when the freeze waits for task C. With no freeze it ends at 0.806. Task B ends at 0.826, 0.252, and 0.610. Task C ends at 0.870, 0.398, and 0.364. Provenance `results/figures/18_freeze_task_a.provenance.json`. On this seed, locking the hidden representation does not hold the old task. Training the output layer on the new permutation is enough to pull it down, and the new task learns poorly from a frozen representation.
+
+## 2026-10-23 — Old rows in the minibatch
+
+`train_with_rehearsal` keeps earlier training rows and puts them in later minibatches. Half of each later batch, rounded down, comes from those rows. One copy keeps every previous training row. One copy keeps the first 256 rows of each finished task, in their existing order. The first task matches the plain run. This is our mix. The experience-replay paper is still not opened.
+
+`notebooks/19_rehearsal_tasks.py` uses the same three permutations and 160 steps. The run is `rehearsal-tasks-s0-2337dce6c530-20261023T211353Z`, CPU, synthetic false. Seed 0 ends at 0.806, 0.826, and 0.870 with no old rows; 0.856, 0.828, and 0.814 when every earlier row stays in the batch; and 0.820, 0.830, and 0.834 with the 256-row prefix. Task A after its own training is 0.840, and the first 160 steps match the plain curve.
+
+Seeds 0 through 4 reroll the initialization and the three permutations. Full memory minus the plain run, task A: +0.050, +0.066, +0.058, +0.032, +0.068. Task C: −0.056, −0.022, −0.040, −0.062, −0.038. The 256-row prefix minus plain, task A: +0.014, +0.036, +0.022, −0.008, +0.034. Task C: −0.036, −0.032, −0.034, −0.046, −0.046. Provenance `results/figures/19_rehearsal_gaps.provenance.json`. On these seeds, the gradient has to keep seeing the old rows. A short prefix is not enough, and the cost lands on the newest task. Not a Level 1 claim.
 
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 

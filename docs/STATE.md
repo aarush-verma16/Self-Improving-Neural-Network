@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Freezing the hidden layer is `freeze-tasks-s0-2337dce6c530-20261023T210417Z`. The curves match the no-edit run until the freeze. Task A is 0.840 at step 159 and 0.404 if the hidden layer then stops. It is 0.832 at step 319 and 0.572 if the freeze waits until task C. With no freeze it ends at 0.806. Task C ends at 0.870, 0.398, and 0.364. Locking the hidden layer does not protect the old task. Short CPU runs are executed in the session. Still CPU. Not a Level 1 claim.
+Old rows in the minibatch are `rehearsal-tasks-s0-2337dce6c530-20261023T211353Z`. Seeds 0–4. Half of each later batch is earlier training rows. Keeping every earlier row lifts task A by 0.050, 0.066, 0.058, 0.032, and 0.068, and lowers task C by 0.056, 0.022, 0.040, 0.062, and 0.038. The first 256 rows of each finished task do not hold task A on every seed (seed 3 is −0.008) and still lower task C by about 0.03 to 0.05. This mix is ours, not a published replay method. Still CPU. Not a Level 1 claim.
 
 ## Done
 
@@ -21,7 +21,7 @@ Freezing the hidden layer is `freeze-tasks-s0-2337dce6c530-20261023T210417Z`. Th
 ## Next
 
 1. Short CPU notebooks run in the session. A handoff is for a long GPU run.
-2. A freeze of the hidden layer makes the old task fall further. EWC and experience replay stay blocked until their formulas are taken from the opened papers. A five-seed comparison waits until the protocol papers fix the task count.
+2. Keeping every earlier training row in the later minibatch holds task A on these five seeds and costs task C. A 256-row prefix does not. EWC and a published replay method stay blocked until their formulas are taken from the opened papers. A confirmatory comparison waits until the protocol papers fix the task count.
 3. Phase 0b citation gaps before any published baseline number is used.
 4. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 5. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
