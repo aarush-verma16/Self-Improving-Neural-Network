@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-The rehearsal dose is `rehearsal-tasks-s0-2337dce6c530-20261023T212304Z`. Seeds 0–4. Half of each later batch is stored rows from earlier tasks. Task A minus the plain run, 1024 rows: +0.042, +0.082, +0.060, +0.026, +0.054. That clears 2 pp on every seed. 512 rows does not: seed 3 is +0.016. 256 rows does not: seed 3 is −0.008. Every one of these stores lowers task C by more than 2 pp. The layer-lock run `freeze-tasks-s0-2337dce6c530-20261023T211904Z` is the comparison that does not: a hidden lock drops both tasks, and an output lock stays inside 2 pp on task A. Still CPU. Not a Level 1 claim.
+Phase 0b citations are in `paper/refs.bib` as of 2026-10-27. ADR-013 freezes Permuted MNIST for H1 to Lopez-Paz and Ranzato 2017, section 4.1: 20 tasks, 1000 examples, one pass, two hidden layers of 100, minibatch 10. That run has not been started. It is a CPU smoke until a timing says otherwise. Split CIFAR-100 is not frozen. The rehearsal dose `rehearsal-tasks-s0-2337dce6c530-20261023T212304Z` still stands and is not this protocol. Not a Level 1 claim.
 
 ## Done
 
@@ -21,8 +21,8 @@ The rehearsal dose is `rehearsal-tasks-s0-2337dce6c530-20261023T212304Z`. Seeds 
 ## Next
 
 1. Short CPU notebooks run in the session. A handoff is for a long GPU run.
-2. On this smoke, task A clears 2 pp when the store keeps 1024 rows from each finished task. 512 and 256 do not. The cost is task C. Locking the hidden layer makes the drop worse. Locking the output layer stays inside 2 pp on task A. EWC and a published replay method stay blocked until their formulas are taken from the opened papers. A confirmatory comparison waits until the protocol papers fix the task count.
-3. Phase 0b citation gaps before any published baseline number is used.
+2. The next code is a CPU smoke of ADR-013's 20-task permutation protocol, naive sequential first. It is not a GPU handoff unless that smoke is slow. EWC's Fisher formula was not transcribed in this pass. Rolnick et al. does not supply a supervised replay formula.
+3. Phase 0b's named papers are opened. Kirkpatrick's permutation section was not the source of the task count. Electricity's OpenML license line is still unread.
 4. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 5. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.
 
@@ -30,7 +30,7 @@ The rehearsal dose is `rehearsal-tasks-s0-2337dce6c530-20261023T212304Z`. Seeds 
 
 - Electricity's license string on the OpenML dataset page itself, as opposed to the datahub mirror.
 - L1 is the two-arm bandit in ADR-011. Small RL and evolution were the alternatives and were not chosen.
-- Published Permuted MNIST and Split CIFAR-100 numbers. Blank until the protocol papers are opened.
+- Which Split CIFAR-100 schedule to freeze. GEM and iCaRL were both opened and they differ. Permuted MNIST is ADR-013. Published accuracies are not sanity-check targets.
 
 ## Environment — Windows PC
 

@@ -8,7 +8,7 @@ One phase at a time. A phase ends when its exit check is true and `docs/STATE.md
 
 Open the primary sources listed at the bottom of `docs/02_RELATED_WORK.md`. Add a bib entry only after the PDF or the publisher page is opened. Rewrite any sentence that would have depended on an unopened paper.
 
-Exit: Network Morphism, GEM, experience replay, one OGD paper, CKA, and one protocol paper each for Permuted MNIST and Split CIFAR-100 are either in `refs.bib` with a journal note, or explicitly dropped with a reason.
+Exit met on 2026-10-27: Network Morphism, GEM, Rolnick et al. on experience replay, OGD, CKA, Goodfellow et al. on a two-task permutation, and iCaRL on iCIFAR-100 are in `paper/refs.bib`, with the opening note in `docs/09_JOURNAL.md`. Rolnick et al. is recorded as a reinforcement-learning method and is not used as a supervised replay formula. Split CIFAR-100's schedule is not frozen, because GEM and iCaRL disagree; that is written in ADR-013.
 
 Compute: none.
 

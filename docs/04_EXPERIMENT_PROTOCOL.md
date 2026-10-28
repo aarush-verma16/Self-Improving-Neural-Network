@@ -32,9 +32,9 @@ The heavy run uses the same code with `device: cuda` on the CUDA machine, or `de
 
 ## Image protocols
 
-Permuted MNIST and Split CIFAR-100 will follow a published protocol. The task count, the published baseline number, and the citation are filled in during Phase 4 from a paper opened that phase. They are intentionally blank here so a misremembered number does not become the target.
+Permuted MNIST for H1 is ADR-013: Lopez-Paz and Ranzato, NIPS 2017, section 4.1. Twenty tasks, 1000 examples each, one pass, two hidden layers of 100 ReLU units, minibatch 10, test-partition evaluation. The three-task width-32 notebooks are smokes, not that protocol. The 20-task run has not been started. Published accuracies from that paper are not the sanity-check target.
 
-Smoke until then: two tasks, one pass, width 32, MLP. That smoke is a software test.
+Split CIFAR-100 is not frozen. GEM's incremental CIFAR-100 and iCaRL's iCIFAR-100, both opened on 2026-10-27, use different batch sizes, architectures, and epoch counts. ADR-013 records both and does not choose.
 
 ## Stream
 

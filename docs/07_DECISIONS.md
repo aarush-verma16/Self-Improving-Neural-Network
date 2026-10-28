@@ -82,6 +82,20 @@ A small RL policy and an evolutionary search were the alternatives named in the 
 
 The random controller stays uniform over the same two arms. Only the arm choice differs.
 
+## ADR-013 — Permuted MNIST follows GEM section 4.1
+
+Date: 2026-10-27.
+
+No confirmatory ledger for H1 exists. The three-task width-32 smokes are not that test.
+
+The source opened for the permutation sequence is Lopez-Paz and Ranzato, NIPS 2017, section 4.1. H1 on Permuted MNIST will use that setting: 20 tasks, one fixed pixel permutation each, 1000 examples per task, 10 classes, each example once, a fully connected network with two hidden layers of 100 ReLU units, plain SGD, minibatch 10, and the MNIST test partition for evaluation. Goodfellow et al., arXiv:1312.6211, section 4.1, is a pair of permutations, so it is not this protocol. GEM cites Kirkpatrick et al. 2017 for the dataset name. Kirkpatrick's permutation section was not re-opened, so the count is the one GEM states.
+
+Split CIFAR-100 is not frozen. GEM uses 20 tasks of 5 classes and 2500 examples, one pass, and a smaller ResNet-18. iCaRL's iCIFAR-100 uses batches of 2, 5, 10, 20, or 50 classes, a 32-layer ResNet, at most 2000 exemplars, and 70 epochs. A later ADR picks one before a Level 3 run.
+
+Rolnick et al., NeurIPS 2019, is reinforcement learning. It is not the formula for a supervised replay baseline. The rehearsal mix in the smokes stays our definition.
+
+This ADR does not start the 20-task run. Published accuracies in the opened papers are not sanity-check targets.
+
 ## ADR-010 — CPU for short work, GPU for heavy training
 
 Date: 2026-10-19.

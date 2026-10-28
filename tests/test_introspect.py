@@ -38,6 +38,18 @@ def test_most_silent_unit_picks_the_quiet_column() -> None:
     assert dead_unit_fraction(torch.zeros(4, 5)) == 1.0
 
 
+def test_linear_cka_is_one_for_an_orthogonal_map() -> None:
+    from valmorph.introspect import linear_cka
+
+    torch.manual_seed(0)
+    left = torch.randn(8, 4)
+    factor, _ = torch.linalg.qr(torch.randn(4, 4))
+    assert abs(linear_cka(left, left @ factor) - 1.0) < 1e-5
+    assert abs(linear_cka(left, 3.0 * left) - 1.0) < 1e-5
+    assert linear_cka(left, torch.zeros(8, 4)) == 0.0
+    assert linear_cka(torch.ones(4, 2), torch.randn(4, 3)) == 0.0
+
+
 def test_singular_entropy_rank_on_identity_and_rank_one() -> None:
     eye = torch.eye(4)
     assert abs(singular_entropy_rank(eye) - 4.0) < 1e-5

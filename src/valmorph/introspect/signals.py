@@ -1,7 +1,8 @@
 """Scalars computed from a batch of hidden activations.
 
 ``activations`` is ``[batch, units]`` unless a docstring says otherwise.
-These are our definitions. CKA is not included; that paper has not been opened.
+``linear_cka`` is the linear case of Kornblith et al. 2019. The other
+functions are our definitions.
 """
 
 from __future__ import annotations
@@ -71,6 +72,35 @@ def most_silent_unit(activations: torch.Tensor, *, eps: float = 1e-6) -> int | N
     if float(peak.min()) > eps:
         return None
     return int(torch.argmin(peak))
+
+
+def linear_cka(x: torch.Tensor, y: torch.Tensor) -> float:
+    """Linear centered kernel alignment. Kornblith et al. 2019, equations 3 and 4.
+
+    ``x`` and ``y`` have shape ``[examples, features]`` and the same number of
+    examples. Columns are centered, which is the case where their equation 2
+    holds. The kernel is the dot product. An orthogonal map of the features,
+    or one isotropic scale, leaves the value unchanged. A constant matrix
+    returns 0.
+    """
+
+    if x.ndim != 2 or y.ndim != 2:
+        raise ValueError("x and y must have shape [examples, features]")
+    if int(x.shape[0]) != int(y.shape[0]):
+        raise ValueError("x and y must have the same number of examples")
+    if int(x.shape[0]) < 2:
+        raise ValueError("linear CKA needs at least two examples")
+    x_centered = x.detach().to(dtype=torch.float64)
+    y_centered = y.detach().to(dtype=torch.float64)
+    x_centered = x_centered - x_centered.mean(dim=0, keepdim=True)
+    y_centered = y_centered - y_centered.mean(dim=0, keepdim=True)
+    cross = torch.linalg.matrix_norm(y_centered.transpose(0, 1) @ x_centered, ord="fro") ** 2
+    left = torch.linalg.matrix_norm(x_centered.transpose(0, 1) @ x_centered, ord="fro")
+    right = torch.linalg.matrix_norm(y_centered.transpose(0, 1) @ y_centered, ord="fro")
+    denom = left * right
+    if float(denom) == 0.0:
+        return 0.0
+    return float(cross / denom)
 
 
 def singular_entropy_rank(activations: torch.Tensor) -> float:

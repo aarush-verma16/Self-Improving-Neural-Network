@@ -44,13 +44,28 @@ That combination is the hypothesis, not a finding. It may fail Level 1, Level 2,
 
 We will not claim to invent self-modification.
 
-## Not opened in this pass
+## Network morphism
 
-These were named in the project brief or are obvious missing citations. They stay out of `refs.bib` until a primary source is opened, and that opening is written into `docs/09_JOURNAL.md`.
+Wei, Wang, Rui, and Chen, "Network Morphism," ICML 2016, PMLR 48, pages 564–572, arXiv:1603.01670. The PDF opened on 2026-10-27. A morphism here is a parameter map from a trained parent network to a larger child that preserves the function. They treat depth, width, kernel size, and subnet changes, including for convolutional nets, and they add a parametric activation so a nonlinear unit can be morphed. They describe inserting an identity layer, which they call IdMorph, as the operation in Chen, Goodfellow, and Shlens (Net2Net), and they say that identity layer is sparse. Our identity deepen is that insertion. We do not adopt their parametric activation.
 
-- Network morphism (the usual citation is Wei and coauthors, ICML 2016). Net2Net was opened; this paper was not.
-- Gradient episodic memory (Lopez-Paz and Ranzato). A secondary page stated NeurIPS 2017 and arXiv:1706.08840. The PDF was not opened.
-- Experience replay for continual learning (the usual citation is Rolnick and coauthors, NeurIPS 2019). Not opened. SMGrNN's related-work text mentions the work; that is not a substitute.
-- Orthogonal gradient descent and the rest of the OGD family. Not opened.
-- CKA (the usual citation is Kornblith and coauthors). Not opened. Representation drift stays an unnamed planned diagnostic until then.
-- The protocol papers for Permuted MNIST and Split CIFAR-100. Task counts and published baseline numbers are not copied from memory. Phase 4 opens the papers before any sanity-check number is written down.
+## Continual-learning baselines opened on 2026-10-27
+
+Lopez-Paz and Ranzato, "Gradient Episodic Memory for Continual Learning," NIPS 2017, arXiv:1706.08840. The model keeps an episodic memory of past tasks. A proposed update is kept when its inner product with each past task's memory gradient is non-negative. Otherwise the update is projected to the nearest vector that satisfies those inequalities, by a quadratic program whose dual has one variable per past task. Section 4.1 is the protocol note in ADR-013. Their published accuracies are not a sanity-check target yet.
+
+Rolnick, Ahuja, Schwarz, Lillicrap, and Wayne, "Experience Replay for Continual Learning," NeurIPS 2019, arXiv:1811.11682. The PDF is a reinforcement-learning method, CLEAR: on-policy learning for plasticity, and off-policy replay plus behavioral cloning for stability. The domains they report are Atari and DMLab. Task boundaries are not given to the agent. A limited buffer drops stored events at random. This paper does not state a supervised classification replay formula. `train_with_rehearsal` stays our mix.
+
+Farajtabar, Azizan, Mott, and Li, "Orthogonal Gradient Descent for Continual Learning," AISTATS 2020, PMLR 108, pages 3762–3773, arXiv:1910.07104. New-task gradients are projected onto the orthogonal complement of stored gradients of the network's outputs on previous data, so those outputs move as little as a local linear step allows. The method does not store the previous examples. Their appendix table on permuted MNIST is accuracy on task 1 after a second task, not the 20-task protocol below. Those accuracies are not our target.
+
+Kornblith, Norouzi, Lee, and Hinton, "Similarity of Neural Network Representations Revisited," ICML 2019, PMLR 97, pages 3519–3529, arXiv:1905.00414. Linear CKA is the Hilbert-Schmidt independence criterion of the linear kernels, normalized by the two self-similarities. For centered example-by-feature matrices the numerator is the squared Frobenius norm of the cross-covariance. `linear_cka` implements that case. It is a diagnostic, not a result.
+
+## Image protocols opened on 2026-10-27
+
+Goodfellow, Mirza, Xiao, Courville, and Bengio, "An Empirical Investigation of Catastrophic Forgetting in Gradient-Based Neural Networks," arXiv:1312.6211. Section 4.1 is a pair of MNIST tasks that share the labels and differ by a pixel permutation. They call this input reformatting. It is not a 20-task sequence.
+
+The 20-task permutation sequence we will use for H1 is section 4.1 of Lopez-Paz and Ranzato, written down in ADR-013. They cite Kirkpatrick et al. 2017 for the name "MNIST Permutations." Kirkpatrick's PDF was not re-opened for that section in this pass, so the task count is GEM's count, not a count read from Kirkpatrick.
+
+Rebuffi, Kolesnikov, Sperl, and Lampert, "iCaRL: Incremental Classifier and Representation Learning," CVPR 2017, pages 2001–2010, arXiv:1611.07725. iCIFAR-100 trains all 100 classes in batches of 2, 5, 10, 20, or 50 classes, with a 32-layer ResNet, at most 2000 stored exemplars, and 70 epochs per batch. That schedule is not the same as GEM's incremental CIFAR-100, which uses 20 tasks of 5 classes and 2500 examples, one pass, and a smaller ResNet-18. Split CIFAR-100 is not frozen. ADR-013 says why.
+
+## Still not opened
+
+Kirkpatrick et al. 2017 was opened in the first related-work pass for the Fisher penalty. Its MNIST-permutation section was not the source of the task count above. Electricity's license on the OpenML page itself is still unread.

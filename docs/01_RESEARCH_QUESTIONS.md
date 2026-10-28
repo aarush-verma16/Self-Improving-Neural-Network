@@ -21,7 +21,7 @@ Four comparisons, Bonferroni-adjusted and raw intervals both reported:
 3. The chosen stream: gated controller minus random-edit controller, average accuracy.
 4. The chosen stream: gated controller minus naive sequential, average accuracy.
 
-The image protocol's task count, architecture width, and step budget are frozen in an ADR after the source paper for that protocol is opened (Phase 4). They are not frozen by memory here. Split CIFAR-100 is a second image protocol used for Level 3 and as a secondary Level 1 check. It is outside the family of four.
+Permuted MNIST's task count, width, and step budget are ADR-013, from Lopez-Paz and Ranzato 2017, section 4.1. No confirmatory ledger for H1 exists. Split CIFAR-100 is a second image protocol used for Level 3 and as a secondary Level 1 check. It is outside the family of four, and its schedule is not frozen.
 
 ## H1 — Level 1
 

@@ -159,7 +159,7 @@ The run is `freeze-tasks-s0-2337dce6c530-20261023T210417Z`, git `9f2afedd-dirty`
 
 ## 2026-10-23 — Old rows in the minibatch
 
-`train_with_rehearsal` keeps earlier training rows and puts them in later minibatches. Half of each later batch, rounded down, comes from those rows. One copy keeps every previous training row. One copy keeps the first 256 rows of each finished task, in their existing order. The first task matches the plain run. This is our mix. The experience-replay paper is still not opened.
+`train_with_rehearsal` keeps earlier training rows and puts them in later minibatches. Half of each later batch, rounded down, comes from those rows. One copy keeps every previous training row. One copy keeps the first 256 rows of each finished task, in their existing order. The first task matches the plain run. This is our mix. The experience-replay paper had not been opened when this run was written.
 
 `notebooks/19_rehearsal_tasks.py` uses the same three permutations and 160 steps. The run is `rehearsal-tasks-s0-2337dce6c530-20261023T211353Z`, CPU, synthetic false. Seed 0 ends at 0.806, 0.826, and 0.870 with no old rows; 0.856, 0.828, and 0.814 when every earlier row stays in the batch; and 0.820, 0.830, and 0.834 with the 256-row prefix. Task A after its own training is 0.840, and the first 160 steps match the plain curve.
 
@@ -176,3 +176,15 @@ Seeds 0 through 4 freeze at step 160 and reroll the initialization and the permu
 ## 2026-10-20 — Milestone 5, gate on permuted MNIST
 
 The gate now scores digit classification by probe cross-entropy. Notebook 05 trains the same small permuted-MNIST net, breaks it with one added unit, then offers a prune that removes that unit and a prune that removes a useful unit. A local smoke restored accuracy from 0.084 to 0.630 and refused the second prune. The user runs the notebook. Still CPU.
+
+## 2026-10-27 — Phase 0b papers
+
+The PDFs opened today are Wei et al., ICML 2016 (network morphism); Lopez-Paz and Ranzato, NIPS 2017 (gradient episodic memory); Rolnick et al., NeurIPS 2019 (experience replay); Farajtabar et al., AISTATS 2020 (orthogonal gradient descent); Kornblith et al., ICML 2019 (CKA); Goodfellow et al., arXiv:1312.6211; and Rebuffi et al., CVPR 2017 (iCaRL). Entries are in `paper/refs.bib`.
+
+GEM section 4.1 is the Permuted MNIST setting frozen in ADR-013: 20 tasks, 1000 examples each, one pass, two hidden layers of 100 ReLU units, minibatch 10, test-partition evaluation. Goodfellow's section 4.1 is only a pair of permutations. GEM cites Kirkpatrick et al. 2017 for the dataset name; that section of Kirkpatrick was not re-opened, so the count is GEM's. The 20-task run is not started.
+
+Rolnick et al. is CLEAR, a reinforcement-learning replay method on Atari and DMLab. It does not state a supervised classification replay formula. The rehearsal mix in notebook 19 stays our definition.
+
+iCaRL's iCIFAR-100 trains 100 classes in batches of 2, 5, 10, 20, or 50, with a 32-layer ResNet, at most 2000 exemplars, and 70 epochs. GEM's incremental CIFAR-100 is 20 tasks of 5 classes and 2500 examples, one pass, on a smaller ResNet-18. Split CIFAR-100 is not frozen.
+
+`linear_cka` is the centered linear case of Kornblith et al., equations 3 and 4. A unit test checks that an orthogonal map and an isotropic scale both score 1, and a constant matrix scores 0. That is a method check, not a training result. No GPU run.
