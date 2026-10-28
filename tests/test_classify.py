@@ -7,6 +7,7 @@ import torch
 from valmorph.benchmarks.classify import (
     train_classifier,
     train_on_tasks,
+    train_rehearsal_end_scores,
     train_sequence_end_scores,
     train_with_frozen_layer,
     train_with_rehearsal,
@@ -147,6 +148,30 @@ def test_rehearsal_keeps_a_prefix_of_each_finished_task() -> None:
     )
     assert [len(values) for values in series] == [4, 4]
     assert all(0.0 <= value <= 1.0 for values in series for value in values)
+
+
+def test_one_pass_rehearsal_without_stored_rows_matches_the_plain_pass() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    tasks = [(torch.rand(5, 4), torch.randint(0, 2, (5,))) for _ in range(2)]
+    tests = [(torch.rand(3, 4), torch.randint(0, 2, (3,))) for _ in range(2)]
+    plain = train_sequence_end_scores(clone_net(net), tasks, tests, batch_size=4, lr=0.1)
+    mix = train_rehearsal_end_scores(clone_net(net), tasks, tests, batch_size=4, lr=0.1, memory=0)
+    assert mix == plain
+
+
+def test_one_pass_rehearsal_keeps_the_first_task_and_changes_the_second() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    tasks = [(torch.rand(5, 4), torch.randint(0, 2, (5,))) for _ in range(2)]
+    tests = [(torch.rand(3, 4), torch.randint(0, 2, (3,))) for _ in range(2)]
+    plain_net = clone_net(net)
+    mix_net = clone_net(net)
+    plain = train_sequence_end_scores(plain_net, tasks, tests, batch_size=4, lr=0.1)
+    mix = train_rehearsal_end_scores(mix_net, tasks, tests, batch_size=4, lr=0.1, memory=None)
+    assert mix[0] == plain[0]
+    pairs = zip(plain_net.parameters(), mix_net.parameters(), strict=True)
+    assert any(not torch.allclose(left, right) for left, right in pairs)
 
 
 def test_sequence_end_scores_once_per_task() -> None:

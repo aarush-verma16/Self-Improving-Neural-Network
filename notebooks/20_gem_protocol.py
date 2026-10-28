@@ -16,7 +16,11 @@ import sys
 
 import torch
 
-from valmorph.benchmarks.classify import batch_accuracy, train_sequence_end_scores
+from valmorph.benchmarks.classify import (
+    batch_accuracy,
+    train_rehearsal_end_scores,
+    train_sequence_end_scores,
+)
 from valmorph.benchmarks.mnist import (
     apply_permutation,
     download_mnist,
@@ -624,3 +628,229 @@ seed_manifest = write_provenance(
 )
 print(json.dumps({"gaps": gap_text, "synthetic": seed_manifest["synthetic"]}))
 seed_curve
+
+# %% [markdown]
+# # One pass with stored rows
+#
+# Each new example is still seen once. On later tasks, half of a full batch
+# is rows kept from finished tasks, and the rest is the next new rows. Every
+# finished task is kept. A task has 1000 rows, so this is the same store as
+# the 1024-row mix. Five seeds. CPU. Not Level 1.
+
+
+# %%
+def open_rehearsal_ledger(seed: int) -> Ledger:
+    run_id = make_run_id(f"gem-rehearsal{seed}", seed, config_hash(cfg))
+    return Ledger.create(
+        root / "results" / "ledgers",
+        RunMeta(
+            ledger_version=LEDGER_VERSION,
+            run_id=run_id,
+            created_utc=run_id.rsplit("-", 1)[-1],
+            synthetic=False,
+            experiment="gem-rehearsal",
+            seed=seed,
+            config_hash=config_hash(cfg),
+            config={
+                "experiment": "gem-rehearsal",
+                "tasks": task_count,
+                "examples": 1000,
+                "width": [784, 100, 100, 10],
+                "batch_size": 10,
+                "lr": 0.03,
+                "passes": 1,
+                "memory": "all",
+                "old_fraction": 0.5,
+            },
+            git_commit=git_commit(),
+            device_type="cpu",
+            device_name="cpu",
+            device_index=None,
+            capability=None,
+            torch_version=library_versions()["torch"],
+            cuda_version=None,
+            python_version=sys.version,
+            platform=platform_string(),
+            libraries=library_versions(),
+        ),
+    )
+
+
+def rehearsal_for_seed(
+    seed: int,
+) -> tuple[Ledger, Summary, Summary, list[float], list[float], float, float]:
+    torch.manual_seed(seed)
+    rehearsal_base = ValmorphMLP([784, 100, 100, 10]).cpu()
+    plain_net = clone_net(rehearsal_base)
+    mix_net = clone_net(rehearsal_base)
+    seed_tasks = []
+    seed_tests = []
+    for task in range(task_count):
+        order = pixel_permutation(seed + task)
+        seed_tasks.append((apply_permutation(train_x[:1000], order), train_y[:1000]))
+        seed_tests.append((apply_permutation(test_x, order), test_y))
+    rehearsal_ledger = open_rehearsal_ledger(seed)
+    plain_matrix = train_sequence_end_scores(
+        plain_net, seed_tasks, seed_tests, batch_size=10, lr=0.03
+    )
+    mix_matrix = train_rehearsal_end_scores(
+        mix_net, seed_tasks, seed_tests, batch_size=10, lr=0.03, memory=None
+    )
+    return (
+        rehearsal_ledger,
+        row_summary(plain_matrix),
+        row_summary(mix_matrix),
+        [row[0] for row in plain_matrix],
+        [row[0] for row in mix_matrix],
+        plain_matrix[-1][-1],
+        mix_matrix[-1][-1],
+    )
+
+
+rehearsal_ledgers: list[Ledger] = []
+rehearsal_plain: list[Summary] = []
+rehearsal_mix: list[Summary] = []
+rehearsal_newest: list[tuple[float, float]] = []
+rehearsal_task0: dict[str, list[float]] = {}
+for seed in range(5):
+    (
+        rehearsal_ledger,
+        plain_one,
+        mix_one,
+        plain_task0,
+        mix_task0,
+        plain_newest,
+        mix_newest,
+    ) = rehearsal_for_seed(seed)
+    if seed == 0:
+        if abs(plain_one[0] - average) > 1e-6 or abs(plain_one[3] - first_task[-1]) > 1e-6:
+            raise RuntimeError("seed 0 plain pass does not match the first run")
+        rehearsal_task0 = {"no stored rows": plain_task0, "stored rows": mix_task0}
+    rehearsal_ledgers.append(rehearsal_ledger)
+    rehearsal_plain.append(plain_one)
+    rehearsal_mix.append(mix_one)
+    rehearsal_newest.append((plain_newest, mix_newest))
+
+assert_same_machine(rehearsal_ledgers)
+rehearsal_curve = plot_diagnostic_traces(
+    rehearsal_task0,
+    title="task 0 test accuracy after each task",
+    y_title="accuracy",
+    x_title="task index",
+    dashes={"stored rows": "dash"},
+)
+rehearsal_curve.write_html(figure_dir / "20_gem_rehearsal_task0.html")
+save_diagnostic_traces_png(
+    rehearsal_task0,
+    figure_dir / "20_gem_rehearsal_task0.png",
+    title="task 0 test accuracy after each task",
+    y_title="accuracy",
+    x_title="task index",
+    dashes={"stored rows": "dash"},
+)
+rehearsal_gaps = {
+    "stored rows minus plain": [
+        mix_one[0] - plain_one[0]
+        for plain_one, mix_one in zip(rehearsal_plain, rehearsal_mix, strict=True)
+    ],
+    "stored rows task 0 minus plain": [
+        mix_one[3] - plain_one[3]
+        for plain_one, mix_one in zip(rehearsal_plain, rehearsal_mix, strict=True)
+    ],
+    "stored rows task 19 minus plain": [
+        mix_newest - plain_newest for plain_newest, mix_newest in rehearsal_newest
+    ],
+}
+rehearsal_gap_curve = plot_diagnostic_traces(
+    rehearsal_gaps,
+    title="test accuracy minus the plain pass",
+    y_title="accuracy gap",
+    x_title="seed",
+    dashes={
+        "stored rows task 0 minus plain": "dash",
+        "stored rows task 19 minus plain": "dot",
+    },
+)
+rehearsal_gap_curve.write_html(figure_dir / "20_gem_rehearsal_seeds.html")
+save_diagnostic_traces_png(
+    rehearsal_gaps,
+    figure_dir / "20_gem_rehearsal_seeds.png",
+    title="test accuracy minus the plain pass",
+    y_title="accuracy gap",
+    x_title="seed",
+    dashes={
+        "stored rows task 0 minus plain": "dash",
+        "stored rows task 19 minus plain": "dot",
+    },
+)
+for seed, (plain_one, mix_one) in enumerate(zip(rehearsal_plain, rehearsal_mix, strict=True)):
+    rehearsal_ledgers[seed].append_step_metrics(
+        [
+            StepMetric(step=seed, split="test", name="plain_mean", value=plain_one[0]),
+            StepMetric(step=seed, split="test", name="mix_mean", value=mix_one[0]),
+            StepMetric(step=seed, split="test", name="plain_backward", value=plain_one[1]),
+            StepMetric(step=seed, split="test", name="mix_backward", value=mix_one[1]),
+            StepMetric(step=seed, split="test", name="plain_task0_end", value=plain_one[3]),
+            StepMetric(step=seed, split="test", name="mix_task0_end", value=mix_one[3]),
+            StepMetric(
+                step=seed,
+                split="test",
+                name="plain_task19_end",
+                value=rehearsal_newest[seed][0],
+            ),
+            StepMetric(
+                step=seed,
+                split="test",
+                name="mix_task19_end",
+                value=rehearsal_newest[seed][1],
+            ),
+        ]
+    )
+rehearsal_text = "; ".join(
+    f"seed {seed}: mean {rehearsal_gaps['stored rows minus plain'][seed]:+.3f}, "
+    f"task 0 {rehearsal_gaps['stored rows task 0 minus plain'][seed]:+.3f}, "
+    f"task 19 {rehearsal_gaps['stored rows task 19 minus plain'][seed]:+.3f}"
+    for seed in range(5)
+)
+rehearsal_ledgers[0].append_findings(
+    [
+        Finding(
+            finding_id="gem-rehearsal-task0",
+            kind="method",
+            statement=(
+                "Seed 0, one pass. "
+                f"Plain task 0 ends at {rehearsal_plain[0][3]:.3f}. "
+                f"With stored rows it ends at {rehearsal_mix[0][3]:.3f}."
+            ),
+            evidence_ref="results/figures/20_gem_rehearsal_task0.provenance.json",
+        ),
+        Finding(
+            finding_id="gem-rehearsal",
+            kind="method",
+            statement=(
+                "Five seeds. One pass, half of each later batch from stored rows. "
+                f"Seed 0 plain mean {rehearsal_plain[0][0]:.3f}, "
+                f"stored rows {rehearsal_mix[0][0]:.3f}. "
+                f"Task 0 ends at {rehearsal_plain[0][3]:.3f} and {rehearsal_mix[0][3]:.3f}. "
+                f"Gaps, {rehearsal_text}."
+            ),
+            evidence_ref="results/figures/20_gem_rehearsal_seeds.provenance.json",
+        ),
+    ]
+)
+write_provenance(
+    figure_dir / "20_gem_rehearsal_task0.provenance.json",
+    figure="20_gem_rehearsal_task0",
+    ledgers=[rehearsal_ledgers[0]],
+    config_hash=config_hash(cfg),
+    seeds=[0],
+)
+rehearsal_manifest = write_provenance(
+    figure_dir / "20_gem_rehearsal_seeds.provenance.json",
+    figure="20_gem_rehearsal_seeds",
+    ledgers=rehearsal_ledgers,
+    config_hash=config_hash(cfg),
+    seeds=list(range(5)),
+)
+print(json.dumps({"gaps": rehearsal_text, "synthetic": rehearsal_manifest["synthetic"]}))
+rehearsal_gap_curve

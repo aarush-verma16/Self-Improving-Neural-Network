@@ -229,3 +229,67 @@ def train_sequence_end_scores(
         with torch.no_grad():
             rows.append([batch_accuracy(net(test_x), test_y) for test_x, test_y in tests])
     return rows
+
+
+def train_rehearsal_end_scores(
+    net: ValmorphMLP,
+    tasks: list[tuple[torch.Tensor, torch.Tensor]],
+    tests: list[tuple[torch.Tensor, torch.Tensor]],
+    *,
+    batch_size: int,
+    lr: float,
+    memory: int | None = None,
+    old_fraction: float = 0.5,
+) -> list[list[float]]:
+    """One pass over each task's new examples. Later batches mix in stored rows.
+
+    This is our mix, not a published replay method. ``memory`` is how many
+    training rows to keep from each finished task, in their existing order.
+    ``None`` keeps every row. On later tasks, ``old_fraction`` of a full batch,
+    rounded down, is stored rows, and the rest is the next new rows. A short
+    tail of new examples is still used once. New examples are not repeated.
+    Row ``i`` is the accuracy of every test set after task ``i`` finishes.
+    """
+
+    if not tasks or len(tasks) != len(tests):
+        raise ValueError("tasks and tests must be the same non-empty length")
+    if batch_size < 1:
+        raise ValueError("batch_size must be positive")
+    if memory is not None and memory < 0:
+        raise ValueError("memory must be non-negative")
+    if not 0.0 <= old_fraction < 1.0:
+        raise ValueError("old_fraction must be in [0, 1)")
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
+    past_x: list[torch.Tensor] = []
+    past_y: list[torch.Tensor] = []
+    rows: list[list[float]] = []
+    for images, labels in tasks:
+        count = int(images.shape[0])
+        old_x = torch.cat(past_x) if past_x else None
+        old_y = torch.cat(past_y) if past_y else None
+        old_count = 0 if old_x is None else int(old_x.shape[0])
+        n_old = 0 if old_count == 0 else min(int(batch_size * old_fraction), batch_size - 1)
+        n_new = batch_size - n_old
+        start = 0
+        old_cursor = 0
+        while start < count:
+            take = min(n_new, count - start)
+            batch_x = images[start : start + take]
+            batch_y = labels[start : start + take]
+            if n_old and old_x is not None and old_y is not None:
+                old_index = torch.arange(old_cursor, old_cursor + n_old) % old_count
+                old_cursor += n_old
+                batch_x = torch.cat((batch_x, old_x[old_index]))
+                batch_y = torch.cat((batch_y, old_y[old_index]))
+            optimizer.zero_grad()
+            loss = F.cross_entropy(net(batch_x), batch_y)
+            loss.backward()
+            optimizer.step()
+            start += take
+        keep = count if memory is None else min(memory, count)
+        if keep > 0:
+            past_x.append(images[:keep])
+            past_y.append(labels[:keep])
+        with torch.no_grad():
+            rows.append([batch_accuracy(net(test_x), test_y) for test_x, test_y in tests])
+    return rows
