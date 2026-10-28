@@ -231,6 +231,21 @@ def train_sequence_end_scores(
     return rows
 
 
+def spread_indices(start: int, count: int, length: int, slots: int) -> torch.Tensor:
+    """Evenly spaced positions for one draw out of ``slots`` across ``length`` rows.
+
+    Draw ``count`` positions beginning at ``start``. The draws stay inside the
+    stored rows. A slot budget shorter than the store does not bunch them at
+    the front. A longer budget repeats rows.
+    """
+
+    if count < 1 or length < 1 or slots < 1:
+        raise ValueError("count, length, and slots must be positive")
+    if start < 0 or start + count > slots:
+        raise ValueError("draw is outside the slot budget")
+    return torch.tensor([(start + offset) * length // slots for offset in range(count)])
+
+
 def train_rehearsal_end_scores(
     net: ValmorphMLP,
     tasks: list[tuple[torch.Tensor, torch.Tensor]],
@@ -246,7 +261,8 @@ def train_rehearsal_end_scores(
     This is our mix, not a published replay method. ``memory`` is how many
     training rows to keep from each finished task, in their existing order.
     ``None`` keeps every row. On later tasks, ``old_fraction`` of a full batch,
-    rounded down, is stored rows, and the rest is the next new rows. A short
+    rounded down, is stored rows, and the rest is the next new rows. Those
+    stored rows are evenly spaced through everything kept so far. A short
     tail of new examples is still used once. New examples are not repeated.
     Row ``i`` is the accuracy of every test set after task ``i`` finishes.
     """
@@ -270,6 +286,8 @@ def train_rehearsal_end_scores(
         old_count = 0 if old_x is None else int(old_x.shape[0])
         n_old = 0 if old_count == 0 else min(int(batch_size * old_fraction), batch_size - 1)
         n_new = batch_size - n_old
+        batches = (count + n_new - 1) // n_new
+        total_slots = batches * n_old
         start = 0
         old_cursor = 0
         while start < count:
@@ -277,7 +295,7 @@ def train_rehearsal_end_scores(
             batch_x = images[start : start + take]
             batch_y = labels[start : start + take]
             if n_old and old_x is not None and old_y is not None:
-                old_index = torch.arange(old_cursor, old_cursor + n_old) % old_count
+                old_index = spread_indices(old_cursor, n_old, old_count, total_slots)
                 old_cursor += n_old
                 batch_x = torch.cat((batch_x, old_x[old_index]))
                 batch_y = torch.cat((batch_y, old_y[old_index]))

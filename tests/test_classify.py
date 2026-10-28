@@ -5,6 +5,7 @@ from __future__ import annotations
 import torch
 
 from valmorph.benchmarks.classify import (
+    spread_indices,
     train_classifier,
     train_on_tasks,
     train_rehearsal_end_scores,
@@ -148,6 +149,12 @@ def test_rehearsal_keeps_a_prefix_of_each_finished_task() -> None:
     )
     assert [len(values) for values in series] == [4, 4]
     assert all(0.0 <= value <= 1.0 for values in series for value in values)
+
+
+def test_spread_indices_do_not_stay_at_the_front_of_a_longer_store() -> None:
+    drawn = spread_indices(0, 6, 10, 6)
+    assert drawn.tolist() == [0, 1, 3, 5, 6, 8]
+    assert spread_indices(0, 4, 4, 4).tolist() == [0, 1, 2, 3]
 
 
 def test_one_pass_rehearsal_without_stored_rows_matches_the_plain_pass() -> None:

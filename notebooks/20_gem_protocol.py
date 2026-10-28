@@ -633,9 +633,10 @@ seed_curve
 # # One pass with stored rows
 #
 # Each new example is still seen once. On later tasks, half of a full batch
-# is rows kept from finished tasks, and the rest is the next new rows. Every
-# finished task is kept. A task has 1000 rows, so this is the same store as
-# the 1024-row mix. Five seeds. CPU. Not Level 1.
+# is rows kept from finished tasks, spaced through the whole store, and the
+# rest is the next new rows. Every finished task is kept. A task has 1000
+# rows, so this is the same store as the 1024-row mix. Five seeds. CPU.
+# Not Level 1.
 
 
 # %%
