@@ -194,3 +194,38 @@ def train_with_rehearsal(
             past_x.append(images[:keep])
             past_y.append(labels[:keep])
     return series
+
+
+def train_sequence_end_scores(
+    net: ValmorphMLP,
+    tasks: list[tuple[torch.Tensor, torch.Tensor]],
+    tests: list[tuple[torch.Tensor, torch.Tensor]],
+    *,
+    batch_size: int,
+    lr: float,
+) -> list[list[float]]:
+    """One pass over each task, in order. After a task, score every test set.
+
+    Row ``i`` is the accuracy of every test set after task ``i`` finishes. A tail
+    shorter than ``batch_size`` is still used once. Examples are not repeated.
+    """
+
+    if not tasks or len(tasks) != len(tests):
+        raise ValueError("tasks and tests must be the same non-empty length")
+    if batch_size < 1:
+        raise ValueError("batch_size must be positive")
+    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
+    rows: list[list[float]] = []
+    for images, labels in tasks:
+        count = int(images.shape[0])
+        start = 0
+        while start < count:
+            index = torch.arange(start, min(start + batch_size, count))
+            optimizer.zero_grad()
+            loss = F.cross_entropy(net(images[index]), labels[index])
+            loss.backward()
+            optimizer.step()
+            start += batch_size
+        with torch.no_grad():
+            rows.append([batch_accuracy(net(test_x), test_y) for test_x, test_y in tests])
+    return rows

@@ -4,7 +4,7 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-Phase 0b citations are in `paper/refs.bib` as of 2026-10-27. ADR-013 freezes Permuted MNIST for H1 to Lopez-Paz and Ranzato 2017, section 4.1: 20 tasks, 1000 examples, one pass, two hidden layers of 100, minibatch 10. That run has not been started. It is a CPU smoke until a timing says otherwise. Split CIFAR-100 is not frozen. The rehearsal dose `rehearsal-tasks-s0-2337dce6c530-20261023T212304Z` still stands and is not this protocol. Not a Level 1 claim.
+The GEM-sized smoke is `gem-protocol-s0-2337dce6c530-20261028T022302Z`. Twenty permutations, 1000 training images, one pass, width 100, minibatch 10, learning rate 0.03. Mean of the last test-accuracy row is 0.489. Backward transfer is −0.197. Task 0 is 0.333 after its own pass and 0.138 at the end. GEM's appendix prints 0.602 and −0.198 for their single model, and 0.784 on the first task after its own pass. This run is not that table. CPU, one seed. Not a Level 1 claim. No GPU run is waiting.
 
 ## Done
 
@@ -21,7 +21,7 @@ Phase 0b citations are in `paper/refs.bib` as of 2026-10-27. ADR-013 freezes Per
 ## Next
 
 1. Short CPU notebooks run in the session. A handoff is for a long GPU run.
-2. The next code is a CPU smoke of ADR-013's 20-task permutation protocol, naive sequential first. It is not a GPU handoff unless that smoke is slow. EWC's Fisher formula was not transcribed in this pass. Rolnick et al. does not supply a supervised replay formula.
+2. The 20-task naive run finished on CPU in seconds. It does not match GEM's printed first-task accuracy. EWC's Fisher formula was not transcribed in this pass. Rolnick et al. does not supply a supervised replay formula. A gated run on this protocol is the next CPU smoke, not a GPU handoff.
 3. Phase 0b's named papers are opened. Kirkpatrick's permutation section was not the source of the task count. Electricity's OpenML license line is still unread.
 4. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 5. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.

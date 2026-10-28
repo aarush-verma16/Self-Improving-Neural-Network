@@ -188,3 +188,9 @@ Rolnick et al. is CLEAR, a reinforcement-learning replay method on Atari and DML
 iCaRL's iCIFAR-100 trains 100 classes in batches of 2, 5, 10, 20, or 50, with a 32-layer ResNet, at most 2000 exemplars, and 70 epochs. GEM's incremental CIFAR-100 is 20 tasks of 5 classes and 2500 examples, one pass, on a smaller ResNet-18. Split CIFAR-100 is not frozen.
 
 `linear_cka` is the centered linear case of Kornblith et al., equations 3 and 4. A unit test checks that an orthogonal map and an isotropic scale both score 1, and a constant matrix scores 0. That is a method check, not a training result. No GPU run.
+
+## 2026-10-27 — Twenty permutations, one pass
+
+`notebooks/20_gem_protocol.py` trains the ADR-013 sizes on CPU. The first 1000 MNIST training images, file order, all ten classes present. One fixed permutation per task, seeds 0 through 19. Learning rate 0.03, the value GEM's appendix marks for the single model on permutations. No grid search. The run is `gem-protocol-s0-2337dce6c530-20261028T022302Z`, synthetic false. Mean of the last test-accuracy row is 0.489. Backward transfer, their equation 3, is −0.197. Task 0 is 0.333 after its own pass and 0.138 after task 19. Provenance `results/figures/20_gem_task0.provenance.json`.
+
+GEM's appendix prints final accuracy 0.602 and backward transfer −0.198 for that single model, and 0.784 on the first task just after its own pass. The forgetting term is close. The accuracy is not. The images are the first 1000 in file order, the permutations are ours, and the initialization is ours. This is not their table, and it is not H1.

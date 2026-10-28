@@ -7,6 +7,7 @@ import torch
 from valmorph.benchmarks.classify import (
     train_classifier,
     train_on_tasks,
+    train_sequence_end_scores,
     train_with_frozen_layer,
     train_with_rehearsal,
 )
@@ -146,3 +147,13 @@ def test_rehearsal_keeps_a_prefix_of_each_finished_task() -> None:
     )
     assert [len(values) for values in series] == [4, 4]
     assert all(0.0 <= value <= 1.0 for values in series for value in values)
+
+
+def test_sequence_end_scores_once_per_task() -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    tasks = [(torch.rand(5, 4), torch.randint(0, 2, (5,))) for _ in range(2)]
+    tests = [(torch.rand(3, 4), torch.randint(0, 2, (3,))) for _ in range(2)]
+    rows = train_sequence_end_scores(net, tasks, tests, batch_size=4, lr=0.1)
+    assert [len(row) for row in rows] == [2, 2]
+    assert all(0.0 <= value <= 1.0 for row in rows for value in row)

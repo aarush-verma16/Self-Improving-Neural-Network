@@ -18,6 +18,7 @@ def plot_diagnostic_traces(
     *,
     title: str = "diagnostics during training",
     y_title: str = "value",
+    x_title: str = "step",
     marks: list[int] | None = None,
     dashes: dict[str, str] | None = None,
     mark_label: str = "kept",
@@ -55,7 +56,7 @@ def plot_diagnostic_traces(
     figure.update_layout(
         template="plotly_white",
         title=title,
-        xaxis_title="step",
+        xaxis_title=x_title,
         yaxis_title=y_title,
         font={"family": "Arial", "size": 13},
     )
@@ -80,6 +81,7 @@ def save_diagnostic_traces_png(
     *,
     title: str = "diagnostics during training",
     y_title: str = "value",
+    x_title: str = "step",
     marks: list[int] | None = None,
     dashes: dict[str, str] | None = None,
     mark_label: str = "kept",
@@ -102,7 +104,7 @@ def save_diagnostic_traces_png(
         )
         labeled = True
     ax.set_title(title)
-    ax.set_xlabel("step")
+    ax.set_xlabel(x_title)
     ax.set_ylabel(y_title)
     ax.legend(frameon=False)
     path.parent.mkdir(parents=True, exist_ok=True)
