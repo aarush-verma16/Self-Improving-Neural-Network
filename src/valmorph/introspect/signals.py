@@ -177,6 +177,50 @@ def layer_gradient_norms(net: ValmorphMLP, x: torch.Tensor, y: torch.Tensor) -> 
     return norms
 
 
+def per_example_gradient_dispersion(net: ValmorphMLP, x: torch.Tensor, y: torch.Tensor) -> float:
+    """Coefficient of variation of per-example gradient norms.
+
+    ``x`` is ``[batch, in]`` and ``y`` broadcasts with the network output.
+    Each row is one mean-squared-error backward. The value is the standard
+    deviation of those gradient norms divided by their mean, or 0 when the
+    mean is 0. Identical examples return 0. This is our stand-in for the
+    planned gradient-noise measurement, not a formula from an unopened paper.
+    Gradients on ``net`` are cleared afterward.
+    """
+
+    if x.ndim != 2 or int(x.shape[0]) < 2:
+        raise ValueError("x must have shape [batch, in] with at least two rows")
+    if int(y.shape[0]) != int(x.shape[0]):
+        raise ValueError("y must have one row per example")
+    norms: list[float] = []
+    for index in range(int(x.shape[0])):
+        net.zero_grad(set_to_none=True)
+        prediction = net(x[index : index + 1])
+        loss = torch.mean((prediction - y[index : index + 1]) ** 2)
+        loss.backward()
+        total = 0.0
+        for parameter in net.parameters():
+            if parameter.grad is not None:
+                total += float(parameter.grad.detach().pow(2).sum())
+        norms.append(math.sqrt(total))
+    net.zero_grad(set_to_none=True)
+    values = torch.tensor(norms, dtype=torch.float64)
+    mean = float(values.mean())
+    if mean == 0.0:
+        return 0.0
+    return float(values.std(unbiased=False) / mean)
+
+
+def representation_drift(before: torch.Tensor, after: torch.Tensor) -> float:
+    """One minus linear CKA. Both tensors are ``[examples, features]``.
+
+    The alignment is Kornblith et al. 2019. The subtraction is ours: 0 means
+    the two batches still match, and 1 means the alignment is 0.
+    """
+
+    return 1.0 - linear_cka(before, after)
+
+
 def mean_off_diagonal(covariance: torch.Tensor) -> float:
     """Mean absolute off-diagonal of a square covariance. A scalar."""
 

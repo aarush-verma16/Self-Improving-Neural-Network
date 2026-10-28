@@ -10,7 +10,9 @@ The gated comparison on the same sizes is CPU, five seeds, not a Level 1 claim. 
 
 The same sizes with stored rows spaced through the whole store are `gem-rehearsal0` through `gem-rehearsal4`, timestamps `20261028T033332Z` through `20261028T033353Z`. An earlier pass, `20261028T032423Z` through `20261028T032444Z`, walked only the front of the buffer, so it rehearsed task 0 and left the later stored tasks out. Those ledgers are not the mix. Seed 0 of the spaced run goes from mean 0.489 and task 0 at 0.138 to mean 0.738 and task 0 at 0.739. Task 19 goes from 0.753 to 0.724. Backward transfer goes from −0.197 to +0.039. Mean minus the plain pass, seeds 0–4: +0.249, +0.246, +0.238, +0.233, +0.236. Task 0: +0.601, +0.599, +0.482, +0.593, +0.562. Task 19: −0.029, +0.021, +0.003, +0.007, +0.021. Provenance `results/figures/20_gem_rehearsal_seeds.provenance.json`. CPU. Not a Level 1 claim.
 
-Phase 1's exit is met. Prune and prune-and-regrow each have a test that the logits change, and prune-and-regrow keeps the width. `forward_macs` counts multiply-adds for one example. `valmorph.metrics` implements average accuracy, learning accuracy, backward transfer, and forgetting. Regularization change and consolidate are still ledger names without an edit. No GPU run is waiting.
+Phase 1's exit is met. Prune and prune-and-regrow each have a test that the logits change, and prune-and-regrow keeps the width. `forward_macs` counts multiply-adds for one example. `valmorph.metrics` implements average accuracy, learning accuracy, backward transfer, and forgetting. Regularization change and consolidate are still ledger names without an edit.
+
+The diagnostic smoke is `diagnostics-s0-2337dce6c530-20261028T042552Z`. After 60 sine steps the dead-unit fraction is 0.5, singular-entropy rank is 2.327, gradient norm is 0.029, gradient dispersion is 0.827, and representation drift from step 0 is 0.003. Provenance `results/figures/03_diagnostics_traces.provenance.json`. A Hessian-trace proxy and a plasticity-loss indicator are not written. The paper does not start until a confirmatory run says which levels hold. No GPU run is waiting.
 
 ## Done
 

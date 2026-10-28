@@ -1,19 +1,22 @@
 # %% [markdown]
 # # 03 — Diagnostics
 #
-# The same small sine-fitting network, watched while it trains. Three measurements,
-# all computed by us from the hidden units:
+# The same small sine-fitting network, watched while it trains. The measurements
+# are ours, except representation drift, which is one minus linear CKA.
 #
 # - **Dead-unit fraction.** Share of ReLU units that output nothing on this batch.
 # - **Singular entropy rank.** How many directions the hidden activations actually use.
 #   A value near 1 means the units are repeating one pattern. A higher value means
 #   they are doing different things. This is not a published CKA number.
 # - **Gradient norm.** How large the weight update is on this batch.
+# - **Gradient dispersion.** How much the per-example gradient norms disagree.
+#   Identical examples score 0. This is not a published noise-scale formula.
+# - **Representation drift.** One minus linear CKA against the hidden activations
+#   at step 0. Zero means the representation has not moved.
 #
 # The heatmap is the covariance of the hidden units at the last step. Bright
-# off-diagonal cells mean two units move together.
-#
-# Run this notebook yourself. It is a short CPU run.
+# off-diagonal cells mean two units move together. A Hessian-trace proxy is not
+# included: that paper has not been opened. Short CPU run.
 
 # %%
 import json
@@ -31,6 +34,8 @@ from valmorph.introspect import (
     hidden_activations,
     layer_gradient_norms,
     mean_off_diagonal,
+    per_example_gradient_dispersion,
+    representation_drift,
     singular_entropy_rank,
 )
 from valmorph.models import ValmorphMLP
@@ -50,20 +55,38 @@ optimizer = torch.optim.SGD(net.parameters(), lr=0.05)
 dead: list[float] = []
 rank: list[float] = []
 grad_norm: list[float] = []
+dispersion: list[float] = []
+drift: list[float] = []
 rows: list[Diagnostic] = []
+initial_hidden: torch.Tensor | None = None
 for step in range(60):
     norms = layer_gradient_norms(net, train_x, train_y)
+    spread = per_example_gradient_dispersion(net, train_x, train_y)
     activations = hidden_activations(net, train_x)
+    if initial_hidden is None:
+        initial_hidden = activations[0].detach().clone()
     dead_value = dead_unit_fraction(activations[0])
     rank_value = singular_entropy_rank(activations[0])
+    drift_value = representation_drift(initial_hidden, activations[0])
+    covariance = activation_covariance(activations[0])
+    off_diagonal = mean_off_diagonal(covariance)
     dead.append(dead_value)
     rank.append(rank_value)
     grad_norm.append(norms[0])
+    dispersion.append(spread)
+    drift.append(drift_value)
     rows.append(Diagnostic(step=step, layer="hidden0", name="dead_unit_fraction", value=dead_value))
     rows.append(
         Diagnostic(step=step, layer="hidden0", name="singular_entropy_rank", value=rank_value)
     )
     rows.append(Diagnostic(step=step, layer="layer0", name="gradient_norm", value=norms[0]))
+    rows.append(Diagnostic(step=step, layer="layer0", name="gradient_dispersion", value=spread))
+    rows.append(
+        Diagnostic(step=step, layer="hidden0", name="representation_drift", value=drift_value)
+    )
+    rows.append(
+        Diagnostic(step=step, layer="hidden0", name="mean_off_diagonal", value=off_diagonal)
+    )
     optimizer.zero_grad()
     loss = torch.mean((net(train_x) - train_y) ** 2)
     loss.backward()
@@ -75,6 +98,8 @@ traces = plot_diagnostic_traces(
         "dead unit fraction": dead,
         "singular entropy rank": rank,
         "gradient norm": grad_norm,
+        "gradient dispersion": dispersion,
+        "representation drift": drift,
     }
 )
 heatmap = plot_covariance_heatmap(final_covariance.tolist())
@@ -114,6 +139,8 @@ ledger.append_findings(
                 f"Final dead fraction={dead[-1]:.3f}, "
                 f"singular entropy rank={rank[-1]:.3f}, "
                 f"gradient norm={grad_norm[-1]:.3f}, "
+                f"gradient dispersion={dispersion[-1]:.3f}, "
+                f"representation drift={drift[-1]:.3f}, "
                 f"mean off-diagonal covariance={mean_off_diagonal(final_covariance):.3f}."
             ),
             evidence_ref="results/figures/03_diagnostics_traces.provenance.json",
@@ -128,6 +155,8 @@ save_diagnostic_traces_png(
         "dead unit fraction": dead,
         "singular entropy rank": rank,
         "gradient norm": grad_norm,
+        "gradient dispersion": dispersion,
+        "representation drift": drift,
     },
     figure_dir / "03_diagnostics_traces.png",
 )
@@ -145,6 +174,8 @@ print(
             "final_dead_fraction": dead[-1],
             "final_rank": rank[-1],
             "final_gradient_norm": grad_norm[-1],
+            "final_gradient_dispersion": dispersion[-1],
+            "final_representation_drift": drift[-1],
             "synthetic": manifest["synthetic"],
         }
     )

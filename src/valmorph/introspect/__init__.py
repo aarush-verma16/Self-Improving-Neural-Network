@@ -8,6 +8,8 @@ from valmorph.introspect.signals import (
     linear_cka,
     mean_off_diagonal,
     most_silent_unit,
+    per_example_gradient_dispersion,
+    representation_drift,
     singular_entropy_rank,
     smallest_magnitude_unit,
 )
@@ -20,6 +22,8 @@ __all__ = [
     "linear_cka",
     "mean_off_diagonal",
     "most_silent_unit",
+    "per_example_gradient_dispersion",
+    "representation_drift",
     "singular_entropy_rank",
     "smallest_magnitude_unit",
 ]

@@ -218,3 +218,9 @@ Mean minus the plain pass: +0.249, +0.246, +0.238, +0.233, +0.236. Task 0 at the
 `ValmorphMLP.forward_macs` counts `out * in` multiply-adds for one example and leaves the bias adds out. A network of widths 4, 3, 2 costs 18, and one widen raises that to 24.
 
 `valmorph.metrics` implements average accuracy, learning accuracy, backward transfer, and forgetting on a square task matrix. On the hand matrix with last row 0.2, 0.7, 0.9, average accuracy is 0.6, backward transfer is −0.2, and forgetting is 0.2. Notebook 20 now calls those functions for the same summaries. No training run. Phase 1's exit check is met. Regularization change and consolidate are still names only.
+
+## 2026-10-28 — Gradient dispersion and representation drift
+
+`per_example_gradient_dispersion` is the standard deviation of per-example gradient norms divided by their mean. Identical examples score 0. `representation_drift` is one minus linear CKA. Neither number is a Hessian trace, and the dispersion is not a published noise scale.
+
+`notebooks/03_diagnostics.py` trains the sine net for 60 steps and logs both, plus the earlier three curves and the mean off-diagonal covariance. The run is `diagnostics-s0-2337dce6c530-20261028T042552Z`, CPU, synthetic false. The earlier finals still match: dead fraction 0.5, rank 2.327, gradient norm 0.029. Dispersion ends at 0.827. Drift from the step-0 hidden activations ends at 0.003. Provenance `results/figures/03_diagnostics_traces.provenance.json`. On this seed the hidden map stays aligned with its start while half the units are silent. A Hessian-trace proxy and a plasticity-loss indicator are still unwritten. Not a Level 1 claim.

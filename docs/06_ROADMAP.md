@@ -26,6 +26,8 @@ Each planned diagnostic has a function, a docstring that states the tensor shape
 
 Exit: the smoke ledger contains one row per diagnostic name. Diagnostics whose defining paper is still unopened are not given a "standard" formula from memory; they wait.
 
+Not met. The sine smoke `diagnostics-s0-2337dce6c530-20261028T042552Z` logs dead-unit fraction, singular-entropy rank, gradient norm, gradient dispersion, representation drift, and mean off-diagonal covariance. A Hessian-trace proxy and a plasticity-loss indicator still wait.
+
 Compute: smoke, width 32, one tiny dataset or synthetic tensors. Device `auto`.
 
 ## Phase 3 — Controllers and the gate

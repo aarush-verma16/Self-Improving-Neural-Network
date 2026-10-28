@@ -58,6 +58,27 @@ def test_singular_entropy_rank_on_identity_and_rank_one() -> None:
     assert singular_entropy_rank(torch.zeros(3, 3)) == 0.0
 
 
+def test_identical_examples_have_no_gradient_dispersion() -> None:
+    from valmorph.introspect import per_example_gradient_dispersion
+
+    net = ValmorphMLP([1, 2, 1]).cpu()
+    features = torch.ones(4, 1)
+    targets = torch.ones(4, 1)
+    assert per_example_gradient_dispersion(net, features, targets) == 0.0
+    targets = torch.tensor([[0.0], [4.0], [0.0], [4.0]])
+    mixed = per_example_gradient_dispersion(net, features, targets)
+    assert mixed > 0.0
+
+
+def test_representation_drift_is_zero_for_the_same_batch() -> None:
+    from valmorph.introspect import representation_drift
+
+    torch.manual_seed(0)
+    left = torch.randn(8, 4)
+    assert representation_drift(left, left) == 0.0
+    assert representation_drift(left, torch.zeros(8, 4)) == 1.0
+
+
 def test_gradient_norm_and_ledger_row(tmp_path: Path) -> None:
     torch.manual_seed(0)
     net = ValmorphMLP([2, 3, 1]).cpu()
