@@ -18,7 +18,7 @@ Milestone 1, met on CPU on 2026-10-10: widen by neuron split and identity deepen
 
 Still inside Phase 1 before the gate: edits that are allowed to change the function (prune, prune-and-regrow) need their own tests, and those tests must not call them function-preserving.
 
-Exit for the whole phase: the identity morphisms above, plus an explicit test for any edit that is not function-preserving. Compute: CPU only.
+Exit met on 2026-10-28: widen and identity deepen keep the logits, and prune and prune-and-regrow each have a test that the logits change. Prune-and-regrow keeps the width. Multiply-adds for one example are `forward_macs`. Regularization change and consolidate remain ledger names without an edit. Compute: CPU only.
 
 ## Phase 2 — Introspection
 

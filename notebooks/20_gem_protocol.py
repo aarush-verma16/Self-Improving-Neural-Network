@@ -41,6 +41,7 @@ from valmorph.core.ledger import (
 )
 from valmorph.core.runtime import git_commit, library_versions, platform_string, repo_root
 from valmorph.gate import clone_net
+from valmorph.metrics import average_accuracy, backward_transfer
 from valmorph.models import ValmorphMLP
 from valmorph.viz import plot_diagnostic_traces, save_diagnostic_traces_png, write_provenance
 
@@ -281,10 +282,7 @@ train_across_tasks(
 
 
 def row_summary(rows: list[list[float]]) -> tuple[float, float, float, float]:
-    final = rows[-1]
-    mean = sum(final) / task_count
-    transfer = sum(final[i] - rows[i][i] for i in range(task_count - 1)) / (task_count - 1)
-    return mean, transfer, rows[0][0], final[0]
+    return average_accuracy(rows), backward_transfer(rows), rows[0][0], rows[-1][0]
 
 
 plain_summary = row_summary(plain_rows)

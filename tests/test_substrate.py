@@ -11,7 +11,15 @@ from hypothesis import strategies as st
 
 from valmorph.core.ledger import LEDGER_VERSION, Ledger, RunMeta
 from valmorph.gate import adopt_shadow, clone_net, train_cross_entropy_steps
-from valmorph.models.edits import EditError, freeze, identity_deepen, lr_change, widen
+from valmorph.models.edits import (
+    EditError,
+    freeze,
+    identity_deepen,
+    lr_change,
+    prune,
+    prune_regrow,
+    widen,
+)
 from valmorph.models.mlp import SubstrateError, ValmorphMLP
 
 
@@ -151,6 +159,74 @@ def test_identity_deepen_inserts_a_unit_learning_rate_scale() -> None:
     net = ValmorphMLP([4, 3, 2])
     identity_deepen(net, 0)
     assert net.lr_scale == [1.0, 1.0, 1.0]
+
+
+def test_prune_changes_the_function_and_drops_the_unit() -> None:
+    net = ValmorphMLP([2, 2, 1])
+    with torch.no_grad():
+        net.linear(0).weight.copy_(torch.tensor([[1.0, 0.0], [0.0, 1.0]]))
+        net.linear(0).bias.zero_()
+        net.linear(1).weight.copy_(torch.tensor([[1.0, 3.0]]))
+        net.linear(1).bias.zero_()
+    images = torch.tensor([[1.0, 1.0]])
+    before = net(images).detach().clone()
+    removed = net.unit_ids[0][1]
+    assert prune(net, 0, 1) == removed
+    assert removed not in net.unit_ids[0]
+    assert len(net.unit_ids[0]) == 1
+    assert net.forward_macs() == 2 * 1 + 1 * 1
+    assert float(before) == pytest.approx(4.0)
+    assert float(net(images).detach()) == pytest.approx(1.0)
+
+
+def test_prune_regrow_keeps_width_and_changes_the_function(tmp_path: Path) -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    images = torch.randn(5, 4)
+    before = net(images).detach().clone()
+    removed = net.unit_ids[0][1]
+    others = [net.unit_ids[0][0], net.unit_ids[0][2]]
+    macs = net.forward_macs()
+    meta = RunMeta(
+        ledger_version=LEDGER_VERSION,
+        run_id="regrow",
+        created_utc="2026-10-28T00:00:00Z",
+        synthetic=False,
+        experiment="regrow",
+        seed=0,
+        config_hash="regrow",
+        config={"experiment": "regrow"},
+        git_commit="test",
+        device_type="cpu",
+        device_name="cpu",
+        device_index=None,
+        capability=None,
+        torch_version="test",
+        cuda_version=None,
+        python_version="3.12",
+        platform="test",
+        libraries={},
+    )
+    ledger = Ledger.create(tmp_path, meta)
+    generator = torch.Generator().manual_seed(1)
+    child = prune_regrow(net, 0, 1, ledger=ledger, step=4, generator=generator)
+    assert child != removed
+    assert net.unit_ids[0] == [others[0], child, others[1]]
+    assert net.forward_macs() == macs
+    assert net.parameter_count() == ValmorphMLP([4, 3, 2]).parameter_count()
+    assert not torch.allclose(net(images), before)
+    edges = ledger.read("lineage")
+    assert edges.column("relation").to_pylist() == ["regrow"]
+    assert edges.column("parent_unit").to_pylist() == [removed]
+    assert edges.column("child_unit").to_pylist() == [child]
+    assert ledger.read("edit_proposals").column("edit_type").to_pylist() == ["prune_regrow"]
+
+
+def test_forward_macs_count_each_weight_once() -> None:
+    net = ValmorphMLP([4, 3, 2])
+    assert net.forward_macs() == 4 * 3 + 2 * 3
+    widen(net, 0, 0)
+    assert net.forward_macs() == 4 * 4 + 2 * 4
 
 
 def test_freeze_stops_one_layer() -> None:

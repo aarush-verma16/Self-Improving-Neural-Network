@@ -1,14 +1,17 @@
-"""Function-preserving edits for :class:`ValmorphMLP`.
+"""Edits for :class:`ValmorphMLP`.
 
 Widen follows the Net2Net split: the copied unit duplicates the incoming
 weights, and the outgoing weights of the original and the copy are halved,
 so the represented function is unchanged. Identity deepen inserts a linear
 map ``I`` with zero bias and no activation, which is the identity function.
+Prune removes a hidden unit. Prune-and-regrow replaces one hidden unit with
+a new draw and keeps the width. Neither of those two preserves the function.
 """
 
 from __future__ import annotations
 
 import json
+import math
 
 import torch
 from torch import nn
@@ -191,6 +194,87 @@ def prune(
         edges=[LineageEdge(step=step, parent_unit=removed, child_unit=removed, relation="prune")],
     )
     return removed
+
+
+def _draw_uniform(
+    count: int,
+    bound: float,
+    *,
+    device: torch.device,
+    dtype: torch.dtype,
+    generator: torch.Generator | None,
+) -> torch.Tensor:
+    drawn = torch.empty(count, device=device, dtype=dtype)
+    drawn.uniform_(-bound, bound, generator=generator)
+    return drawn
+
+
+def prune_regrow(
+    net: ValmorphMLP,
+    layer: int,
+    unit: int,
+    *,
+    ledger: Ledger | None = None,
+    step: int = 0,
+    generator: torch.Generator | None = None,
+) -> str:
+    """Replace hidden unit ``unit`` with a newly drawn unit. Width stays put.
+
+    The new incoming row, bias, and outgoing column are a fresh uniform draw
+    on the same bounds as ``nn.Linear``'s default initialization. Other units
+    stay at the same index. The represented function changes. This is our
+    replacement, not continual backpropagation. The new unit id is returned.
+    """
+
+    if layer < 0 or layer >= len(net.layers) - 1:
+        raise EditError("prune-and-regrow applies to a layer that has a following layer")
+    source = net.linear(layer)
+    dest = net.linear(layer + 1)
+    width = int(source.out_features)
+    if unit < 0 or unit >= width:
+        raise EditError(f"unit {unit} is outside layer {layer} of width {width}")
+    removed = net.unit_ids[layer][unit]
+    child = net._alloc_unit()
+    net.unit_ids[layer][unit] = child
+    incoming_bound = 1.0 / math.sqrt(int(source.in_features))
+    outgoing_bound = 1.0 / math.sqrt(int(dest.in_features))
+    with torch.no_grad():
+        new_source_weight = source.weight.clone()
+        new_source_bias = source.bias.clone()
+        new_dest_weight = dest.weight.clone()
+        new_dest_bias = dest.bias.clone()
+        new_source_weight[unit] = _draw_uniform(
+            int(source.in_features),
+            incoming_bound,
+            device=source.weight.device,
+            dtype=source.weight.dtype,
+            generator=generator,
+        )
+        new_source_bias[unit] = _draw_uniform(
+            1,
+            incoming_bound,
+            device=source.bias.device,
+            dtype=source.bias.dtype,
+            generator=generator,
+        )[0]
+        new_dest_weight[:, unit] = _draw_uniform(
+            int(dest.out_features),
+            outgoing_bound,
+            device=dest.weight.device,
+            dtype=dest.weight.dtype,
+            generator=generator,
+        )
+    net.layers[layer] = _linear(new_source_weight, new_source_bias)
+    net.layers[layer + 1] = _linear(new_dest_weight, new_dest_bias)
+    _record(
+        ledger,
+        step=step,
+        edit_type="prune_regrow",
+        target=f"layer{layer}",
+        params={"unit": unit, "removed": removed, "child": child},
+        edges=[LineageEdge(step=step, parent_unit=removed, child_unit=child, relation="regrow")],
+    )
+    return child
 
 
 def lr_change(net: ValmorphMLP, layer: int, factor: float) -> float:

@@ -1,6 +1,6 @@
 # Architecture
 
-Phase 0 implements the frame: device, seed, config, memory cap, ledger, provenance. The four scientific parts below are specified so later phases have somewhere to land. Their packages are empty on purpose.
+Phase 0 implements the frame: device, seed, config, memory cap, ledger, provenance. Models, introspection, controllers, and the gate now have code. `metrics` holds the task-matrix summaries. `baselines` is still empty.
 
 ## Layout
 

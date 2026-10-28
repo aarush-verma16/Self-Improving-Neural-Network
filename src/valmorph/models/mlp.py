@@ -68,3 +68,17 @@ class ValmorphMLP(nn.Module):
         """Number of trainable parameters, including frozen ones."""
 
         return sum(parameter.numel() for parameter in self.parameters())
+
+    def forward_macs(self) -> int:
+        """Multiply-adds for one example, at the current widths.
+
+        A linear map of shape ``[out, in]`` contributes ``out * in``. Bias
+        adds are not counted. This is the count named ``forward_flops`` in
+        the metrics note, restricted to multiply-adds.
+        """
+
+        total = 0
+        for index in range(len(self.layers)):
+            layer = self.linear(index)
+            total += int(layer.out_features) * int(layer.in_features)
+        return total

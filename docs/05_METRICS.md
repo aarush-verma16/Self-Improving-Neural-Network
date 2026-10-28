@@ -28,13 +28,13 @@ F = (1 / (T - 1)) * sum_{j=1..T-1} f_j
 
 Ledger name: `forgetting`. Higher means more forgotten.
 
-Backward transfer, our definition until a cited paper's definition is adopted by ADR:
+Backward transfer:
 
 ```
 BWT = (1 / (T - 1)) * sum_{j=1..T-1} (a_{T,j} - a_{j,j})
 ```
 
-Ledger name: `bwt_end_minus_diag`. Negative when the model is worse on old tasks than it was at the end of those tasks. This is not yet aligned with Lopez-Paz and Ranzato, because that PDF was not opened. Do not relabel this number as their BWT.
+Ledger name: `bwt_end_minus_diag`. Negative when the model is worse on old tasks than it was at the end of those tasks. This is the same expression as Lopez-Paz and Ranzato, equation 3. The code lives in `valmorph.metrics`.
 
 Learning accuracy: `a_{j,j}` averaged over tasks. Ledger name: `learning_accuracy`.
 
@@ -44,7 +44,7 @@ Few-shot plasticity: accuracy on the new task after `K` training steps, `K` fixe
 
 `param_count`: trainable parameters after each accepted edit.
 
-`forward_flops`: multiply-adds for one forward pass at the current architecture. The MLP formula is written down in Phase 1 next to the module that counts it. Until that code exists, do not log a guessed FLOP number.
+`forward_flops`: multiply-adds for one example at the current architecture. `ValmorphMLP.forward_macs` counts `out * in` for each linear map and leaves out the bias adds.
 
 ## Editor
 
