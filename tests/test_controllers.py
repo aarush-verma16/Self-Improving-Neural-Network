@@ -232,3 +232,24 @@ def test_l1_choice_is_labeled_on_the_ledger(tmp_path: Path) -> None:
     assert len(series[0]) == 4
     assert ledger.read("edit_proposals").column("controller").to_pylist() == ["L1"]
     assert bandit.count["prune"] == 1
+
+
+def test_task_end_callback_sees_each_finished_task(tmp_path: Path) -> None:
+    torch.manual_seed(0)
+    net = ValmorphMLP([4, 3, 2])
+    tasks = [(torch.rand(4, 4), torch.randint(0, 2, (4,))) for _ in range(2)]
+    probes = [(torch.rand(3, 4), torch.randint(0, 2, (3,))) for _ in range(2)]
+    seen: list[int] = []
+    train_across_tasks(
+        net,
+        tasks,
+        probes,
+        steps_per_task=2,
+        batch_size=2,
+        lr=0.1,
+        ledger=_ledger(tmp_path, "ends"),
+        every=0,
+        on_task_end=lambda index, _model: seen.append(index),
+    )
+    assert seen == [0, 1]
+    assert int(net.linear(0).out_features) == 3

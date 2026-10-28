@@ -4,7 +4,9 @@ Read this file at the start of a session. Update it at the end. It is the handof
 
 ## Current phase
 
-The GEM-sized smoke is `gem-protocol-s0-2337dce6c530-20261028T022302Z`. Twenty permutations, 1000 training images, one pass, width 100, minibatch 10, learning rate 0.03. Mean of the last test-accuracy row is 0.489. Backward transfer is −0.197. Task 0 is 0.333 after its own pass and 0.138 at the end. GEM's appendix prints 0.602 and −0.198 for their single model, and 0.784 on the first task after its own pass. This run is not that table. CPU, one seed. Not a Level 1 claim. No GPU run is waiting.
+The GEM-sized smoke is `gem-protocol-s0-2337dce6c530-20261028T022302Z`. Twenty permutations, 1000 training images, one pass, width 100, minibatch 10, learning rate 0.03. Mean of the last test-accuracy row is 0.489. Backward transfer is −0.197. Task 0 is 0.333 after its own pass and 0.138 at the end. GEM's appendix prints 0.602 and −0.198 for their single model, and 0.784 on the first task after its own pass. This run is not that table.
+
+The gated comparison on the same sizes is CPU, five seeds, not a Level 1 claim. Probe is training rows 1000–1499. The test set is scored after each task and is not an input to the gate. Seed 0 detail is `gem-gate-s0-2337dce6c530-20261028T030244Z`: no edits 0.489 and −0.197, L1 0.513 and −0.161 (14 kept), random 0.457 and −0.089 (11 kept). L1's keeps are 12 widens and 2 hidden-layer halvings. Across seeds 0–4 the L1 last-row mean minus no edits is +0.024, −0.017, −0.001, −0.075, +0.020. Random's mean gap is −0.032, −0.087, −0.028, −0.088, −0.050. Provenance `results/figures/20_gem_gate_seeds.provenance.json`. No GPU run is waiting.
 
 ## Done
 
@@ -21,7 +23,7 @@ The GEM-sized smoke is `gem-protocol-s0-2337dce6c530-20261028T022302Z`. Twenty p
 ## Next
 
 1. Short CPU notebooks run in the session. A handoff is for a long GPU run.
-2. The 20-task naive run finished on CPU in seconds. It does not match GEM's printed first-task accuracy. EWC's Fisher formula was not transcribed in this pass. Rolnick et al. does not supply a supervised replay formula. A gated run on this protocol is the next CPU smoke, not a GPU handoff.
+2. The 20-task naive run and the five-seed gated comparison both finished on CPU. The gate does not raise the last-row mean on every seed. Random lowers it on every seed. EWC's Fisher formula was not transcribed. Rolnick et al. does not supply a supervised replay formula. The rehearsal mix on this protocol is the next CPU smoke, not a GPU handoff.
 3. Phase 0b's named papers are opened. Kirkpatrick's permutation section was not the source of the task count. Electricity's OpenML license line is still unread.
 4. `apply_compute_cap` sets both `PYTORCH_MPS_HIGH_WATERMARK_RATIO` and `PYTORCH_MPS_LOW_WATERMARK_RATIO` to the configured fraction. That fix is in this merge. The Mac `env_check` on 2026-10-19 passed after it (`results/env/20261019T071452Z.json`).
 5. Notebooks `00` through `03` stay short CPU runs. The next time a notebook is heavy training, stop and switch to the CUDA PC. Do not treat an MPS run as the canonical result.

@@ -34,6 +34,7 @@ def train_across_tasks(
     controller: str = "L0",
     generator: torch.Generator | None = None,
     on_decision: Callable[[str, GateDecision], None] | None = None,
+    on_task_end: Callable[[int, ValmorphMLP], None] | None = None,
 ) -> list[list[float]]:
     """Train tasks in order and propose an edit on a fixed interval.
 
@@ -42,6 +43,7 @@ def train_across_tasks(
     uses ``generator``. Returns one probe-accuracy list per task. Each list
     has length ``steps_per_task * len(tasks)``. A kept edit is applied at the
     current weights. The shadow's extra steps stay off the live network.
+    ``on_task_end`` is called with the task index after that task's pass.
     """
 
     if not tasks or len(tasks) != len(probes):
@@ -130,6 +132,8 @@ def train_across_tasks(
             with torch.no_grad():
                 for slot, (seen_x, seen_y) in enumerate(probes):
                     series[slot].append(batch_accuracy(net(seen_x), seen_y))
+        if on_task_end is not None:
+            on_task_end(task_index, net)
     return series
 
 
